@@ -81,12 +81,13 @@ public class RestaurantController {
             )
     })
     @PostMapping(value="/restaurants/search",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<RestaurantDto>> searchRestaurants(
-            @Valid @RequestBody SearchRestaurantDto searchRestaurantDto
+    public ResponseEntity<Page<RestaurantDto>> searchRestaurants(
+            @Valid @RequestBody SearchRestaurantDto searchRestaurantDto,
+            Pageable pageable
     ) {
         log.info("Searching restaurants with filters: {}", searchRestaurantDto);
         return ResponseEntity.status(HttpStatus.OK).body(
-                iRestaurantService.searchRestaurants(searchRestaurantDto)
+                iRestaurantService.searchRestaurants(searchRestaurantDto,pageable)
         );
     }
 
@@ -117,7 +118,6 @@ public class RestaurantController {
                 pageable.getPageSize());
         return ResponseEntity.status(HttpStatus.OK).body(
                 iRestaurantService.restaurantList(pageable)
-                        .map(RestaurantMapper::toDto)
         );
     }
 
@@ -171,8 +171,8 @@ public class RestaurantController {
     )
     @ApiResponses({
             @ApiResponse(
-                    responseCode = "200",
-                    description = "HTTP Status OK"
+                    responseCode = "204",
+                    description = "HTTP No Content"
             ),
             @ApiResponse(
                     responseCode = "417",
@@ -191,8 +191,6 @@ public class RestaurantController {
     public ResponseEntity<ResponseDto> deleteRestaurantDetails(@PathVariable long id) {
         log.info("Deleting restaurant with id={}", id);
         iRestaurantService.deleteRestaurant(id);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(new ResponseDto(RestaurantConstants.STATUS_204,""));
+        return ResponseEntity.noContent().build();
     }
 }

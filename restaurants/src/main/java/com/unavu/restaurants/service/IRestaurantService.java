@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface IRestaurantService {
 
-    Page<Restaurant> restaurantList(Pageable pageable);
+    Page<RestaurantDto> restaurantList(Pageable pageable);
 
     void createRestaurant(CreateRestaurantDto createRestaurantDto);
 
@@ -19,5 +19,5 @@ public interface IRestaurantService {
 
     RestaurantDto getRestaurantById(Long id);
 
-    List<RestaurantDto> searchRestaurants(SearchRestaurantDto searchRestaurantDto);
+    Page<RestaurantDto> searchRestaurants(SearchRestaurantDto searchRestaurantDto,Pageable pageable);
 }

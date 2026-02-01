@@ -29,10 +29,10 @@ public class RestaurantServiceImpl implements IRestaurantService {
     private final RestaurantRepository restaurantRepository;
 
     @Override
-    public Page<Restaurant> restaurantList(Pageable pageable) {
+    public Page<RestaurantDto> restaurantList(Pageable pageable) {
         log.info("Fetching restaurant list with pagination: page={}, size={}",
                 pageable.getPageNumber(), pageable.getPageSize());
-        return restaurantRepository.findAll(pageable);
+        return restaurantRepository.findAll(pageable).map(RestaurantMapper::toDto);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
     }
 
     @Override
-    public List<RestaurantDto> searchRestaurants(SearchRestaurantDto searchRestaurantDto) {
+    public Page<RestaurantDto> searchRestaurants(SearchRestaurantDto searchRestaurantDto,Pageable pageable) {
         log.info("Searching restaurants with filters: name={}, city={}, area={}, state={}, vegOnly={}",
                 searchRestaurantDto.getName(),
                 searchRestaurantDto.getCity(),
@@ -128,9 +128,7 @@ public class RestaurantServiceImpl implements IRestaurantService {
                 .and(RestaurantSpecification.isVegOnly(searchRestaurantDto.getIsVegOnly()))
                 .and(RestaurantSpecification.hasCuisine(searchRestaurantDto.getCuisine()));
 
-        return restaurantRepository.findAll(spec)
-                .stream()
-                .map(RestaurantMapper::toDto)
-                .toList();
+        return restaurantRepository.findAll(spec,pageable)
+                .map(RestaurantMapper::toDto);
     }
 }
