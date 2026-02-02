@@ -21,12 +21,10 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
         </processorPath>
         <module name="reviews" />
+        <module name="socialGraph" />
         <module name="users" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="socialGraph" target="21" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
