@@ -1,4 +1,5 @@
-package com.unavu.users.audit;
+package com.unavu.lists.audit;
+
 import lombok.NonNull;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,6 @@ public class AuditAwareImpl implements AuditorAware<String> {
     @Override
     @NonNull
     public Optional<String> getCurrentAuditor() {
-        return Optional.of("USERS_MS");
+        return Optional.of("REVIEWS_MS");
     }
 }
-

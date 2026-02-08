@@ -1,0 +1,38 @@
+package com.unavu.lists.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(
+        name="lists",
+        indexes={
+                @Index(name="idx_list_owner",columnList="owner_user_id"),
+                @Index(name="idx_listVisibility",columnList = "listVisibility"),
+                @Index(name="idx_listVisibility_owner", columnList="listVisibility, owner_user_id")
+        }
+
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserList extends BaseEntity{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="owner_user_id",nullable = false)
+    private Long ownerUserId;
+
+    @Column(nullable = false, length = 60)
+    private String name;
+
+    @Column(length = 300)
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ListVisibility listVisibility;
+}
