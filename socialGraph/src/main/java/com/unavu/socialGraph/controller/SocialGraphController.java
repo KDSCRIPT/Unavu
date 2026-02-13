@@ -1,8 +1,8 @@
 package com.unavu.socialGraph.controller;
 
-import com.unavu.socialGraph.constants.SocialGraphConstants;
-import com.unavu.socialGraph.dto.ErrorResponseDto;
-import com.unavu.socialGraph.dto.ResponseDto;
+import com.unavu.common.web.dto.ErrorResponseDto;
+import com.unavu.common.core.ResponseConstants;
+import com.unavu.common.web.dto.ResponseDto;
 import com.unavu.socialGraph.dto.SocialGraphDto;
 import com.unavu.socialGraph.service.ISocialGraphService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,7 +60,7 @@ public class SocialGraphController {
         iSocialGraphService.followUser(fromUserId,toUserId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(SocialGraphConstants.STATUS_201, SocialGraphConstants.MESSAGE_201));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Social Graph Follow")));
     }
 
     @Operation(
@@ -111,7 +111,7 @@ public class SocialGraphController {
         iSocialGraphService.muteUser(fromUserId,toUserId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(SocialGraphConstants.STATUS_201, SocialGraphConstants.MESSAGE_201));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Social Graph Mute")));
     }
 
     @Operation(
@@ -162,7 +162,7 @@ public class SocialGraphController {
         iSocialGraphService.blockUser(fromUserId,toUserId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(SocialGraphConstants.STATUS_201, SocialGraphConstants.MESSAGE_201));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Social Graph Block")));
     }
 
     @Operation(

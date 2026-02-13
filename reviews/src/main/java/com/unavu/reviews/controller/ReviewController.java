@@ -1,6 +1,8 @@
 package com.unavu.reviews.controller;
 
-import com.unavu.reviews.constants.ReviewConstants;
+import com.unavu.common.web.dto.ErrorResponseDto;
+import com.unavu.common.core.ResponseConstants;
+import com.unavu.common.web.dto.ResponseDto;
 import com.unavu.reviews.dto.*;
 import com.unavu.reviews.service.IReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,7 +68,7 @@ public class ReviewController {
         iReviewService.createReview(createReviewDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(ReviewConstants.STATUS_201, ReviewConstants.MESSAGE_201));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Review")));
     }
 
     @Operation(
@@ -186,8 +188,7 @@ public class ReviewController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseDto(
-                        ReviewConstants.STATUS_200,
-                        ReviewConstants.MESSAGE_200
+                        ResponseConstants.STATUS_OK,String.format(ResponseConstants.MESSAGE_OK,"Review")
                 ));
     }
 

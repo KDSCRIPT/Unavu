@@ -1,11 +1,11 @@
 package com.unavu.users.service.impl;
 
+import com.unavu.common.web.exception.ResourceAlreadyExistsException;
+import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.users.dto.CreateUserDto;
 import com.unavu.users.dto.UpdateUserDto;
 import com.unavu.users.dto.UserDto;
 import com.unavu.users.entity.User;
-import com.unavu.users.exception.DisplayNameAlreadyExistsException;
-import com.unavu.users.exception.ResourceNotFoundException;
 import com.unavu.users.mapper.UserMapper;
 import com.unavu.users.repository.UserRepository;
 import com.unavu.users.service.IUserService;
@@ -80,8 +80,8 @@ public class UserServiceImpl implements IUserService {
         if (optionalUser.isPresent()) {
             log.warn("User with mentioned displayName already Exists: displayName={}",
                     createUserDto.getDisplayName());
-            throw new DisplayNameAlreadyExistsException(
-                    "User with mentioned displayName already Exists"
+            throw new ResourceAlreadyExistsException(
+                    "User","Display Name",optionalUser
             );
         }
 
@@ -107,8 +107,8 @@ public class UserServiceImpl implements IUserService {
 
             userRepository.findByDisplayName(updateUserDto.getDisplayName())
                     .ifPresent(existing -> {
-                        throw new DisplayNameAlreadyExistsException(
-                                "Display name already exists"
+                        throw new ResourceAlreadyExistsException(
+                                "User","Display Name",updateUserDto
                         );
                     });
         }

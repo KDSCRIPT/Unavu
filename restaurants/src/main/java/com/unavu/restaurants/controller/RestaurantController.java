@@ -1,8 +1,9 @@
 package com.unavu.restaurants.controller;
 
-import com.unavu.restaurants.constants.RestaurantConstants;
+import com.unavu.common.core.ResponseConstants;
+import com.unavu.common.web.dto.ResponseDto;
+import com.unavu.common.web.dto.ErrorResponseDto;
 import com.unavu.restaurants.dto.*;
-import com.unavu.restaurants.mapper.RestaurantMapper;
 import com.unavu.restaurants.service.IRestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,8 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(
         name = "CRUD REST APIs for Restaurants",
@@ -65,7 +64,7 @@ public class RestaurantController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .header(HttpHeaders.LOCATION,"/api/v1/restaurants/{id}")
-                .body(new ResponseDto(RestaurantConstants.STATUS_201,RestaurantConstants.MESSAGE_201));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Restaurant")));
     }
 
     @Operation(
@@ -160,8 +159,7 @@ public class RestaurantController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseDto(
-                        RestaurantConstants.STATUS_200,
-                        RestaurantConstants.MESSAGE_200
+                        ResponseConstants.STATUS_OK,String.format(ResponseConstants.MESSAGE_OK,"Restaurant")
                 ));
     }
 

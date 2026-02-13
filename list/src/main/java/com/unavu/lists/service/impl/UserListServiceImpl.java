@@ -1,10 +1,10 @@
 package com.unavu.lists.service.impl;
 
+import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.lists.dto.*;
 import com.unavu.lists.entity.ListVisibility;
 import com.unavu.lists.entity.UserList;
 import com.unavu.lists.entity.UserListItem;
-import com.unavu.lists.exception.UserListNotFoundException;
 import com.unavu.lists.mapper.UserListMapper;
 import com.unavu.lists.repository.UserListItemRepository;
 import com.unavu.lists.repository.UserListRepository;
@@ -38,7 +38,7 @@ public class UserListServiceImpl implements IUserListService {
         UserList userList=userListRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("UserList with id={} not found for update",id);
-                    return new UserListNotFoundException("id",id.toString());
+                    return new ResourceNotFoundException("UserList","id",id.toString());
                 });
         UserListMapper.updateUserListEntity(updateUserListDto,userList);
         userListRepository.save(userList);
@@ -51,7 +51,7 @@ public class UserListServiceImpl implements IUserListService {
         UserList userList=userListRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("UserList with id={} not found for delete",id);
-                    return new UserListNotFoundException("id",id.toString());
+                    return new ResourceNotFoundException("User List","id",id.toString());
                 });
         userListItemRepository.deleteByListId(id);
         userListRepository.deleteById(id);
@@ -64,7 +64,7 @@ public class UserListServiceImpl implements IUserListService {
         UserList userList = userListRepository.findById(addItemToUserListDto.getListId())
                 .orElseThrow(() -> {
                     log.warn("UserList not found with listId={}",addItemToUserListDto.getListId());
-                    return new UserListNotFoundException("listId",addItemToUserListDto.getListId().toString());
+                    return new ResourceNotFoundException("List Item","listId",addItemToUserListDto.getListId().toString());
                 });
         int position =
                 Optional.ofNullable(
@@ -117,7 +117,7 @@ public class UserListServiceImpl implements IUserListService {
         UserList userList=userListRepository.findByIdAndOwnerUserId(id,ownerUserId)
                 .orElseThrow(() -> {
                     log.warn("UserList not found with ownerId={} and id={}",ownerUserId,id);
-                    return new UserListNotFoundException("ownerId",ownerUserId.toString());
+                    return new ResourceNotFoundException("User List","ownerId",ownerUserId.toString());
                 });
         return UserListMapper.toUserListDto(userList);
     }
@@ -129,7 +129,7 @@ public class UserListServiceImpl implements IUserListService {
         UserList userList=userListRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("UserList not found, id={}", id);
-                    return new UserListNotFoundException("id",id.toString());
+                    return new ResourceNotFoundException("User List","id",id.toString());
                 });
 
         return UserListMapper.toUserListDto(userList);

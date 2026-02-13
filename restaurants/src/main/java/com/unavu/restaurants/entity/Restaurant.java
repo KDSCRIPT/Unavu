@@ -1,5 +1,6 @@
 package com.unavu.restaurants.entity;
 
+import com.unavu.common.core.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

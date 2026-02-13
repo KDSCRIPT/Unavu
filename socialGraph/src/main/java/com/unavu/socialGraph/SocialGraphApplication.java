@@ -2,10 +2,10 @@ package com.unavu.socialGraph;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
+@ComponentScan(basePackages = {"com.unavu.socialGraph", "com.unavu.common"})
 public class SocialGraphApplication {
 
 	public static void main(String[] args) {

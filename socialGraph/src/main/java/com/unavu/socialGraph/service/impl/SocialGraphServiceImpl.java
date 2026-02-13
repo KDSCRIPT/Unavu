@@ -1,11 +1,11 @@
 package com.unavu.socialGraph.service.impl;
 
+import com.unavu.common.web.exception.ResourceActionNotAllowedException;
+import com.unavu.common.web.exception.ResourceAlreadyExistsException;
+import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.socialGraph.dto.SocialGraphDto;
 import com.unavu.socialGraph.entity.RelationshipType;
 import com.unavu.socialGraph.entity.SocialGraph;
-import com.unavu.socialGraph.exception.ActionNotAllowedException;
-import com.unavu.socialGraph.exception.RelationshipAlreadyExistsException;
-import com.unavu.socialGraph.exception.RelationshipNotFoundException;
 import com.unavu.socialGraph.mapper.SocialGraphMapper;
 import com.unavu.socialGraph.repository.SocialGraphRepository;
 import com.unavu.socialGraph.service.ISocialGraphService;
@@ -53,15 +53,15 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Transactional
     public void followUser(Long fromUserId, Long toUserId) {
         if (fromUserId.equals(toUserId)) {
-            throw new ActionNotAllowedException("User cannot perform this action on themselves");
+            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
         if (isBlocked(fromUserId, toUserId)) {
-            throw new ActionNotAllowedException(
+            throw new ResourceActionNotAllowedException(
                     "User " + fromUserId + " cannot follow user " + toUserId + " due to block"
             );
         }
         if (isFollowing(fromUserId, toUserId)) {
-            throw new RelationshipAlreadyExistsException(fromUserId, toUserId, RelationshipType.FOLLOW);
+            throw new ResourceAlreadyExistsException("Follow","fromUserId and toUserId", RelationshipType.FOLLOW);
         }
         SocialGraph socialGraph= SocialGraphMapper.toEntity(fromUserId,toUserId,RelationshipType.FOLLOW);
         socialGraphRepository.save(socialGraph);
@@ -71,10 +71,10 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Transactional
     public void unFollowUser(Long fromUserId, Long toUserId) {
         if (fromUserId.equals(toUserId)) {
-            throw new ActionNotAllowedException("User cannot perform this action on themselves");
+            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
         if (!isFollowing(fromUserId, toUserId)) {
-            throw new RelationshipNotFoundException(fromUserId, toUserId, RelationshipType.FOLLOW);
+            throw new ResourceNotFoundException("Follow","fromUserId and toUserId", RelationshipType.FOLLOW);
         }
         socialGraphRepository.deleteByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId,RelationshipType.FOLLOW);
     }
@@ -83,13 +83,13 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Transactional
     public void muteUser(Long fromUserId, Long toUserId) {
         if (fromUserId.equals(toUserId)) {
-            throw new ActionNotAllowedException("User cannot perform this action on themselves");
+            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
         if (isBlocked(fromUserId, toUserId)) {
-            throw new ActionNotAllowedException("Blocked users cannot be muted");
+            throw new ResourceActionNotAllowedException("Blocked users cannot be muted");
         }
         else if (isMuted(fromUserId, toUserId)) {
-            throw new RelationshipAlreadyExistsException(fromUserId, toUserId, RelationshipType.MUTE);
+            throw new ResourceAlreadyExistsException("Mute","fromUserId and toUserId",RelationshipType.MUTE);
         }
         else if(isFollowing(fromUserId,toUserId))
         {
@@ -102,10 +102,10 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Transactional
     public void unMuteUser(Long fromUserId, Long toUserId) {
         if (fromUserId.equals(toUserId)) {
-            throw new ActionNotAllowedException("User cannot perform this action on themselves");
+            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
         if (!isMuted(fromUserId, toUserId)) {
-            throw new RelationshipNotFoundException(fromUserId, toUserId, RelationshipType.MUTE);
+            throw new ResourceNotFoundException("Mute","fromUserId and toUserId",RelationshipType.MUTE);
         }
         socialGraphRepository.deleteByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId,RelationshipType.MUTE);
     }
@@ -115,10 +115,10 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Transactional
     public void blockUser(Long fromUserId, Long toUserId) {
         if (fromUserId.equals(toUserId)) {
-            throw new ActionNotAllowedException("User cannot perform this action on themselves");
+            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
         if (isBlocked(fromUserId, toUserId) || isBlocked(toUserId, fromUserId)) {
-            throw new RelationshipAlreadyExistsException(fromUserId, toUserId, RelationshipType.BLOCK);
+            throw new ResourceAlreadyExistsException("Block","fromUserId and toUserId",RelationshipType.BLOCK);
         }
         else if(isMuted(fromUserId,toUserId))
         {
@@ -136,10 +136,10 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Transactional
     public void unBlockUser(Long fromUserId, Long toUserId) {
         if (fromUserId.equals(toUserId)) {
-            throw new ActionNotAllowedException("User cannot perform this action on themselves");
+            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
         if (!isBlocked(fromUserId, toUserId)) {
-            throw new RelationshipNotFoundException(fromUserId, toUserId, RelationshipType.BLOCK);
+            throw new ResourceNotFoundException("Block","fromUserId and toUserId",RelationshipType.BLOCK);
         }
         socialGraphRepository.deleteByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId,RelationshipType.BLOCK);
     }

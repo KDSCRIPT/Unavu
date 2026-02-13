@@ -1,9 +1,11 @@
 package com.unavu.lists.controller;
 
-
-import com.unavu.lists.constants.UserListConstants;
+import com.unavu.common.web.dto.ErrorResponseDto;
+import com.unavu.common.core.ResponseConstants;
+import com.unavu.common.web.dto.ResponseDto;
 import com.unavu.lists.dto.*;
 import com.unavu.lists.entity.ListVisibility;
+import com.unavu.lists.entity.UserListItem;
 import com.unavu.lists.service.IUserListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,6 +23,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @Tag(
         name = "CRUD REST APIs for User List",
@@ -59,7 +63,7 @@ public class UserListController {
         iUserListService.createUserList(createUserListDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(UserListConstants.STATUS_201,UserListConstants.MESSAGE_201));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED, String.format(ResponseConstants.MESSAGE_CREATED,"UserList")));
     }
 
     @Operation(
@@ -93,8 +97,7 @@ public class UserListController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseDto(
-                        UserListConstants.STATUS_200,
-                        UserListConstants.MESSAGE_200
+                        ResponseConstants.STATUS_OK,String.format(ResponseConstants.MESSAGE_OK,"UserList")
                 ));
     }
 
@@ -150,7 +153,7 @@ public class UserListController {
         iUserListService.addItemToList(addItemToUserListDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(UserListConstants.STATUS_201,UserListConstants.MESSAGE_201));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"UserListItem")));
     }
 
     @Operation(

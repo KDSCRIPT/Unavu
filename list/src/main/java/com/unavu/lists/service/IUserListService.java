@@ -2,10 +2,9 @@ package com.unavu.lists.service;
 
 import com.unavu.lists.dto.*;
 import com.unavu.lists.entity.ListVisibility;
+import com.unavu.lists.entity.UserListItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.Optional;
 
 public interface IUserListService {
     void createUserList(CreateUserListDto createUserListDto);

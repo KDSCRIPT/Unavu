@@ -1,5 +1,6 @@
 package com.unavu.lists.entity;
 
+import com.unavu.common.core.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserList extends BaseEntity{
+public class UserList extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

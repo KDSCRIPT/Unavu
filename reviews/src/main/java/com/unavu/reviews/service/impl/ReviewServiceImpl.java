@@ -1,12 +1,12 @@
 package com.unavu.reviews.service.impl;
 
+import com.unavu.common.web.exception.ResourceAlreadyExistsException;
+import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.reviews.dto.CreateReviewDto;
 import com.unavu.reviews.dto.ReviewDto;
 import com.unavu.reviews.dto.SearchReviewDto;
 import com.unavu.reviews.dto.UpdateReviewDto;
 import com.unavu.reviews.entity.Review;
-import com.unavu.reviews.exception.ResourceNotFoundException;
-import com.unavu.reviews.exception.UserAlreadyPostedReviewForRestaurant;
 import com.unavu.reviews.mapper.ReviewMapper;
 import com.unavu.reviews.repository.ReviewRepository;
 import com.unavu.reviews.service.IReviewService;
@@ -92,8 +92,8 @@ public class ReviewServiceImpl implements IReviewService {
         if (optionalReview.isPresent()) {
             log.warn("User has posted review already for restaurant: userId={}, restaurantId={}",
                     createReviewDto.getUserId(),createReviewDto.getRestaurantId());
-            throw new UserAlreadyPostedReviewForRestaurant(
-                    "User has posted review already for restaurant"
+            throw new ResourceAlreadyExistsException(
+                    "Review","restaurant",optionalReview
             );
         }
 

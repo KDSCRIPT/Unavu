@@ -1,6 +1,8 @@
 package com.unavu.users.controller;
 
-import com.unavu.users.constants.UserConstants;
+import com.unavu.common.web.dto.ErrorResponseDto;
+import com.unavu.common.core.ResponseConstants;
+import com.unavu.common.web.dto.ResponseDto;
 import com.unavu.users.dto.*;
 import com.unavu.users.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,7 +64,7 @@ public class UserController {
         iUserService.createUser(keyCloakId,createUserDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(UserConstants.STATUS_201, UserConstants.MESSAGE_201));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"User")));
     }
 
     @Operation(
@@ -172,8 +174,7 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseDto(
-                        UserConstants.STATUS_200,
-                        UserConstants.MESSAGE_200
+                        ResponseConstants.STATUS_OK,String.format(ResponseConstants.MESSAGE_OK,"User")
                 ));
     }
 

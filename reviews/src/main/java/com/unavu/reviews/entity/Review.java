@@ -1,6 +1,6 @@
 package com.unavu.reviews.entity;
 
-import com.unavu.reviews.entity.BaseEntity;
+import com.unavu.common.core.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

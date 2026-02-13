@@ -1,12 +1,12 @@
 package com.unavu.restaurants.service.impl;
 
+import com.unavu.common.web.exception.ResourceAlreadyExistsException;
+import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.restaurants.dto.CreateRestaurantDto;
 import com.unavu.restaurants.dto.RestaurantDto;
 import com.unavu.restaurants.dto.SearchRestaurantDto;
 import com.unavu.restaurants.dto.UpdateRestaurantDto;
 import com.unavu.restaurants.entity.Restaurant;
-import com.unavu.restaurants.exception.ResourceNotFoundException;
-import com.unavu.restaurants.exception.RestaurantAlreadyExistsException;
 import com.unavu.restaurants.mapper.RestaurantMapper;
 import com.unavu.restaurants.repository.RestaurantRepository;
 import com.unavu.restaurants.service.IRestaurantService;
@@ -55,8 +55,8 @@ public class RestaurantServiceImpl implements IRestaurantService {
                     createRestaurantDto.getName(),
                     createRestaurantDto.getArea(),
                     createRestaurantDto.getCity());
-            throw new RestaurantAlreadyExistsException(
-                    "Restaurant already present with given name, area and city"
+            throw new ResourceAlreadyExistsException(
+                    "Restaurant","name, area and city",optionalRestaurant
             );
         }
 

@@ -1,5 +1,6 @@
 package com.unavu.socialGraph.entity;
 
+import com.unavu.common.core.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +20,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class SocialGraph extends BaseEntity{
+public class SocialGraph extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

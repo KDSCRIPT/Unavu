@@ -1,5 +1,6 @@
 package com.unavu.lists.entity;
 
+import com.unavu.common.core.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
