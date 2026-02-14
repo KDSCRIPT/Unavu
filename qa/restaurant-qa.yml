@@ -1,0 +1,7 @@
+spring:
+  config:
+    import: "classpath:common-qa-config.yml"
+  datasource:
+    url: jdbc:h2:mem:restaurants_qa_db
+server:
+  port: 8080

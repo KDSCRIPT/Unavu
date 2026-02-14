@@ -1,0 +1,7 @@
+spring:
+  config:
+    import: "classpath:common-prod-config.yml"
+  datasource:
+    url: jdbc:h2:mem:users_prod_db
+server:
+  port: 8082

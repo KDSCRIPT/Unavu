@@ -1,0 +1,7 @@
+spring:
+  config:
+    import: "classpath:common-dev-config.yml"
+  datasource:
+    url: jdbc:h2:mem:reviews_dev_db
+server:
+  port: 8081
