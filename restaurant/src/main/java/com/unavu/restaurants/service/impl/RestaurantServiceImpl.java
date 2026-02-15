@@ -29,6 +29,11 @@ public class RestaurantServiceImpl implements IRestaurantService {
     private final RestaurantRepository restaurantRepository;
 
     @Override
+    public Boolean doesRestaurantExistWithId(Long restaurantId) {
+        return restaurantRepository.existsById(restaurantId);
+    }
+
+    @Override
     public Page<RestaurantDto> restaurantList(Pageable pageable) {
         log.info("Fetching restaurant list with pagination: page={}, size={}",
                 pageable.getPageNumber(), pageable.getPageSize());

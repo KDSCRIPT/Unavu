@@ -191,4 +191,10 @@ public class RestaurantController {
         iRestaurantService.deleteRestaurant(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/internal/restaurants/{restaurantId}/exists")
+    public ResponseEntity<Boolean> userExists(@PathVariable Long restaurantId) {
+        log.info("Checking if Restaurant with id={} exists", restaurantId);
+        return ResponseEntity.ok(iRestaurantService.doesRestaurantExistWithId(restaurantId));
+    }
 }

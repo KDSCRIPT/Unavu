@@ -9,6 +9,8 @@ import com.unavu.lists.mapper.UserListMapper;
 import com.unavu.lists.repository.UserListItemRepository;
 import com.unavu.lists.repository.UserListRepository;
 import com.unavu.lists.service.IUserListService;
+import com.unavu.lists.service.client.RestaurantFeignClient;
+import com.unavu.lists.service.client.UserFeignClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,9 +26,14 @@ public class UserListServiceImpl implements IUserListService {
 
     private final UserListRepository userListRepository;
     private final UserListItemRepository userListItemRepository;
+    private UserFeignClient userFeignClient;
+    private RestaurantFeignClient restaurantFeignClient;
     @Override
     @Transactional
     public void createUserList(CreateUserListDto createUserListDto) {
+        if (!userFeignClient.doesUserExist(createUserListDto.getOwnerUserId())) {
+            throw new ResourceNotFoundException("User","id",createUserListDto.getOwnerUserId());
+        }
         UserList userList= UserListMapper.toUserListEntity(createUserListDto);
         userListRepository.save(userList);
     }
@@ -61,6 +68,9 @@ public class UserListServiceImpl implements IUserListService {
     @Transactional
     public void addItemToList(AddItemToUserListDto addItemToUserListDto) {
         log.info("Adding UserListItem to list with listId={}",addItemToUserListDto.getListId());
+        if (!restaurantFeignClient.doesRestaurantExist(addItemToUserListDto.getRestaurantId())) {
+            throw new ResourceNotFoundException("Restaurant","id", addItemToUserListDto.getRestaurantId());
+        }
         UserList userList = userListRepository.findById(addItemToUserListDto.getListId())
                 .orElseThrow(() -> {
                     log.warn("UserList not found with listId={}",addItemToUserListDto.getListId());
@@ -99,6 +109,9 @@ public class UserListServiceImpl implements IUserListService {
     @Override
     public Page<UserListDto> getListsByOwner(Long ownerUserId, Pageable pageable) {
         log.info("Getting UserList with ownerId={}",ownerUserId);
+        if (!userFeignClient.doesUserExist(ownerUserId)) {
+            throw new ResourceNotFoundException("User","id", ownerUserId);
+        }
         Page<UserList>result=userListRepository.findByOwnerUserId(ownerUserId,pageable);
         return result.map(UserListMapper::toUserListDto);
     }
@@ -106,6 +119,9 @@ public class UserListServiceImpl implements IUserListService {
     @Override
     public Page<UserListDto> getListsByOwnerAndVisibility(Long ownerUserId, ListVisibility listVisibility, Pageable pageable) {
         log.info("Getting UserList with ownerId={} and visibility={}",ownerUserId,listVisibility);
+        if (!userFeignClient.doesUserExist(ownerUserId)) {
+            throw new ResourceNotFoundException("User","id", ownerUserId);
+        }
         Page<UserList>result=userListRepository.findByOwnerUserIdAndListVisibility(ownerUserId, listVisibility, pageable);
         return result.map(UserListMapper::toUserListDto);
 
@@ -114,6 +130,9 @@ public class UserListServiceImpl implements IUserListService {
     @Override
     public UserListDto getOwnedList(Long id, Long ownerUserId) {
         log.info("Getting UserList with ownerId={} and id={}",ownerUserId,id);
+        if (!userFeignClient.doesUserExist(ownerUserId)) {
+            throw new ResourceNotFoundException("User","id", ownerUserId);
+        }
         UserList userList=userListRepository.findByIdAndOwnerUserId(id,ownerUserId)
                 .orElseThrow(() -> {
                     log.warn("UserList not found with ownerId={} and id={}",ownerUserId,id);

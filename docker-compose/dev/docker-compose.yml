@@ -17,7 +17,7 @@ services:
 
   config-server:
     image: "containedtogether/config-server"
-    container_name: configserver
+    container_name: config-server
     ports:
       - "8071:8071"
     depends_on:
@@ -41,75 +41,77 @@ services:
       file: common-config.yml
       service: microservice-base-config
 
+  eureka-server:
+    image: "containedtogether/eureka-server"
+    container_name: eureka-server
+    ports:
+      - "8070:8070"
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-config-server-config
+    environment:
+      SPRING_APPLICATION_NAME: "eureka-server"
+
   restaurant:
     image: "containedtogether/restaurant"
     container_name: restaurants-ms
     ports:
       - "8080:8080"
-    depends_on:
-      config-server:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "restaurant"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
   review:
     image: "containedtogether/review"
     container_name: reviews-ms
     ports:
       - "8081:8081"
-    depends_on:
-      config-server:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "review"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
   user:
     image: "containedtogether/user"
     container_name: users-ms
     ports:
       - "8082:8082"
-    depends_on:
-      config-server:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "user"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
   social-graph:
     image: "containedtogether/social-graph"
     container_name: social-graph-ms
     ports:
       - "8083:8083"
-    depends_on:
-      config-server:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "social-graph"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
   list:
     image: "containedtogether/list"
     container_name: list-ms
     ports:
       - "8084:8084"
-    depends_on:
-      config-server:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "list"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
 networks:
   unavu:

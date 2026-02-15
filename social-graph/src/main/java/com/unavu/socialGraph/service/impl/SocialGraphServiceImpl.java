@@ -9,6 +9,7 @@ import com.unavu.socialGraph.entity.SocialGraph;
 import com.unavu.socialGraph.mapper.SocialGraphMapper;
 import com.unavu.socialGraph.repository.SocialGraphRepository;
 import com.unavu.socialGraph.service.ISocialGraphService;
+import com.unavu.socialGraph.service.client.UserFeignClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,19 +23,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class SocialGraphServiceImpl implements ISocialGraphService {
 
     private final SocialGraphRepository socialGraphRepository;
+    private UserFeignClient userFeignClient;
     @Override
     public Page<SocialGraphDto> listFollowers(Long userId, Pageable pageable) {
-        return socialGraphRepository.findByToUserIdAndRelationshipType(userId,RelationshipType.FOLLOW,pageable).map(SocialGraphMapper::toDto);
+        return socialGraphRepository.findByToUserIdAndRelationshipType(userId, RelationshipType.FOLLOW, pageable).map(SocialGraphMapper::toDto);
     }
 
     @Override
     public Page<SocialGraphDto> listFollowing(Long userId, Pageable pageable) {
-        return socialGraphRepository.findByFromUserIdAndRelationshipType(userId,RelationshipType.FOLLOW,pageable).map(SocialGraphMapper::toDto);
+        return socialGraphRepository.findByFromUserIdAndRelationshipType(userId, RelationshipType.FOLLOW, pageable).map(SocialGraphMapper::toDto);
     }
 
     @Override
     public Page<SocialGraphDto> listBlockedUsers(Long userId, Pageable pageable) {
-        return socialGraphRepository.findByFromUserIdAndRelationshipType(userId,RelationshipType.BLOCK,pageable).map(SocialGraphMapper::toDto);
+        return socialGraphRepository.findByFromUserIdAndRelationshipType(userId, RelationshipType.BLOCK, pageable).map(SocialGraphMapper::toDto);
     }
 
     @Override
@@ -52,6 +54,12 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Override
     @Transactional
     public void followUser(Long fromUserId, Long toUserId) {
+        if (!userFeignClient.doesUserExist(fromUserId)) {
+            throw new ResourceNotFoundException("fromUser","id", fromUserId);
+        }
+        if (!userFeignClient.doesUserExist(toUserId)) {
+            throw new ResourceNotFoundException("toUser","id", toUserId);
+        }
         if (fromUserId.equals(toUserId)) {
             throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
@@ -70,6 +78,12 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Override
     @Transactional
     public void unFollowUser(Long fromUserId, Long toUserId) {
+        if (!userFeignClient.doesUserExist(fromUserId)) {
+            throw new ResourceNotFoundException("fromUser","id", fromUserId);
+        }
+        if (!userFeignClient.doesUserExist(toUserId)) {
+            throw new ResourceNotFoundException("toUser","id", toUserId);
+        }
         if (fromUserId.equals(toUserId)) {
             throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
@@ -82,6 +96,12 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Override
     @Transactional
     public void muteUser(Long fromUserId, Long toUserId) {
+        if (!userFeignClient.doesUserExist(fromUserId)) {
+            throw new ResourceNotFoundException("fromUser","id", fromUserId);
+        }
+        if (!userFeignClient.doesUserExist(toUserId)) {
+            throw new ResourceNotFoundException("toUser","id", toUserId);
+        }
         if (fromUserId.equals(toUserId)) {
             throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
@@ -101,6 +121,12 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Override
     @Transactional
     public void unMuteUser(Long fromUserId, Long toUserId) {
+        if (!userFeignClient.doesUserExist(fromUserId)) {
+            throw new ResourceNotFoundException("fromUser","id", fromUserId);
+        }
+        if (!userFeignClient.doesUserExist(toUserId)) {
+            throw new ResourceNotFoundException("toUser","id", toUserId);
+        }
         if (fromUserId.equals(toUserId)) {
             throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
@@ -114,6 +140,12 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Override
     @Transactional
     public void blockUser(Long fromUserId, Long toUserId) {
+        if (!userFeignClient.doesUserExist(fromUserId)) {
+            throw new ResourceNotFoundException("fromUser","id", fromUserId);
+        }
+        if (!userFeignClient.doesUserExist(toUserId)) {
+            throw new ResourceNotFoundException("toUser","id", toUserId);
+        }
         if (fromUserId.equals(toUserId)) {
             throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }
@@ -135,6 +167,12 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     @Override
     @Transactional
     public void unBlockUser(Long fromUserId, Long toUserId) {
+        if (!userFeignClient.doesUserExist(fromUserId)) {
+            throw new ResourceNotFoundException("fromUser","id", fromUserId);
+        }
+        if (!userFeignClient.doesUserExist(toUserId)) {
+            throw new ResourceNotFoundException("toUser","id", toUserId);
+        }
         if (fromUserId.equals(toUserId)) {
             throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
         }

@@ -10,6 +10,8 @@ import com.unavu.reviews.entity.Review;
 import com.unavu.reviews.mapper.ReviewMapper;
 import com.unavu.reviews.repository.ReviewRepository;
 import com.unavu.reviews.service.IReviewService;
+import com.unavu.reviews.service.client.RestaurantFeignClient;
+import com.unavu.reviews.service.client.UserFeignClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,8 @@ import java.util.Optional;
 public class ReviewServiceImpl implements IReviewService {
 
     private final ReviewRepository reviewRepository;
+    private UserFeignClient userFeignClient;
+    private RestaurantFeignClient restaurantFeignClient;
     @Override
     public Page<ReviewDto> listReviews(Pageable pageable) {
         log.info("Fetching review list with pagination: page={}, size={}",
@@ -86,6 +90,14 @@ public class ReviewServiceImpl implements IReviewService {
                 createReviewDto.getTitle(),
                 createReviewDto.getComment(),
                 createReviewDto.getIsRecommended());
+
+        if (!userFeignClient.doesUserExist(createReviewDto.getUserId())) {
+            throw new ResourceNotFoundException("User","id", createReviewDto.getUserId());
+        }
+        if (!restaurantFeignClient.doesRestaurantExist(createReviewDto.getRestaurantId())) {
+            throw new ResourceNotFoundException("Restaurant","id", createReviewDto.getRestaurantId());
+        }
+
         Optional<Review> optionalReview =
                 reviewRepository.findByUserIdAndRestaurantId(createReviewDto.getUserId(), createReviewDto.getRestaurantId());
 

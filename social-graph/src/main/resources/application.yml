@@ -4,4 +4,13 @@ spring:
   profiles:
     active: dev
   config:
-    import: optional:configserver:http://localhost:8071/
+    import: optional:config-server:http://localhost:8071/
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka

@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface IRestaurantService {
 
+    Boolean doesRestaurantExistWithId(Long restaurantId);
+
     Page<RestaurantDto> restaurantList(Pageable pageable);
 
     void createRestaurant(CreateRestaurantDto createRestaurantDto);

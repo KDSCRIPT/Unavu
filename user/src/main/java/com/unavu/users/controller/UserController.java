@@ -203,4 +203,10 @@ public class UserController {
         iUserService.deleteUser(keyCloakId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/internal/users/{userId}/exists")
+    public ResponseEntity<Boolean> userExists(@PathVariable Long userId) {
+        log.info("Checking if User with id={} exists", userId);
+        return ResponseEntity.ok(iUserService.doesUserExistWithId(userId));
+    }
 }

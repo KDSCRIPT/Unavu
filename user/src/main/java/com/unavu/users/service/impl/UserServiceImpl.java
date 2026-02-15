@@ -44,6 +44,11 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public Boolean doesUserExistWithId(Long userId) {
+        return userRepository.existsById(userId);
+    }
+
+    @Override
     public UserDto getUserByKeyCloakId(String keyCloakId) {
         log.info("Fetching user by keyCloakId={}", keyCloakId);
 

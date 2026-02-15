@@ -23,6 +23,7 @@
         <module>review</module>
         <module>social-graph</module>
         <module>config-server</module>
+        <module>eureka-server</module>
     </modules>
 
     <properties>

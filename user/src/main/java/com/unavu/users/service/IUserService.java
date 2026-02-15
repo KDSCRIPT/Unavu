@@ -14,6 +14,7 @@ public interface IUserService {
 
     Page<UserDto> searchUsers(String searchTerm, Pageable pageable);
 
+    Boolean doesUserExistWithId(Long userId);
     UserDto getUserByKeyCloakId(String keyCloakId);
 
     UserDto getUserByDisplayName(String displayName);
