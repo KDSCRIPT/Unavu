@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: "classpath:common-prod-config.yml"
   datasource:
     url: jdbc:h2:mem:social_graph_prod_db
 server:
