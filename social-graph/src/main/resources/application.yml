@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: social-graph
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://localhost:8071/
