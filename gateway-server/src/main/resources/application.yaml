@@ -1,0 +1,35 @@
+server:
+  port: 8072
+spring:
+  application:
+    name: "gateway-server"
+  profiles:
+    active: dev
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lowerCaseServiceId: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      enabled: true
+  info:
+    env:
+      enabled: true
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+    register-with-eureka: false
+    fetch-registry: true # Gateway fetches the registry to discover services

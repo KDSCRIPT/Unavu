@@ -32,7 +32,7 @@ services:
       RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     healthcheck:
-      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      test: "curl --fail --silent localhost:8071/actuator/health | grep UP || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
@@ -47,7 +47,7 @@ services:
     ports:
       - "8070:8070"
     healthcheck:
-      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      test: "curl --fail --silent localhost:8070/actuator/health | grep UP || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
@@ -58,11 +58,39 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "eureka-server"
 
+  gateway-server:
+    image: "containedtogether/gateway-server"
+    container_name: gateway-server
+    ports:
+      - "8072:8072"
+    depends_on:
+      restaurant:
+        condition: service_healthy
+      review:
+        condition: service_healthy
+      list:
+        condition: service_healthy
+      social-graph:
+        condition: service_healthy
+      user:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "gateway-server"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
   restaurant:
     image: "containedtogether/restaurant"
     container_name: restaurants-ms
     ports:
       - "8080:8080"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "restaurant"
     extends:
@@ -74,6 +102,12 @@ services:
     container_name: reviews-ms
     ports:
       - "8081:8081"
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "review"
     extends:
@@ -85,6 +119,12 @@ services:
     container_name: users-ms
     ports:
       - "8082:8082"
+    healthcheck:
+      test: "curl --fail --silent localhost:8082/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "user"
     extends:
@@ -96,6 +136,12 @@ services:
     container_name: social-graph-ms
     ports:
       - "8083:8083"
+    healthcheck:
+      test: "curl --fail --silent localhost:8083/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "social-graph"
     extends:
@@ -107,6 +153,12 @@ services:
     container_name: list-ms
     ports:
       - "8084:8084"
+    healthcheck:
+      test: "curl --fail --silent localhost:8084/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "list"
     extends:
