@@ -5,6 +5,10 @@ spring:
     active: dev
   config:
     import: optional:configserver:http://localhost:8071/
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 
 eureka:
   instance:
@@ -14,3 +18,32 @@ eureka:
     registerWithEureka: true
     serviceUrl:
       defaultZone: http://localhost:8070/eureka
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+
+    instances:
+      userService:
+        baseConfig: default
+      restaurantService:
+        baseConfig: default
+
+  retry:
+    instances:
+      userService:
+        maxAttempts: 3
+        waitDuration: 500ms
+      restaurantService:
+        maxAttempts: 3
+        waitDuration: 500ms
+
+  timelimiter:
+    instances:
+      userService:
+        timeoutDuration: 3s
+

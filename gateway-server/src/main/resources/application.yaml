@@ -33,3 +33,43 @@ eureka:
       defaultZone: http://localhost:8070/eureka/
     register-with-eureka: false
     fetch-registry: true # Gateway fetches the registry to discover services
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 2
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+    instances:
+      userCircuitBreaker:
+        baseConfig: default
+      restaurantCircuitBreaker:
+        baseConfig: default
+      reviewCircuitBreaker:
+        baseConfig: default
+      socialGraphCircuitBreaker:
+        baseConfig: default
+      listCircuitBreaker:
+        baseConfig: default
+
+  timelimiter:
+    instances:
+      userCircuitBreaker:
+        timeoutDuration: 5s
+      restaurantCircuitBreaker:
+        timeoutDuration: 5s
+      reviewCircuitBreaker:
+        timeoutDuration: 5s
+      socialGraphCircuitBreaker:
+        timeoutDuration: 5s
+      listCircuitBreaker:
+        timeoutDuration: 5s
+
+  ratelimiter:
+    configs:
+      default:
+        timeoutDuration: 1000
+        limitRefreshPeriod: 5000
+        limitForPeriod: 1
