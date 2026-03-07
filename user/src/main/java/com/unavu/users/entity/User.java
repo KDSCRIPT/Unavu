@@ -17,7 +17,10 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "keycloak_id", nullable = false, unique = true, length = 36)
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false, unique = true, length = 36)
     private String keycloakId;
 
     @Column(length=50,unique = true,nullable = false)

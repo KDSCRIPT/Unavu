@@ -3,7 +3,6 @@ import lombok.Data;
 
 @Data
 public class UserDto {
-
     private String displayName;
     private String description;
 }

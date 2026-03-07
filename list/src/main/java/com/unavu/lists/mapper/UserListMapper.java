@@ -9,9 +9,9 @@ public class UserListMapper {
     public static UserList toUserListEntity(CreateUserListDto createUserListDto)
     {
         UserList userList =new UserList();
-        userList.setOwnerUserId(createUserListDto.getOwnerUserId());
         userList.setName(createUserListDto.getName());
         userList.setDescription(createUserListDto.getDescription());
+        userList.setOwnerId(createUserListDto.getOwnerId());
         userList.setListVisibility(createUserListDto.getListVisibility());
 
         return userList;
@@ -29,7 +29,7 @@ public class UserListMapper {
     {
         UserListDto userListDto=new UserListDto();
         userListDto.setId(userList.getId());
-        userListDto.setOwnerUserId(userList.getOwnerUserId());
+        userListDto.setOwnerId(userList.getOwnerId());
         userListDto.setName(userList.getName());
         userListDto.setDescription(userList.getDescription());
         userListDto.setListVisibility(userList.getListVisibility());
@@ -49,6 +49,7 @@ public class UserListMapper {
     public static UserListItemDto toUserListItemDto(UserListItem userListItem)
     {
         UserListItemDto userListItemDto =new UserListItemDto();
+        userListItemDto.setId(userListItem.getId());
         userListItemDto.setListId(userListItem.getListId());
         userListItemDto.setRestaurantId(userListItem.getRestaurantId());
         userListItemDto.setPosition(userListItem.getPosition());

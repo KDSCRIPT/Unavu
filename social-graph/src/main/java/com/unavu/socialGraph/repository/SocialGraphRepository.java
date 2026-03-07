@@ -11,18 +11,18 @@ import java.util.Optional;
 
 public interface SocialGraphRepository extends JpaRepository<SocialGraph, Long>,
         JpaSpecificationExecutor<SocialGraph> {
-    Page<SocialGraph> findByFromUserId(Long fromUserId, Pageable pageable);
+    Page<SocialGraph> findByFromUserId(String fromUserId, Pageable pageable);
 
-    Page<SocialGraph> findByToUserId(Long toUserId, Pageable pageable);
+    Page<SocialGraph> findByToUserId(String toUserId, Pageable pageable);
 
-    boolean existsByFromUserIdAndToUserIdAndRelationshipType(Long fromUserId, Long toUserId, RelationshipType relationshipType);
+    boolean existsByFromUserIdAndToUserIdAndRelationshipType(String fromUserId, String toUserId, RelationshipType relationshipType);
 
-    void deleteByFromUserIdAndToUserIdAndRelationshipType(Long fromUserId, Long toUserId, RelationshipType relationshipType);
+    void deleteByFromUserIdAndToUserIdAndRelationshipType(String fromUserId, String toUserId, RelationshipType relationshipType);
 
-    Optional<SocialGraph> findByFromUserIdAndToUserIdAndRelationshipType(Long fromUserId, Long toUserId, RelationshipType relationshipType);
+    Optional<SocialGraph> findByFromUserIdAndToUserIdAndRelationshipType(String fromUserId, String toUserId, RelationshipType relationshipType);
 
-    Page<SocialGraph> findByFromUserIdAndRelationshipType(Long fromUserId, RelationshipType relationshipType, Pageable pageable);
+    Page<SocialGraph> findByFromUserIdAndRelationshipType(String fromUserId, RelationshipType relationshipType, Pageable pageable);
 
-    Page<SocialGraph> findByToUserIdAndRelationshipType(Long toUserId, RelationshipType relationshipType, Pageable pageable);
+    Page<SocialGraph> findByToUserIdAndRelationshipType(String toUserId, RelationshipType relationshipType, Pageable pageable);
 
 }

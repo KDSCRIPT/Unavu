@@ -7,23 +7,41 @@ import com.unavu.users.dto.UpdateUserDto;
 import com.unavu.users.dto.UserDto;
 import com.unavu.users.entity.User;
 import com.unavu.users.mapper.UserMapper;
+import com.unavu.users.provider.CurrentUserProvider;
 import com.unavu.users.repository.UserRepository;
 import com.unavu.users.service.IUserService;
-import lombok.AllArgsConstructor;
+import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.admin.client.CreatedResponseUtil;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
+
 @Slf4j
 @Service
-@AllArgsConstructor
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
+    private final Keycloak keycloak;
+    private final String realmName;
+    private final CurrentUserProvider currentUserProvider;
+
+    public UserServiceImpl(UserRepository userRepository,
+                           Keycloak keycloak,
+                           @Value("${keycloak.realm}") String realmName,CurrentUserProvider currentUserProvider) {
+        this.userRepository = userRepository;
+        this.keycloak = keycloak;
+        this.realmName = realmName;
+        this.currentUserProvider=currentUserProvider;
+    }
 
     @Override
     public Page<UserDto> listUsers(Pageable pageable) {
@@ -44,8 +62,8 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public Boolean doesUserExistWithId(Long userId) {
-        return userRepository.existsById(userId);
+    public Boolean doesUserExistWithKeycloakId(String userId) {
+        return userRepository.existsByKeycloakId(userId);
     }
 
     @Override
@@ -75,32 +93,93 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public void createUser(String keyCloakId,CreateUserDto createUserDto) {
-        log.info("Creating user: displayName={}, description={}",
-                createUserDto.getDisplayName(),
-                createUserDto.getDescription());
-        Optional<User> optionalUser =
-                userRepository.findByDisplayName(createUserDto.getDisplayName());
+    @Transactional
+    public void createUser(CreateUserDto createUserDto) {
 
-        if (optionalUser.isPresent()) {
-            log.warn("User with mentioned displayName already Exists: displayName={}",
-                    createUserDto.getDisplayName());
-            throw new ResourceAlreadyExistsException(
-                    "User","Display Name",optionalUser
-            );
+        log.info("Creating user with email={}", createUserDto.getEmail());
+        userRepository.findByEmail(createUserDto.getEmail())
+                .ifPresent(user -> {
+                    throw new ResourceAlreadyExistsException(
+                            "User",
+                            "email",
+                            createUserDto.getEmail()
+                    );
+                });
+
+        String keycloakId = null;
+
+        try {
+            UserRepresentation kcUser = new UserRepresentation();
+            kcUser.setEnabled(true);
+            kcUser.setUsername(createUserDto.getEmail());
+            kcUser.setEmail(createUserDto.getEmail());
+            kcUser.setEmailVerified(true);
+
+            Response response = keycloak.realm(realmName)
+                    .users()
+                    .create(kcUser);
+
+            if (response.getStatus() != 201) {
+                throw new RuntimeException(
+                        "Failed to create user in Keycloak. Status: " + response.getStatus()
+                );
+            }
+
+            keycloakId = CreatedResponseUtil.getCreatedId(response);
+
+            log.info("Keycloak user created with id={}", keycloakId);
+            CredentialRepresentation credential = new CredentialRepresentation();
+            credential.setTemporary(false);
+            credential.setType(CredentialRepresentation.PASSWORD);
+            credential.setValue(createUserDto.getPassword());
+
+            keycloak.realm(realmName)
+                    .users()
+                    .get(keycloakId)
+                    .resetPassword(credential);
+            var realmResource = keycloak.realm(realmName);
+
+            var userRole = realmResource
+                    .roles()
+                    .get("USER")
+                    .toRepresentation();
+
+            realmResource
+                    .users()
+                    .get(keycloakId)
+                    .roles()
+                    .realmLevel()
+                    .add(List.of(userRole));
+
+            log.info("Assigned USER role in Keycloak");
+            User user = UserMapper.toEntity(createUserDto);
+            user.setKeycloakId(keycloakId);
+
+            userRepository.save(user);
+
+            log.info("User saved in database with keycloakId={}", keycloakId);
+
+        } catch (Exception ex) {
+
+            log.error("User creation failed. Rolling back Keycloak user", ex);
+            if (keycloakId != null) {
+                try {
+                    keycloak.realm(realmName)
+                            .users()
+                            .delete(keycloakId);
+
+                    log.info("Rolled back Keycloak user with id={}", keycloakId);
+                } catch (Exception cleanupEx) {
+                    log.error("Failed to rollback Keycloak user {}", keycloakId, cleanupEx);
+                }
+            }
+            throw ex;
         }
-
-        User user=UserMapper.toEntity(createUserDto);
-        user.setKeycloakId(keyCloakId);
-        userRepository.save(user);
-        log.info("User created successfully with keyCloakId={}", user.getKeycloakId());
-
     }
 
     @Override
-    public void updateUser(String keyCloakId, UpdateUserDto updateUserDto) {
-        log.info("Updating User with keyCloakId={}", keyCloakId);
-
+    public void updateUser(UpdateUserDto updateUserDto) {
+        String keyCloakId=currentUserProvider.getCurrentUserId();
         User user=userRepository.findByKeycloakId(keyCloakId)
                 .orElseThrow(() -> {
                     log.warn("User not found for update, keyCloakId={}",keyCloakId);
@@ -126,9 +205,8 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional
-    public void deleteUser(String keyCloakId) {
-        log.info("Deleting User with keyCloakId={}", keyCloakId);
-
+    public void deleteUser() {
+        String keyCloakId=currentUserProvider.getCurrentUserId();
         User user=userRepository.findByKeycloakId(keyCloakId)
                 .orElseThrow(() -> {
                     log.warn("User not found for delete, keyCloakId={}", keyCloakId);

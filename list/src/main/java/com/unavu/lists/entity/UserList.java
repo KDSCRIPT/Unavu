@@ -24,8 +24,8 @@ public class UserList extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="owner_user_id",nullable = false)
-    private Long ownerUserId;
+    @Column(name = "owner_id", nullable = false, length = 36)
+    private String ownerId;
 
     @Column(nullable = false, length = 60)
     private String name;

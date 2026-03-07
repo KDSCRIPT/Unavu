@@ -10,10 +10,10 @@ public class ReviewSpecification {
                 restaurantId == null ? null :
                         cb.equal(root.get("restaurantId"),restaurantId);
     }
-    public static Specification<Review> hasUserId(Long userId) {
+    public static Specification<Review> hasReviewerId(String reviewerId) {
         return (root, query, cb) ->
-                userId == null ? null :
-                        cb.equal(root.get("userId"),userId);
+                reviewerId == null ? null :
+                        cb.equal(root.get("reviewerId"),reviewerId);
     }
     public static Specification<Review> hasRating(Integer rating) {
         return (root, query, cb) ->

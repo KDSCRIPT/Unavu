@@ -9,8 +9,6 @@ import lombok.Data;
         description="Schema to hold User inundation information"
 )
 public class UpdateUserDto {
-
-
     @Schema(
             description = "Display Name of user account", example="Foodie@123"
     )

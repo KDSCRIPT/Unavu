@@ -14,14 +14,14 @@ public interface IUserService {
 
     Page<UserDto> searchUsers(String searchTerm, Pageable pageable);
 
-    Boolean doesUserExistWithId(Long userId);
     UserDto getUserByKeyCloakId(String keyCloakId);
 
+    Boolean doesUserExistWithKeycloakId(String keycloakId);
     UserDto getUserByDisplayName(String displayName);
 
-    void createUser(String keyCloakId,CreateUserDto createUserDto);
+    void createUser(CreateUserDto createUserDto);
 
-    void updateUser(String keyCloakId, UpdateUserDto updateUserDto);
+    void updateUser(UpdateUserDto updateUserDto);
 
-    void deleteUser(String keyCloakId);
+    void deleteUser();
 }

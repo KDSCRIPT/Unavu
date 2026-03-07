@@ -7,7 +7,7 @@ public class ReviewDto {
 
     private Long id;
     private Long restaurantId;
-    private Long userId;
+    private String reviewerId;
     private int rating;
     private String title;
     private String comment;

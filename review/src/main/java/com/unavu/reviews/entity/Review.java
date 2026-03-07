@@ -27,7 +27,7 @@ public class Review extends BaseEntity {
     private Long restaurantId;
 
     @Column(nullable = false)
-    private Long userId;
+    private String reviewerId;
 
     @Column(nullable = false)
     private int rating;

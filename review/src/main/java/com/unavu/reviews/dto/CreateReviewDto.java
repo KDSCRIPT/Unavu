@@ -20,11 +20,10 @@ public class CreateReviewDto {
     )
     private Long restaurantId;
 
-    @NotNull(message="Id of the user reviewing cannot be null or empty")
     @Schema(
-            description = "Id of the user posting the review", example="2"
+            description = "Reviewer Id of the user posting the review", example="4250595d-de09-48a0-be80-3a0a57aea99c"
     )
-    private Long userId;
+    private String reviewerId;
 
     @Schema(
             description = "Rating given by user for the restaurant from 1 to 5"

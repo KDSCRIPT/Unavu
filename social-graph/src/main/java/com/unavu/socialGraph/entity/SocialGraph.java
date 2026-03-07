@@ -26,11 +26,11 @@ public class SocialGraph extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="from_user_id",nullable = false)
-    private Long fromUserId;
+    @Column(name="from_user_id",nullable = false,length = 36)
+    private String fromUserId;
 
-    @Column(name = "to_user_id", nullable = false)
-    private Long toUserId;
+    @Column(name = "to_user_id", nullable = false,length = 36)
+    private String toUserId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "relationship_type", nullable = false)

@@ -1,22 +1,27 @@
 package com.unavu.lists.service.impl;
 
+import com.unavu.common.web.exception.ResourceActionNotAllowedException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.lists.dto.*;
 import com.unavu.lists.entity.ListVisibility;
 import com.unavu.lists.entity.UserList;
 import com.unavu.lists.entity.UserListItem;
 import com.unavu.lists.mapper.UserListMapper;
+import com.unavu.lists.provider.CurrentUserProvider;
 import com.unavu.lists.repository.UserListItemRepository;
 import com.unavu.lists.repository.UserListRepository;
 import com.unavu.lists.service.IUserListService;
 import com.unavu.lists.service.client.RestaurantFeignClient;
-import com.unavu.lists.service.client.UserFeignClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -26,15 +31,14 @@ public class UserListServiceImpl implements IUserListService {
 
     private final UserListRepository userListRepository;
     private final UserListItemRepository userListItemRepository;
-    private UserFeignClient userFeignClient;
     private RestaurantFeignClient restaurantFeignClient;
+    private CurrentUserProvider currentUserProvider;
     @Override
     @Transactional
     public void createUserList(CreateUserListDto createUserListDto) {
-        if (!userFeignClient.doesUserExist(createUserListDto.getOwnerUserId())) {
-            throw new ResourceNotFoundException("User","id",createUserListDto.getOwnerUserId());
-        }
-        UserList userList= UserListMapper.toUserListEntity(createUserListDto);
+        String ownerId = currentUserProvider.getCurrentUserId();
+        createUserListDto.setOwnerId(ownerId);
+        UserList userList = UserListMapper.toUserListEntity(createUserListDto);
         userListRepository.save(userList);
     }
 
@@ -42,12 +46,17 @@ public class UserListServiceImpl implements IUserListService {
     @Transactional
     public void updateUserList(Long id, UpdateUserListDto updateUserListDto) {
         log.info("Updating UserList with id={}",id);
-        UserList userList=userListRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("UserList with id={} not found for update",id);
-                    return new ResourceNotFoundException("UserList","id",id.toString());
-                });
-        UserListMapper.updateUserListEntity(updateUserListDto,userList);
+        String ownerId = currentUserProvider.getCurrentUserId();
+        UserList userList = userListRepository
+                .findByIdAndOwnerId(id, ownerId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("UserList", "id", id.toString())
+                );
+        if(!Objects.equals(userList.getOwnerId(),ownerId))
+        {
+            throw new ResourceActionNotAllowedException("User cannot update other's List");
+        }
+        UserListMapper.updateUserListEntity(updateUserListDto, userList);
         userListRepository.save(userList);
     }
 
@@ -55,11 +64,16 @@ public class UserListServiceImpl implements IUserListService {
     @Transactional
     public void deleteUserList(Long id) {
         log.info("Deleting UserList with id={}",id);
-        UserList userList=userListRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.warn("UserList with id={} not found for delete",id);
-                    return new ResourceNotFoundException("User List","id",id.toString());
-                });
+        String ownerId = currentUserProvider.getCurrentUserId();
+        UserList userList = userListRepository
+                .findByIdAndOwnerId(id, ownerId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("UserList", "id", id.toString())
+                );
+        if(!Objects.equals(userList.getOwnerId(),ownerId))
+        {
+            throw new ResourceActionNotAllowedException("User cannot delete other's List");
+        }
         userListItemRepository.deleteByListId(id);
         userListRepository.deleteById(id);
     }
@@ -71,15 +85,20 @@ public class UserListServiceImpl implements IUserListService {
         if (!restaurantFeignClient.doesRestaurantExist(addItemToUserListDto.getRestaurantId())) {
             throw new ResourceNotFoundException("Restaurant","id", addItemToUserListDto.getRestaurantId());
         }
-        UserList userList = userListRepository.findById(addItemToUserListDto.getListId())
-                .orElseThrow(() -> {
-                    log.warn("UserList not found with listId={}",addItemToUserListDto.getListId());
-                    return new ResourceNotFoundException("List Item","listId",addItemToUserListDto.getListId().toString());
-                });
+        String ownerId = currentUserProvider.getCurrentUserId();
+        UserList userList = userListRepository
+                .findByIdAndOwnerId(addItemToUserListDto.getListId(), ownerId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("UserList", "id", addItemToUserListDto.getListId())
+                );
         int position =
                 Optional.ofNullable(
                         userListItemRepository.findMaxPositionByListId(addItemToUserListDto.getListId())
                 ).orElse(0) + 1;
+        if(!Objects.equals(userList.getOwnerId(),ownerId))
+        {
+            throw new ResourceActionNotAllowedException("User cannot add item to other's List");
+        }
         UserListItem userListItem=UserListMapper.toUserListItemEntity(addItemToUserListDto);
         userListItem.setPosition(position);
         userListItemRepository.save(userListItem);
@@ -89,14 +108,23 @@ public class UserListServiceImpl implements IUserListService {
     @Transactional
     public void removeItemFromList(Long id) {
         log.info("Removing UserListItem with id={}",id);
-       UserListItem userListItem=userListItemRepository.findById(id).orElseThrow(
-               () -> {
-                   log.warn("UserListItem not found with id={}",id);
-                   return new RuntimeException("UserListItem not found with id:"+id);
-               }
-       );
+        UserListItem userListItem=userListItemRepository.findById(id).orElseThrow(
+                () -> {
+                    log.warn("UserListItem not found with id={}",id);
+                    return new RuntimeException("UserListItem not found with id:"+id);
+                }
+        );
+        String ownerId = currentUserProvider.getCurrentUserId();
+        UserList userList = userListRepository
+                .findByIdAndOwnerId(userListItem.getListId(), ownerId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("UserList", "id", userListItem.getListId())
+                );
+        if(!Objects.equals(userList.getOwnerId(),ownerId))
+        {
+            throw new ResourceActionNotAllowedException("User cannot delete item to other's List");
+        }
         userListItemRepository.deleteById(id);
-
     }
 
     @Override
@@ -107,50 +135,78 @@ public class UserListServiceImpl implements IUserListService {
     }
 
     @Override
-    public Page<UserListDto> getListsByOwner(Long ownerUserId, Pageable pageable) {
-        log.info("Getting UserList with ownerId={}",ownerUserId);
-        if (!userFeignClient.doesUserExist(ownerUserId)) {
-            throw new ResourceNotFoundException("User","id", ownerUserId);
-        }
-        Page<UserList>result=userListRepository.findByOwnerUserId(ownerUserId,pageable);
-        return result.map(UserListMapper::toUserListDto);
+    public Page<UserListDto> getListsByOwner(Pageable pageable) {
+        String ownerId = currentUserProvider.getCurrentUserId();
+        log.info("Getting UserList with ownerId={}", ownerId);
+        Page<UserList> result = userListRepository.findByOwnerId(ownerId, pageable);
+
+        List<UserListDto> filtered = result.getContent().stream()
+                .filter(list -> list.getListVisibility() == ListVisibility.PUBLIC)
+                .map(UserListMapper::toUserListDto)
+                .toList();
+
+        return new PageImpl<>(filtered, pageable, filtered.size());
     }
-
     @Override
-    public Page<UserListDto> getListsByOwnerAndVisibility(Long ownerUserId, ListVisibility listVisibility, Pageable pageable) {
-        log.info("Getting UserList with ownerId={} and visibility={}",ownerUserId,listVisibility);
-        if (!userFeignClient.doesUserExist(ownerUserId)) {
-            throw new ResourceNotFoundException("User","id", ownerUserId);
-        }
-        Page<UserList>result=userListRepository.findByOwnerUserIdAndListVisibility(ownerUserId, listVisibility, pageable);
+    public Page<UserListDto> getOwnedList(Pageable pageable) {
+        String ownerId = currentUserProvider.getCurrentUserId();
+        Page<UserList>result=userListRepository.findByOwnerId(ownerId,pageable);
         return result.map(UserListMapper::toUserListDto);
-
-    }
-
-    @Override
-    public UserListDto getOwnedList(Long id, Long ownerUserId) {
-        log.info("Getting UserList with ownerId={} and id={}",ownerUserId,id);
-        if (!userFeignClient.doesUserExist(ownerUserId)) {
-            throw new ResourceNotFoundException("User","id", ownerUserId);
-        }
-        UserList userList=userListRepository.findByIdAndOwnerUserId(id,ownerUserId)
-                .orElseThrow(() -> {
-                    log.warn("UserList not found with ownerId={} and id={}",ownerUserId,id);
-                    return new ResourceNotFoundException("User List","ownerId",ownerUserId.toString());
-                });
-        return UserListMapper.toUserListDto(userList);
     }
 
     @Override
     public UserListDto getListById(Long id) {
         log.info("Getting list with id={}", id);
-
+        String ownerId = currentUserProvider.getCurrentUserId();
         UserList userList=userListRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("UserList not found, id={}", id);
                     return new ResourceNotFoundException("User List","id",id.toString());
                 });
-
+        if(!Objects.equals(userList.getOwnerId(),ownerId) && userList.getListVisibility()==ListVisibility.PRIVATE)
+        {
+            throw new ResourceActionNotAllowedException("User list is Private");
+        }
         return UserListMapper.toUserListDto(userList);
     }
+
+    @Override
+    public UserListItemDto getListItemById(Long id) {
+        log.info("Getting list item with id={}", id);
+        String ownerId = currentUserProvider.getCurrentUserId();
+        UserListItem userListItem=userListItemRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.warn("UserList Item not found, id={}", id);
+                    return new ResourceNotFoundException("User List","id",id.toString());
+                });
+        UserList userList=userListRepository.findById(userListItem.getListId())
+                .orElseThrow(() -> {
+                    log.warn("Item List id is not found, id={}", id);
+                    return new ResourceNotFoundException("User List","id",id.toString());
+                });
+        if(!Objects.equals(userList.getOwnerId(),ownerId) && userList.getListVisibility()==ListVisibility.PRIVATE)
+        {
+            throw new ResourceActionNotAllowedException("User list is Private");
+        }
+        return UserListMapper.toUserListItemDto(userListItem);
+    }
+
+    @Override
+    public Page<UserListItemDto> getListItems(Long listId, Pageable pageable) {
+        log.info("Getting contents of list with id={}", listId);
+        String ownerId = currentUserProvider.getCurrentUserId();
+        UserList userList=userListRepository.findById(listId)
+                .orElseThrow(() -> {
+                    log.warn("Contents of UserList not found, id={}", listId);
+                    return new ResourceNotFoundException("User List","id",listId.toString());
+                });
+        if(!Objects.equals(userList.getOwnerId(),ownerId) && userList.getListVisibility()==ListVisibility.PRIVATE)
+        {
+            throw new ResourceActionNotAllowedException("User list is Private");
+        }
+        Page<UserListItem>contents=userListItemRepository.findByListId(listId,pageable);
+
+        return contents.map(UserListMapper::toUserListItemDto);
+    }
+
 }

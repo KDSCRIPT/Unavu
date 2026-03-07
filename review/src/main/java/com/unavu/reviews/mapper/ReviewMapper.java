@@ -11,7 +11,7 @@ public class ReviewMapper {
     {
         Review review = new Review();
         review.setRestaurantId(createReviewDto.getRestaurantId());
-        review.setUserId(createReviewDto.getUserId());
+        review.setReviewerId(createReviewDto.getReviewerId());
         review.setRating(createReviewDto.getRating());
         review.setTitle(createReviewDto.getTitle());
         review.setComment(createReviewDto.getComment());
@@ -33,7 +33,7 @@ public class ReviewMapper {
         ReviewDto reviewDto=new ReviewDto();
         reviewDto.setId(review.getId());
         reviewDto.setRestaurantId(review.getRestaurantId());
-        reviewDto.setUserId(review.getUserId());
+        reviewDto.setReviewerId(review.getReviewerId());
         reviewDto.setRating(review.getRating());
         reviewDto.setTitle(review.getTitle());
         reviewDto.setComment(review.getComment());

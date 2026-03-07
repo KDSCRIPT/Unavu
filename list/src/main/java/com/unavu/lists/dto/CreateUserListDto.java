@@ -11,9 +11,8 @@ import lombok.Data;
 @Schema(name="Create List")
 public class CreateUserListDto {
 
-    @NotNull
-    @Schema(description="Owner user id", example="1")
-    private Long ownerUserId;
+    @Schema(description="owner id", example="4250595d-de09-48a0-be80-3a0a57aea99c")
+    private String ownerId;
 
     @NotBlank
     @Size(max = 30)

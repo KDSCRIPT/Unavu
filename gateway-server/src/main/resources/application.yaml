@@ -1,6 +1,12 @@
 server:
   port: 8072
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:7080/realms/unavu}
+          jwk-set-uri: ${JWK_SET_URI:http://localhost:7080/realms/unavu/protocol/openid-connect/certs}
   application:
     name: "gateway-server"
   profiles:
@@ -73,3 +79,6 @@ resilience4j:
         timeoutDuration: 1000
         limitRefreshPeriod: 5000
         limitForPeriod: 1
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

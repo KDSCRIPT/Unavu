@@ -5,7 +5,7 @@ import com.unavu.common.core.ResponseConstants;
 import com.unavu.common.web.dto.ResponseDto;
 import com.unavu.lists.dto.*;
 import com.unavu.lists.entity.ListVisibility;
-import com.unavu.lists.entity.UserListItem;
+import com.unavu.lists.provider.CurrentUserProvider;
 import com.unavu.lists.service.IUserListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,10 +21,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 
 @Tag(
         name = "CRUD REST APIs for User List",
@@ -38,6 +38,7 @@ import java.time.LocalDateTime;
 public class UserListController {
 
     private final IUserListService iUserListService;
+    private final CurrentUserProvider currentUserProvider;
 
     @Operation(
             summary = "Create User List",
@@ -57,13 +58,15 @@ public class UserListController {
             )
     }
     )
-    @PostMapping(value="/lists")
-    public ResponseEntity<ResponseDto> createUserList(@Valid @RequestBody CreateUserListDto createUserListDto)
-    {
+    @PostMapping("/lists")
+    public ResponseEntity<ResponseDto> createUserList(
+            @Valid @RequestBody CreateUserListDto createUserListDto) {
+        String ownerId = currentUserProvider.getCurrentUserId();
+        createUserListDto.setOwnerId(ownerId);
         iUserListService.createUserList(createUserListDto);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ResponseDto(ResponseConstants.STATUS_CREATED, String.format(ResponseConstants.MESSAGE_CREATED,"UserList")));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,
+                        String.format(ResponseConstants.MESSAGE_CREATED,"UserList")));
     }
 
     @Operation(
@@ -204,49 +207,15 @@ public class UserListController {
     }
     )
     @GetMapping("/lists")
-    public ResponseEntity<Page<UserListDto>> getListsByVisibility(
-            @RequestParam ListVisibility listVisibility,
+    public ResponseEntity<Page<UserListDto>> getPublicLists(
             Pageable pageable
     )
     {
-
-        return ResponseEntity.ok(iUserListService.getListsByVisibility(listVisibility,pageable));
+        return ResponseEntity.ok(iUserListService.getListsByVisibility(ListVisibility.PUBLIC,pageable));
     }
-
     @Operation(
-            summary = "Fetch Lists by visibility REST API",
-            description = "REST API to fetch Lists by visibility"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "HTTP Status OK"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
-                    )
-            )
-    }
-    )
-    @GetMapping("/users/{userId}/lists")
-    public ResponseEntity<Page<UserListDto>> getListsByOwnerAndVisibility(
-            @PathVariable Long userId,
-            @RequestParam(required = false) ListVisibility listVisibility,
-            Pageable pageable
-    )
-    {
-        if(listVisibility==null) {
-            return ResponseEntity.ok(iUserListService.getListsByOwner(userId, pageable));
-        }
-        return ResponseEntity.ok(iUserListService.getListsByOwnerAndVisibility(userId, listVisibility, pageable));
-    }
-    
-    @Operation(
-            summary = "Fetch Lists By Id REST API",
-            description = "REST API to fetch Lists By Id"
+            summary = "Fetch Public Lists REST API",
+            description = "REST API to fetch Public Lists"
     )
     @ApiResponses({
             @ApiResponse(
@@ -271,4 +240,82 @@ public class UserListController {
         return ResponseEntity.ok(iUserListService.getListById(id));
     }
 
+    @Operation(
+            summary = "Fetch Owner's Lists REST API",
+            description = "REST API to fetch Owner's Lists"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
+    @GetMapping("/lists/me")
+    public ResponseEntity<Page<UserListDto>>getOwnedLists(Pageable pageable)
+    {
+        return ResponseEntity.ok(iUserListService.getOwnedList(pageable));
+    }
+
+    @Operation(
+            summary = "Fetch List Item by ID",
+            description = "REST API to fetch a specific item from a list by its ID"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "List Item not found"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
+    @GetMapping("/lists/item/{id}")
+    public ResponseEntity<UserListItemDto> getListItemById(@PathVariable Long id) {
+        return ResponseEntity.ok(iUserListService.getListItemById(id));
+    }
+
+    @Operation(
+            summary = "Fetch List Contents",
+            description = "REST API to fetch all items inside a user list"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "List not found"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
+    @GetMapping("/lists/{listId}/items")
+    public ResponseEntity<Page<UserListItemDto>> getListContents(
+            @PathVariable Long listId,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(iUserListService.getListItems(listId, pageable));
+    }
 }

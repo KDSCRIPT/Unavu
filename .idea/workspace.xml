@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0613b1aa-e99b-45c1-ab93-208fcda9b913" name="Changes" comment="Gateway server resilence with Resiliency4J Initial commit">
+      <change afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/config/ListServiceSecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/provider/CurrentUserProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/com/unavu/restaurants/config/RestaurantServiceSecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/config/ReviewServiceSecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/provider/CurrentUserProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/config/SocialGraphServiceSecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/provider/CurrentUserProvider.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/config/KeyCloakAdminConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/config/UserServiceSecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/provider/CurrentUserProvider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose/dev/.env" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/dev/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose/dev/common-config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/dev/common-config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose/dev/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/dev/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-server/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/java/com/unvau/gateway_server/GatewayServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/GatewayServerApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/java/com/unvau/gateway_server/controller/FallbackController.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/controller/FallbackController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/java/com/unvau/gateway_server/filters/ResponseTimeFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/list/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/controller/UserListController.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/controller/UserListController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/dto/CreateUserListDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/dto/CreateUserListDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/dto/UserListDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/dto/UserListDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/entity/UserList.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/entity/UserList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/mapper/UserListMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/mapper/UserListMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/repository/UserListItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/repository/UserListItemRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/repository/UserListRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/repository/UserListRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/IUserListService.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/IUserListService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/client/UserFeignClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/client/UserFeignFallBack.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/impl/UserListServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/impl/UserListServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/restaurant/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/restaurant/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/review/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/controller/ReviewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/controller/ReviewController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/CreateReviewDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/CreateReviewDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/ReviewDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/ReviewDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/SearchReviewDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/SearchReviewDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/entity/Review.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/entity/Review.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/mapper/ReviewMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/mapper/ReviewMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/repository/ReviewRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/repository/ReviewRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/IReviewService.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/IReviewService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/client/UserFeignClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/client/UserFeignFallBack.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewSpecification.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewSpecification.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/controller/SocialGraphController.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/controller/SocialGraphController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/dto/SocialGraphDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/dto/SocialGraphDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/entity/SocialGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/entity/SocialGraph.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/mapper/SocialGraphMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/mapper/SocialGraphMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/repository/SocialGraphRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/repository/SocialGraphRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/ISocialGraphService.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/ISocialGraphService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/client/UserFeignClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/client/UserFeignClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/client/UserFeignFallBack.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/client/UserFeignFallBack.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/impl/SocialGraphServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/impl/SocialGraphServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/user/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/CreateUserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/CreateUserDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/UpdateUserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/UpdateUserDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/UserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/UserDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/entity/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/mapper/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/IUserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/impl/UserServiceImpl.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CompilerWorkspaceConfiguration">
+    <option name="MAKE_PROJECT_ON_SAVE" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;KDSCRIPT&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/KDSCRIPT/Unavu.git&quot;,
+    &quot;accountId&quot;: &quot;b26a92a6-dd1b-48c3-aee6-ef31f586837e&quot;
+  }
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="39fWLlwK4l0rmRWqix6wJQPsZzi" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ConfigServerApplication.executor": "Run",
+    "Application.EurekaServerApplication.executor": "Run",
+    "Application.GatewayServerApplication.executor": "Run",
+    "Application.ListsApplication.executor": "Run",
+    "Application.RestaurantApplication.executor": "Run",
+    "Application.ReviewsApplication.executor": "Run",
+    "Application.SocialGraphApplication.executor": "Run",
+    "Application.UsersApplication.executor": "Run",
+    "Application.com.unavu.gateway_server.GatewayServerApplication.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Unavu/list/src/main/java/com/unavu/lists",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "project.propCompiler"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Unavu\list\src\main\java\com\unavu\lists" />
+      <recent name="C:\Unavu\user\src\main\java\com\unavu\users" />
+      <recent name="C:\Unavu\review\src\main\java\com\unavu\reviews" />
+      <recent name="C:\Unavu\social-graph\src\main\java\com\unavu\socialGraph" />
+      <recent name="C:\Unavu\review\src\main\java\com\unavu\reviews\service\client" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Unavu\docker-compose\dev" />
+      <recent name="C:\Unavu" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.unavu.restaurants.config" />
+      <recent name="com.unavu.lists.config" />
+      <recent name="com.unavu.reviews.config" />
+      <recent name="com.unavu.socialGraph.config" />
+      <recent name="com.unvau.gateway_server.config" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.com.unavu.gateway_server.GatewayServerApplication">
+    <configuration name="ConfigServerApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="24" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <envs>
+        <env name="CONFIG_REPO_URL" value="https://github.com/KDSCRIPT/Unavu.git" />
+        <env name="CONFIG_REPO_USERNAME" value="KDSCRIPT" />
+        <env name="CONFIG_REPO_PASSWORD" value="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" />
+        <env name="RABBITMQ_HOST" value="localhost" />
+        <env name="RABBITMQ_USERNAME" value="guest" />
+        <env name="RABBITMQ_PASSWORD" value="guest" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="com.unavu.configserver.ConfigServerApplication" />
+      <module name="config-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.unavu.configserver.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ListsApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.unavu.lists.ListsApplication" />
+      <module name="list" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.unavu.lists.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="RestaurantApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.unavu.restaurants.RestaurantApplication" />
+      <module name="restaurant" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.unavu.restaurants.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ReviewsApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.unavu.reviews.ReviewsApplication" />
+      <module name="review" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.unavu.reviews.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SocialGraphApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.unavu.socialGraph.SocialGraphApplication" />
+      <module name="social-graph" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.unavu.socialGraph.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="com.unavu.gateway_server.GatewayServerApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.unavu.gateway_server.GatewayServerApplication" />
+      <module name="gateway-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.unvau.gateway_server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="Unavu" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="Unavu" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="Unavu" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="Unavu" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.ConfigServerApplication" />
+      <item itemvalue="Application.ListsApplication" />
+      <item itemvalue="Application.RestaurantApplication" />
+      <item itemvalue="Application.com.unavu.gateway_server.GatewayServerApplication" />
+      <item itemvalue="Application.SocialGraphApplication" />
+      <item itemvalue="Application.ReviewsApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.com.unavu.gateway_server.GatewayServerApplication" />
+        <item itemvalue="Application.ReviewsApplication" />
+        <item itemvalue="Application.ListsApplication" />
+        <item itemvalue="Application.RestaurantApplication" />
+        <item itemvalue="Application.SocialGraphApplication" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0613b1aa-e99b-45c1-ab93-208fcda9b913" name="Changes" comment="" />
+      <created>1771087554312</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1771087554312</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Config server and profile based docker compose files">
+      <option name="closed" value="true" />
+      <created>1771154318082</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1771154318082</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Eureka Server and Feign Clients Initial Commit">
+      <option name="closed" value="true" />
+      <created>1771179118861</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1771179118861</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Config server optional application.yml bugfix and gateway server">
+      <option name="closed" value="true" />
+      <created>1771264353443</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1771264353443</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Application Config,Eureka and Gateway commit">
+      <option name="closed" value="true" />
+      <created>1771264426918</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1771264426918</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Gateway server resilence with Resiliency4J Initial commit">
+      <option name="closed" value="true" />
+      <created>1771345143438</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1771345143438</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Config server and profile based docker compose files" />
+    <MESSAGE value="Eureka Server and Feign Clients Initial Commit" />
+    <MESSAGE value="Config server optional application.yml bugfix and gateway server" />
+    <MESSAGE value="Application Config,Eureka and Gateway commit" />
+    <MESSAGE value="Gateway server resilence with Resiliency4J Initial commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Gateway server resilence with Resiliency4J Initial commit" />
+  </component>
+</project>

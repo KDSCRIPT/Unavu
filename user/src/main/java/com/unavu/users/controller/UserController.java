@@ -54,14 +54,13 @@ public class UserController {
     }
     )
     @PostMapping(value="/users",consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDto> createUser(@Valid @RequestBody CreateUserDto createUserDto, @RequestParam String keyCloakId)
+    public ResponseEntity<ResponseDto> createUser(@Valid @RequestBody CreateUserDto createUserDto)
     {
-        log.info("Creating user: keyCloakId={}, displayName={}, description={}",
-                keyCloakId,
+        log.info("Creating user:displayName={}, description={}",
                 createUserDto.getDisplayName(),
                 createUserDto.getDescription());
 
-        iUserService.createUser(keyCloakId,createUserDto);
+        iUserService.createUser(createUserDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"User")));
@@ -166,11 +165,9 @@ public class UserController {
     )
     @PatchMapping(value="/users/me",consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDto> updateUserDetails(
-            @RequestParam String keyCloakId,
             @Valid @RequestBody UpdateUserDto updateUserDto
             ) {
-        log.info("Updating user with keyCloakId={}", keyCloakId);
-        iUserService.updateUser(keyCloakId,updateUserDto);
+        iUserService.updateUser(updateUserDto);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(new ResponseDto(
@@ -198,15 +195,13 @@ public class UserController {
     }
     )
     @DeleteMapping(value="/users/me")
-    public ResponseEntity<ResponseDto> deleteUser(@RequestParam String keyCloakId) {
-        log.info("Deleting User with keyCloakId={}", keyCloakId);
-        iUserService.deleteUser(keyCloakId);
+    public ResponseEntity<ResponseDto> deleteUser() {
+        iUserService.deleteUser();
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/internal/users/{userId}/exists")
-    public ResponseEntity<Boolean> userExists(@PathVariable Long userId) {
-        log.info("Checking if User with id={} exists", userId);
-        return ResponseEntity.ok(iUserService.doesUserExistWithId(userId));
+    @GetMapping("/internal/users/{keycloakId}/exists")
+    public ResponseEntity<Boolean> userWithKeycloakIdExists(@PathVariable String keycloakId) {
+        return ResponseEntity.ok(iUserService.doesUserExistWithKeycloakId(keycloakId));
     }
 }

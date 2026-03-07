@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 public class SocialGraphDto {
     private Long id;
-    private Long fromUserId;
-    private Long toUserId;
+    private String fromUserId;
+    private String toUserId;
     private RelationshipType relationshipType;
 }
 

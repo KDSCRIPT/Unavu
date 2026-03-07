@@ -54,10 +54,10 @@ public class SocialGraphController {
     }
     )
     @PostMapping(value="/social-graph/follow")
-    public ResponseEntity<ResponseDto> followUser(@NotNull @RequestParam Long fromUserId,@NotNull @RequestParam Long toUserId)
+    public ResponseEntity<ResponseDto> followUser(@NotNull @RequestParam String toUserId)
     {
-        log.info("Creating follow from: fromUserId={} to toUserId={}",fromUserId,toUserId);
-        iSocialGraphService.followUser(fromUserId,toUserId);
+        log.info("Following toUserId={}",toUserId);
+        iSocialGraphService.followUser(toUserId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Social Graph Follow")));
@@ -79,10 +79,10 @@ public class SocialGraphController {
     }
     )
     @DeleteMapping(value="/social-graph/unfollow")
-    public ResponseEntity<ResponseDto> unFollowUser(@NotNull @RequestParam Long fromUserId,@NotNull @RequestParam Long toUserId)
+    public ResponseEntity<ResponseDto> unFollowUser(@NotNull @RequestParam String toUserId)
     {
-        log.info("Unfollowing from: fromUserId={} to toUserId={}",fromUserId,toUserId);
-        iSocialGraphService.unFollowUser(fromUserId,toUserId);
+        log.info("Unfollowing toUserId={}",toUserId);
+        iSocialGraphService.unFollowUser(toUserId);
         return ResponseEntity.noContent().build();
     }
 
@@ -105,10 +105,10 @@ public class SocialGraphController {
     }
     )
     @PostMapping(value="/social-graph/mute")
-    public ResponseEntity<ResponseDto> muteUser(@NotNull @RequestParam Long fromUserId,@NotNull @RequestParam Long toUserId)
+    public ResponseEntity<ResponseDto> muteUser(@NotNull @RequestParam String toUserId)
     {
-        log.info("Creating mute from: fromUserId={} to toUserId={}",fromUserId,toUserId);
-        iSocialGraphService.muteUser(fromUserId,toUserId);
+        log.info("Muting toUserId={}",toUserId);
+        iSocialGraphService.muteUser(toUserId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Social Graph Mute")));
@@ -130,10 +130,10 @@ public class SocialGraphController {
     }
     )
     @DeleteMapping(value="/social-graph/unmute")
-    public ResponseEntity<ResponseDto> unMuteUser(@NotNull @RequestParam Long fromUserId,@NotNull @RequestParam Long toUserId)
+    public ResponseEntity<ResponseDto> unMuteUser(@NotNull @RequestParam String toUserId)
     {
-        log.info("Unmuting from: fromUserId={} to toUserId={}",fromUserId,toUserId);
-        iSocialGraphService.unMuteUser(fromUserId,toUserId);
+        log.info("Unmuting toUserId={}",toUserId);
+        iSocialGraphService.unMuteUser(toUserId);
         return ResponseEntity.noContent().build();
     }
 
@@ -156,10 +156,10 @@ public class SocialGraphController {
     }
     )
     @PostMapping(value="/social-graph/block")
-    public ResponseEntity<ResponseDto> blockUser(@NotNull @RequestParam Long fromUserId,@NotNull @RequestParam Long toUserId)
+    public ResponseEntity<ResponseDto> blockUser(@NotNull @RequestParam String toUserId)
     {
-        log.info("Creating block from: fromUserId={} to toUserId={}",fromUserId,toUserId);
-        iSocialGraphService.blockUser(fromUserId,toUserId);
+        log.info("Blocking toUserId={}",toUserId);
+        iSocialGraphService.blockUser(toUserId);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Social Graph Block")));
@@ -181,10 +181,10 @@ public class SocialGraphController {
     }
     )
     @DeleteMapping(value="/social-graph/unblock")
-    public ResponseEntity<ResponseDto> unBlockUser(@NotNull @RequestParam Long fromUserId,@NotNull @RequestParam Long toUserId)
+    public ResponseEntity<ResponseDto> unBlockUser(@NotNull @RequestParam String toUserId)
     {
-        log.info("UnBlocking from: fromUserId={} to toUserId={}",fromUserId,toUserId);
-        iSocialGraphService.unBlockUser(fromUserId,toUserId);
+        log.info("UnBlocking toUserId={}",toUserId);
+        iSocialGraphService.unBlockUser(toUserId);
         return ResponseEntity.noContent().build();
     }
 
@@ -207,10 +207,9 @@ public class SocialGraphController {
     }
     )
     @GetMapping(value="/social-graph/followers")
-    public ResponseEntity<Page<SocialGraphDto>> getFollowersOfUser(@NotNull @RequestParam Long userId, Pageable pageable)
+    public ResponseEntity<Page<SocialGraphDto>> getFollowersOfUser(Pageable pageable)
     {
-        log.info("Getting followers of user: {}",userId);
-        Page<SocialGraphDto> result=iSocialGraphService.listFollowers(userId,pageable);
+        Page<SocialGraphDto> result=iSocialGraphService.listFollowers(pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(result);
@@ -235,10 +234,9 @@ public class SocialGraphController {
     }
     )
     @GetMapping(value="/social-graph/following")
-    public ResponseEntity<Page<SocialGraphDto>> getFollowingOfUser(@NotNull @RequestParam Long userId,Pageable pageable)
+    public ResponseEntity<Page<SocialGraphDto>> getFollowingOfUser(Pageable pageable)
     {
-        log.info("Getting following of user: {}",userId);
-        Page<SocialGraphDto> result =iSocialGraphService.listFollowing(userId,pageable);
+        Page<SocialGraphDto> result =iSocialGraphService.listFollowing(pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(result);
@@ -263,10 +261,9 @@ public class SocialGraphController {
     }
     )
     @GetMapping(value="/social-graph/blocked")
-    public ResponseEntity<Page<SocialGraphDto>> getBlockedOfUser(@NotNull @RequestParam Long userId,Pageable pageable)
+    public ResponseEntity<Page<SocialGraphDto>> getBlockedOfUser(Pageable pageable)
     {
-        log.info("Getting Blocked list of user: {}",userId);
-        Page<SocialGraphDto> result =iSocialGraphService.listBlockedUsers(userId,pageable);
+        Page<SocialGraphDto> result =iSocialGraphService.listBlockedUsers(pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(result);
@@ -291,10 +288,9 @@ public class SocialGraphController {
     }
     )
     @GetMapping(value="/social-graph/blockedBy")
-    public ResponseEntity<Page<SocialGraphDto>> getBlockedByOfUser(@NotNull @RequestParam Long userId,Pageable pageable)
+    public ResponseEntity<Page<SocialGraphDto>> getBlockedByOfUser(Pageable pageable)
     {
-        log.info("Getting BlockedBy list of user: {}",userId);
-        Page<SocialGraphDto> result =iSocialGraphService.listBlockedByUsers(userId,pageable);
+        Page<SocialGraphDto> result =iSocialGraphService.listBlockedByUsers(pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(result);
@@ -319,10 +315,9 @@ public class SocialGraphController {
     }
     )
     @GetMapping(value="/social-graph/muted")
-    public ResponseEntity<Page<SocialGraphDto>> getMutedOfUser(@NotNull @RequestParam Long userId,Pageable pageable)
+    public ResponseEntity<Page<SocialGraphDto>> getMutedOfUser(Pageable pageable)
     {
-        log.info("Getting Mute list of user: {}",userId);
-        Page<SocialGraphDto>result=iSocialGraphService.listMutedUsers(userId,pageable);
+        Page<SocialGraphDto>result=iSocialGraphService.listMutedUsers(pageable);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(result);

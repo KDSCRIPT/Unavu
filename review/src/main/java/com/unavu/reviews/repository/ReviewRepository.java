@@ -14,8 +14,8 @@ public interface ReviewRepository
 
     Page<Review> findByRestaurantId(Long restaurantId, Pageable pageable);
 
-    Page<Review> findByUserId(Long userId, Pageable pageable);
+    Page<Review> findByReviewerId(String reviewerId, Pageable pageable);
 
-    Optional<Review> findByUserIdAndRestaurantId(Long userId, Long restaurantId);
+    Optional<Review> findByReviewerIdAndRestaurantId(String reviewerId, Long restaurantId);
 
 }

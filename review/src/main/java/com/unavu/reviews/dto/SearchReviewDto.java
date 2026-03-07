@@ -10,7 +10,7 @@ import lombok.Data;
 public class SearchReviewDto {
 
     private Long restaurantId;
-    private Long userId;
+    private String reviewerId;
     private Integer rating;
     private Boolean isRecommended;
 }

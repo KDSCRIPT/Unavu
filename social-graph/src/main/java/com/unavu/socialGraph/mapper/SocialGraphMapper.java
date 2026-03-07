@@ -7,8 +7,8 @@ import com.unavu.socialGraph.entity.SocialGraph;
 public class SocialGraphMapper {
 
     public static SocialGraph toEntity(
-            Long fromUserId,
-            Long toUserId,
+            String fromUserId,
+            String toUserId,
             RelationshipType relationshipType
     ) {
         SocialGraph socialGraph = new SocialGraph();

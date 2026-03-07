@@ -4,6 +4,7 @@ import com.unavu.common.web.dto.ErrorResponseDto;
 import com.unavu.common.core.ResponseConstants;
 import com.unavu.common.web.dto.ResponseDto;
 import com.unavu.reviews.dto.*;
+import com.unavu.reviews.provider.CurrentUserProvider;
 import com.unavu.reviews.service.IReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
 
     private final IReviewService iReviewService;
+    private final CurrentUserProvider currentUserProvider;
 
     @Operation(
             summary = "Create Review REST API",
@@ -57,9 +59,11 @@ public class ReviewController {
     @PostMapping(value="/reviews",consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDto> createReview(@Valid @RequestBody CreateReviewDto createReviewDto)
     {
-        log.info("Creating review: restaurantId={}, userId={}, rating={}, title={}, comment={}, isRecommended={}",
+        String reviewerId = currentUserProvider.getCurrentUserId();
+        createReviewDto.setReviewerId(reviewerId);
+        log.info("Creating review: restaurantId={}, reviewerId={}, rating={}, title={}, comment={}, isRecommended={}",
                 createReviewDto.getRestaurantId(),
-                createReviewDto.getUserId(),
+                createReviewDto.getReviewerId(),
                 createReviewDto.getRating(),
                 createReviewDto.getTitle(),
                 createReviewDto.getComment(),
@@ -114,14 +118,14 @@ public class ReviewController {
     )
     @GetMapping("/reviews")
     public ResponseEntity<Page<ReviewDto>> listReviews(
-            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String reviewerId,
             @RequestParam(required = false) Long restaurantId,
             Pageable pageable
     )
     {
-        if(userId!=null)
+        if(reviewerId!=null)
         {
-            return ResponseEntity.ok(iReviewService.getReviewsByUser(userId,pageable));
+            return ResponseEntity.ok(iReviewService.getReviewsByUser(reviewerId,pageable));
         }
         if(restaurantId!=null)
         {

@@ -7,7 +7,7 @@ import lombok.Data;
 public class UserListDto {
 
     private Long id;
-    private Long ownerUserId;
+    private String ownerId;
     private String name;
     private String description;
     private ListVisibility listVisibility;

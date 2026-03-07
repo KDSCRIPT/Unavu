@@ -17,7 +17,7 @@ public interface IReviewService {
 
         Page<ReviewDto> getReviewsByRestaurant(Long restaurantId, Pageable pageable);
 
-        Page<ReviewDto> getReviewsByUser(Long userId, Pageable pageable);
+        Page<ReviewDto> getReviewsByUser(String reviewerId, Pageable pageable);
 
         ReviewDto getReviewById(Long id);
 

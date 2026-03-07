@@ -9,7 +9,6 @@ spring:
     openfeign:
       circuitbreaker:
         enabled: true
-
 eureka:
   instance:
     preferIpAddress: true

@@ -11,6 +11,18 @@ import lombok.Data;
 )
 public class CreateUserDto {
 
+    @NotBlank(message="Email of user account cannot be null or empty")
+    @Schema(
+            description = "Email of user account", example="Foodie@gmail.com"
+    )
+    private String email;
+
+    @NotBlank(message="Password of user account cannot be null or empty")
+    @Schema(
+            description = "Password of user account", example="password@123"
+    )
+    private String password;
+
     @NotBlank(message="Display Name of user account cannot be null or empty")
     @Schema(
             description = "Display Name of user account", example="Foodie@123"
