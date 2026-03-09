@@ -4,73 +4,37 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0613b1aa-e99b-45c1-ab93-208fcda9b913" name="Changes" comment="Gateway server resilence with Resiliency4J Initial commit">
-      <change afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/config/ListServiceSecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/provider/CurrentUserProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/restaurant/src/main/java/com/unavu/restaurants/config/RestaurantServiceSecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/config/ReviewServiceSecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/provider/CurrentUserProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/config/SocialGraphServiceSecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/provider/CurrentUserProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/config/KeyCloakAdminConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/config/UserServiceSecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/provider/CurrentUserProvider.java" afterDir="false" />
+    <list default="true" id="0613b1aa-e99b-45c1-ab93-208fcda9b913" name="Changes" comment="Addition of X-User-Id header to request in gateway and configuring keycloak OpenID Connect">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/observability/grafana/dashboards/JVM-Dashboard.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/observability/grafana/dashboards/Spring-Boot-Dashboard.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/observability/grafana/datasource.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/observability/grafana/provisioning/alerts/alerts.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/observability/grafana/provisioning/dashboards/dashboards.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/observability/grafana/provisioning/datasource/datasource.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/observability/prometheus/prometheus.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/observability/tempo/tempo.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/prod/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose/qa/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/observability/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/common-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/common/target/common-1.0-SNAPSHOT.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose/dev/.env" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/dev/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose/dev/common-config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/dev/common-config.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose/dev/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/dev/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway-server/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/java/com/unvau/gateway_server/GatewayServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/GatewayServerApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/java/com/unvau/gateway_server/controller/FallbackController.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/controller/FallbackController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/java/com/unvau/gateway_server/filters/ResponseTimeFilter.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose/prod/common-config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/prod/common-config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose/prod/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/prod/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose/qa/common-config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/qa/common-config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose/qa/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/qa/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/list/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/list/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/controller/UserListController.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/controller/UserListController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/dto/CreateUserListDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/dto/CreateUserListDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/dto/UserListDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/dto/UserListDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/entity/UserList.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/entity/UserList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/mapper/UserListMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/mapper/UserListMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/repository/UserListItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/repository/UserListItemRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/repository/UserListRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/repository/UserListRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/IUserListService.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/IUserListService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/client/UserFeignClient.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/client/UserFeignFallBack.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/impl/UserListServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/impl/UserListServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/restaurant/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/restaurant/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/review/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/review/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/controller/ReviewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/controller/ReviewController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/CreateReviewDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/CreateReviewDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/ReviewDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/ReviewDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/SearchReviewDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/dto/SearchReviewDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/entity/Review.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/entity/Review.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/mapper/ReviewMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/mapper/ReviewMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/repository/ReviewRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/repository/ReviewRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/IReviewService.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/IReviewService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/client/UserFeignClient.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/client/UserFeignFallBack.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewSpecification.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewSpecification.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/social-graph/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/controller/SocialGraphController.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/controller/SocialGraphController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/dto/SocialGraphDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/dto/SocialGraphDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/entity/SocialGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/entity/SocialGraph.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/mapper/SocialGraphMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/mapper/SocialGraphMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/repository/SocialGraphRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/repository/SocialGraphRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/ISocialGraphService.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/ISocialGraphService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/client/UserFeignClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/client/UserFeignClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/client/UserFeignFallBack.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/client/UserFeignFallBack.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/impl/SocialGraphServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/impl/SocialGraphServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/resources/application.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/user/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/CreateUserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/CreateUserDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/UpdateUserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/UpdateUserDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/UserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/dto/UserDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/mapper/UserMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/IUserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/impl/UserServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,10 +100,11 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Unavu/list/src/main/java/com/unavu/lists",
+    "last_opened_file_path": "C:/Unavu/docker-compose/qa",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
@@ -148,22 +113,25 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Unavu\list\src\main\java\com\unavu\lists" />
-      <recent name="C:\Unavu\user\src\main\java\com\unavu\users" />
-      <recent name="C:\Unavu\review\src\main\java\com\unavu\reviews" />
-      <recent name="C:\Unavu\social-graph\src\main\java\com\unavu\socialGraph" />
-      <recent name="C:\Unavu\review\src\main\java\com\unavu\reviews\service\client" />
+      <recent name="C:\Unavu\docker-compose\qa" />
+      <recent name="C:\Unavu\docker-compose\observability\grafana\dashboards" />
+      <recent name="C:\Unavu\docker-compose\observability\grafana\provisioning\datasource.yml" />
+      <recent name="C:\Unavu\docker-compose\observability\grafana" />
+      <recent name="C:\Unavu\docker-compose\observability\tempo" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Unavu\docker-compose\observability\grafana\dashboards" />
+      <recent name="C:\Unavu\docker-compose\observability" />
+      <recent name="C:\Unavu\docker-compose\observability\loki" />
+      <recent name="C:\Unavu\docker-compose\observability\alloy" />
       <recent name="C:\Unavu\docker-compose\dev" />
-      <recent name="C:\Unavu" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="" />
       <recent name="com.unavu.restaurants.config" />
       <recent name="com.unavu.lists.config" />
       <recent name="com.unavu.reviews.config" />
       <recent name="com.unavu.socialGraph.config" />
-      <recent name="com.unvau.gateway_server.config" />
     </key>
   </component>
   <component name="RunManager" selected="Application.com.unavu.gateway_server.GatewayServerApplication">
@@ -304,9 +272,9 @@
       <item itemvalue="Application.ConfigServerApplication" />
       <item itemvalue="Application.ListsApplication" />
       <item itemvalue="Application.RestaurantApplication" />
-      <item itemvalue="Application.com.unavu.gateway_server.GatewayServerApplication" />
-      <item itemvalue="Application.SocialGraphApplication" />
       <item itemvalue="Application.ReviewsApplication" />
+      <item itemvalue="Application.SocialGraphApplication" />
+      <item itemvalue="Application.com.unavu.gateway_server.GatewayServerApplication" />
     </list>
     <recent_temporary>
       <list>
@@ -366,7 +334,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771345143438</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Addition of X-User-Id header to request in gateway and configuring keycloak OpenID Connect">
+      <option name="closed" value="true" />
+      <created>1772889499386</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1772889499386</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -386,6 +362,7 @@
     <MESSAGE value="Config server optional application.yml bugfix and gateway server" />
     <MESSAGE value="Application Config,Eureka and Gateway commit" />
     <MESSAGE value="Gateway server resilence with Resiliency4J Initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Gateway server resilence with Resiliency4J Initial commit" />
+    <MESSAGE value="Addition of X-User-Id header to request in gateway and configuring keycloak OpenID Connect" />
+    <option name="LAST_COMMIT_MESSAGE" value="Addition of X-User-Id header to request in gateway and configuring keycloak OpenID Connect" />
   </component>
 </project>
