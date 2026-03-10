@@ -1,19 +1,19 @@
 build:
   version: "1.0"
 
+build:
+  version: "1.0"
+
 spring:
   datasource:
-    driverClassName: org.h2.Driver
-    username: sa
-    password: ""
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: root
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 management:
   endpoints:
@@ -28,4 +28,3 @@ logging:
   level:
     root: WARN
     com.unavu: INFO
-

@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:lists_qa_db
+    url: jdbc:postgresql://lists-db:5432/lists-db
 server:
   port: 8084

@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:restaurants_prod_db
+    url: jdbc:postgresql://restaurants-db:5432/restaurants-db
 server:
-  port: 8080
+  port: 8085

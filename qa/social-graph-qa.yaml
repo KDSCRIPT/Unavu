@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:social_graph_qa_db
+    url: jdbc:postgresql://social-graph-db:5432/social-graph-db
 server:
   port: 8083
