@@ -1,4 +1,54 @@
 services:
+  reviews-db:
+    container_name: reviews-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: reviews-db
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  users-db:
+    container_name: users-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: users-db
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  social-graph-db:
+    container_name: social-graph-db
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: social-graph-db
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  lists-db:
+    container_name: lists-db
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_DB: lists-db
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  restaurants-db:
+    container_name: restaurants-db
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: restaurants-db
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
   read:
     image: grafana/loki:2.9.4
     command: "-config.file=/etc/loki/config.yaml -target=read"
@@ -344,9 +394,13 @@ services:
       timeout: 5s
       retries: 10
       start_period: 60s
+    depends_on:
+      restaurants-db:
+          condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "restaurant"
       OTEL_SERVICE_NAME: "restaurant"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://restaurants-db:5432/restaurants-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -362,9 +416,13 @@ services:
       timeout: 5s
       retries: 10
       start_period: 60s
+    depends_on:
+      reviews-db:
+        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "review"
       OTEL_SERVICE_NAME: "review"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://reviews-db:5432/reviews-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -380,9 +438,13 @@ services:
       timeout: 5s
       retries: 10
       start_period: 60s
+    depends_on:
+      users-db:
+        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "user"
       OTEL_SERVICE_NAME: "user"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://users-db:5432/users-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -398,9 +460,13 @@ services:
       timeout: 5s
       retries: 10
       start_period: 60s
+    depends_on:
+      social-graph-db:
+        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "social-graph"
       OTEL_SERVICE_NAME: "social-graph"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://social-graph-db:5432/social-graph-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -416,9 +482,13 @@ services:
       timeout: 5s
       retries: 10
       start_period: 60s
+    depends_on:
+      lists-db:
+        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "list"
       OTEL_SERVICE_NAME: "list"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://lists-db:5432/lists-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config

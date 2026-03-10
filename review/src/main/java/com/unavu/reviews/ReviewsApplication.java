@@ -9,6 +9,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
 @ComponentScan(basePackages = {"com.unavu.reviews", "com.unavu.common"})
 @EnableFeignClients
 public class ReviewsApplication {
