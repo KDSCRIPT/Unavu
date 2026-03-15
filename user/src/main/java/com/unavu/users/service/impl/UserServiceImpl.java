@@ -1,5 +1,6 @@
 package com.unavu.users.service.impl;
 
+import com.unavu.common.provider.CurrentUserProvider;
 import com.unavu.common.web.exception.ResourceAlreadyExistsException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.users.dto.CreateUserDto;
@@ -7,7 +8,6 @@ import com.unavu.users.dto.UpdateUserDto;
 import com.unavu.users.dto.UserDto;
 import com.unavu.users.entity.User;
 import com.unavu.users.mapper.UserMapper;
-import com.unavu.users.provider.CurrentUserProvider;
 import com.unavu.users.repository.UserRepository;
 import com.unavu.users.service.IUserService;
 import jakarta.ws.rs.core.Response;
@@ -36,11 +36,11 @@ public class UserServiceImpl implements IUserService {
 
     public UserServiceImpl(UserRepository userRepository,
                            Keycloak keycloak,
-                           @Value("${keycloak.realm}") String realmName,CurrentUserProvider currentUserProvider) {
+                           @Value("${keycloak.realm}") String realmName, CurrentUserProvider currentUserProvider) {
         this.userRepository = userRepository;
         this.keycloak = keycloak;
         this.realmName = realmName;
-        this.currentUserProvider=currentUserProvider;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Override
@@ -54,10 +54,10 @@ public class UserServiceImpl implements IUserService {
     public Page<UserDto> searchUsers(String searchTerm, Pageable pageable) {
         log.info("Searching user with searchTerm: searchTerm={}", searchTerm);
 
-        Specification<User> spec=Specification
+        Specification<User> spec = Specification
                 .where(UserSpecification.displayNameContains(searchTerm));
 
-        return userRepository.findAll(spec,pageable)
+        return userRepository.findAll(spec, pageable)
                 .map(UserMapper::toDto);
     }
 
@@ -70,7 +70,7 @@ public class UserServiceImpl implements IUserService {
     public UserDto getUserByKeyCloakId(String keyCloakId) {
         log.info("Fetching user by keyCloakId={}", keyCloakId);
 
-        User user=userRepository.findByKeycloakId(keyCloakId)
+        User user = userRepository.findByKeycloakId(keyCloakId)
                 .orElseThrow(() -> {
                     log.warn("User not found for fetch, keyCloakId={}", keyCloakId);
                     return new ResourceNotFoundException("User", "keyCloakId", keyCloakId);
@@ -83,7 +83,7 @@ public class UserServiceImpl implements IUserService {
     public UserDto getUserByDisplayName(String displayName) {
         log.info("Fetching user by displayName={}", displayName);
 
-        User user=userRepository.findByDisplayName(displayName)
+        User user = userRepository.findByDisplayName(displayName)
                 .orElseThrow(() -> {
                     log.warn("User not found for fetch, displayName={}", displayName);
                     return new ResourceNotFoundException("User", "displayName", displayName);
@@ -179,10 +179,10 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public void updateUser(UpdateUserDto updateUserDto) {
-        String keyCloakId=currentUserProvider.getCurrentUserId();
-        User user=userRepository.findByKeycloakId(keyCloakId)
+        String keyCloakId = currentUserProvider.getCurrentUserId();
+        User user = userRepository.findByKeycloakId(keyCloakId)
                 .orElseThrow(() -> {
-                    log.warn("User not found for update, keyCloakId={}",keyCloakId);
+                    log.warn("User not found for update, keyCloakId={}", keyCloakId);
                     return new ResourceNotFoundException("User", "keyCloakId", keyCloakId);
                 });
 
@@ -192,12 +192,12 @@ public class UserServiceImpl implements IUserService {
             userRepository.findByDisplayName(updateUserDto.getDisplayName())
                     .ifPresent(existing -> {
                         throw new ResourceAlreadyExistsException(
-                                "User","Display Name",updateUserDto
+                                "User", "Display Name", updateUserDto
                         );
                     });
         }
 
-        UserMapper.updateEntity(updateUserDto,user);
+        UserMapper.updateEntity(updateUserDto, user);
         userRepository.save(user);
 
         log.info("User updated successfully, keyCloakId={}", keyCloakId);
@@ -206,15 +206,22 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void deleteUser() {
-        String keyCloakId=currentUserProvider.getCurrentUserId();
-        User user=userRepository.findByKeycloakId(keyCloakId)
+        String keyCloakId = currentUserProvider.getCurrentUserId();
+        User user = userRepository.findByKeycloakId(keyCloakId)
                 .orElseThrow(() -> {
                     log.warn("User not found for delete, keyCloakId={}", keyCloakId);
-                    return new ResourceNotFoundException("User", "keyCloakId",keyCloakId);
+                    return new ResourceNotFoundException("User", "keyCloakId", keyCloakId);
                 });
 
         userRepository.delete(user);
         log.info("User deleted successfully, keyCloakId={}", keyCloakId);
 
+    }
+
+    @Override
+    public String getEmailByKeyCloakId(String keycloakId) {
+        return userRepository.findByKeycloakId(keycloakId)
+                .map(User::getEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "keycloakId", keycloakId));
     }
 }

@@ -24,4 +24,6 @@ public interface IUserService {
     void updateUser(UpdateUserDto updateUserDto);
 
     void deleteUser();
+
+    String getEmailByKeyCloakId(String keycloakId);
 }

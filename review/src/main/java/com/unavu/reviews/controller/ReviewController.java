@@ -1,10 +1,10 @@
 package com.unavu.reviews.controller;
 
+import com.unavu.common.provider.CurrentUserProvider;
 import com.unavu.common.web.dto.ErrorResponseDto;
 import com.unavu.common.core.ResponseConstants;
 import com.unavu.common.web.dto.ResponseDto;
 import com.unavu.reviews.dto.*;
-import com.unavu.reviews.provider.CurrentUserProvider;
 import com.unavu.reviews.service.IReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

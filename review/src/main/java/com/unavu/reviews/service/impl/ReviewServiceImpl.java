@@ -1,5 +1,10 @@
 package com.unavu.reviews.service.impl;
 
+import com.unavu.common.messaging.EventPublisher;
+import com.unavu.common.provider.CurrentUserProvider;
+import com.unavu.common.web.dto.EntityType;
+import com.unavu.common.web.dto.NotificationDto;
+import com.unavu.common.web.dto.NotificationType;
 import com.unavu.common.web.exception.ResourceActionNotAllowedException;
 import com.unavu.common.web.exception.ResourceAlreadyExistsException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
@@ -9,7 +14,6 @@ import com.unavu.reviews.dto.SearchReviewDto;
 import com.unavu.reviews.dto.UpdateReviewDto;
 import com.unavu.reviews.entity.Review;
 import com.unavu.reviews.mapper.ReviewMapper;
-import com.unavu.reviews.provider.CurrentUserProvider;
 import com.unavu.reviews.repository.ReviewRepository;
 import com.unavu.reviews.service.IReviewService;
 import com.unavu.reviews.service.client.RestaurantFeignClient;
@@ -20,7 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Objects;
 import java.util.Optional;
 
@@ -31,6 +34,7 @@ public class ReviewServiceImpl implements IReviewService {
 
     private final ReviewRepository reviewRepository;
     private RestaurantFeignClient restaurantFeignClient;
+    private final EventPublisher eventPublisher;
     private CurrentUserProvider currentUserProvider;
     @Override
     public Page<ReviewDto> listReviews(Pageable pageable) {
@@ -86,6 +90,8 @@ public class ReviewServiceImpl implements IReviewService {
     @Override
     @Transactional
     public void createReview(CreateReviewDto createReviewDto) {
+
+        String currentUserId= currentUserProvider.getCurrentUserId();
         log.info("Creating review: restaurantId={}, reviewerId={}, rating={}, title={}, comment={}, isRecommended={}",
                 createReviewDto.getRestaurantId(),
                 createReviewDto.getReviewerId(),
@@ -113,6 +119,28 @@ public class ReviewServiceImpl implements IReviewService {
         reviewRepository.save(review);
 
         log.info("Review created successfully with id={}", review.getId());
+
+        String userName=currentUserProvider.getCurrentUserName();
+        String restaurantName = restaurantFeignClient
+                .getRestaurantName(review.getRestaurantId())
+                .getBody();
+
+        String message = String.format(
+                "%s posted a %d-star review for %s",
+                userName,
+                review.getRating(),
+                restaurantName
+        );
+
+        NotificationDto event = new NotificationDto(
+                NotificationType.REVIEW_CREATED,
+                currentUserId,
+                currentUserId,
+                EntityType.REVIEW,
+                review.getId(),
+                message
+        );
+        eventPublisher.publishNotification(event);
     }
 
     @Override

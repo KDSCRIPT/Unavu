@@ -4,34 +4,88 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0613b1aa-e99b-45c1-ab93-208fcda9b913" name="Changes" comment="Setting up initial observability and updating yaml files of other config environments.">
+    <list default="true" id="0613b1aa-e99b-45c1-ab93-208fcda9b913" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/project.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/unavu/common/messaging/EventPublisher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/unavu/common/web/dto/EntityType.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/unavu/common/web/dto/NotificationDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/java/com/unavu/common/web/dto/NotificationType.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/docker-compose/prod/.env" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/docker-compose/qa/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/pom.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/NotificationApplication.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/config/NotificationServiceSecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/consumer/NotificationConsumerConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/controller/NotificationController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/entity/Notification.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/handler/ListNotificationHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/handler/RestaurantNotificationHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/handler/ReviewNotificationHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/handler/SocialGraphNotificationHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/mapper/NotificationMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/repository/NotificationRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/service/NotificationDispatcher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/service/NotificationService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/service/client/SocialGraphFeignClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/service/client/SocialGraphFeignFallBack.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/service/client/UserFeignClient.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/service/client/UserFeignFallBack.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/java/com/unavu/notification/service/impl/NotificationServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notification/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/common/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/audit/AuditAwareImpl.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/core/BaseEntity.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/core/ResponseConstants.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/web/dto/ErrorResponseDto.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/web/dto/ResponseDto.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/web/exception/GlobalExceptionHandler.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/web/exception/ResourceActionNotAllowedException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/web/exception/ResourceAlreadyExistsException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/web/exception/ResourceNotFoundException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/classes/com/unavu/common/web/exception/UnavuException.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/common-1.0-SNAPSHOT.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/maven-archiver/pom.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose/dev/.env" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/dev/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose/observability/docker-compose.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose/prod/common-config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/prod/common-config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose/dev/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/dev/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose/prod/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/prod/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose/qa/common-config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/qa/common-config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eureka-server/src/main/java/com/unavu/eureka_server/EurekaServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/eureka-server/src/main/java/com/unavu/eureka_server/EurekaServerApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eureka-server/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/eureka-server/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose/qa/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose/qa/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/GatewayServerApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/GatewayServerApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/config/GatewaySecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/config/GatewaySecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/controller/FallbackController.java" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/java/com/unavu/gateway_server/controller/FallbackController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway-server/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/gateway-server/src/main/resources/application.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/list/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/list/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/ListsApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/ListsApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/controller/UserListController.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/controller/UserListController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/provider/CurrentUserProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/java/com/unavu/common/provider/CurrentUserProvider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/client/RestaurantFeignClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/client/RestaurantFeignClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/client/RestaurantFeignFallBack.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/client/RestaurantFeignFallBack.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/impl/UserListServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/java/com/unavu/lists/service/impl/UserListServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/list/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/list/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/restaurant/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/restaurant/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/restaurant/src/main/java/com/unavu/restaurants/RestaurantApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/restaurant/src/main/java/com/unavu/restaurants/RestaurantApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/observability/target/unavu-observability-1.0-SNAPSHOT.jar" beforeDir="false" afterPath="$PROJECT_DIR$/observability/target/unavu-observability-1.0-SNAPSHOT.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/restaurant/src/main/java/com/unavu/restaurants/controller/RestaurantController.java" beforeDir="false" afterPath="$PROJECT_DIR$/restaurant/src/main/java/com/unavu/restaurants/controller/RestaurantController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/restaurant/src/main/java/com/unavu/restaurants/service/impl/RestaurantServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/restaurant/src/main/java/com/unavu/restaurants/service/impl/RestaurantServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/restaurant/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/restaurant/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/review/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/ReviewsApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/ReviewsApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/controller/ReviewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/controller/ReviewController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/provider/CurrentUserProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/client/RestaurantFeignClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/client/RestaurantFeignClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/client/RestaurantFeignFallBack.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/client/RestaurantFeignFallBack.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/java/com/unavu/reviews/service/impl/ReviewServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/review/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/review/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/SocialGraphApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/SocialGraphApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/controller/SocialGraphController.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/controller/SocialGraphController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/provider/CurrentUserProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/repository/SocialGraphRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/repository/SocialGraphRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/ISocialGraphService.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/ISocialGraphService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/impl/SocialGraphServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/java/com/unavu/socialGraph/service/impl/SocialGraphServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/social-graph/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/social-graph/src/main/resources/application.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/user/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/UsersApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/UsersApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/provider/CurrentUserProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/IUserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/IUserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user/src/main/java/com/unavu/users/service/impl/UserServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +98,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Enum" />
         <option value="Interface" />
         <option value="Class" />
       </list>
@@ -82,39 +137,41 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.ConfigServerApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.EurekaServerApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.GatewayServerApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.ListsApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.RestaurantApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.ReviewsApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.SocialGraphApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.UsersApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.com.unavu.gateway_server.GatewayServerApplication.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Unavu&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propCompiler&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ConfigServerApplication.executor": "Run",
+    "Application.EurekaServerApplication.executor": "Run",
+    "Application.GatewayServerApplication.executor": "Run",
+    "Application.ListsApplication.executor": "Run",
+    "Application.NotificationApplication.executor": "Run",
+    "Application.RestaurantApplication.executor": "Run",
+    "Application.ReviewsApplication.executor": "Run",
+    "Application.SocialGraphApplication.executor": "Run",
+    "Application.UsersApplication.executor": "Run",
+    "Application.com.unavu.gateway_server.GatewayServerApplication.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Unavu",
+    "onboarding.tips.debug.path": "C:/Unavu/notification/src/main/java/com/unavu/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "project.propCompiler"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Unavu\docker-compose\qa" />
-      <recent name="C:\Unavu\docker-compose\observability\grafana\dashboards" />
-      <recent name="C:\Unavu\docker-compose\observability\grafana\provisioning\datasource.yml" />
-      <recent name="C:\Unavu\docker-compose\observability\grafana" />
-      <recent name="C:\Unavu\docker-compose\observability\tempo" />
+      <recent name="C:\Unavu\common\src\main\java\com\unavu\common" />
+      <recent name="C:\Unavu\notification\src\main\java\com\unavu\notification\service" />
+      <recent name="C:\Unavu\list\src\main\java\com\unavu\lists\service\client" />
+      <recent name="C:\Unavu\restaurant\src\main\java\com\unavu\restaurants" />
+      <recent name="C:\Unavu\notification\src\main\java\com\unavu\notification" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Unavu\docker-compose\observability\grafana\dashboards" />
@@ -124,14 +181,14 @@
       <recent name="C:\Unavu\docker-compose\dev" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.unavu.notification.service.client" />
       <recent name="" />
       <recent name="com.unavu.restaurants.config" />
       <recent name="com.unavu.lists.config" />
       <recent name="com.unavu.reviews.config" />
-      <recent name="com.unavu.socialGraph.config" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.com.unavu.gateway_server.GatewayServerApplication">
+  <component name="RunManager" selected="Application.NotificationApplication">
     <configuration name="ConfigServerApplication" type="Application" factoryName="Application" nameIsGenerated="true">
       <option name="ALTERNATIVE_JRE_PATH" value="24" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -155,12 +212,49 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ListsApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.unavu.lists.ListsApplication" />
-      <module name="list" />
+    <configuration name="EurekaServerApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+      <envs>
+        <env name="PROFILE_ACTIVE" value="dev" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="com.unavu.eureka_server.EurekaServerApplication" />
+      <module name="eureka-server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.unavu.lists.*" />
+          <option name="PATTERN" value="com.unavu.eureka_server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GatewayServerApplication" type="Application" factoryName="Application" temporary="true">
+      <envs>
+        <env name="PROFILE_ACTIVE" value="dev" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="com.unavu.gateway_server.GatewayServerApplication" />
+      <module name="gateway-server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.unvau.gateway_server.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NotificationApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <envs>
+        <env name="PROFILE_ACTIVE" value="dev" />
+        <env name="MAILTRAP_USERNAME" value="05045ffb945321" />
+        <env name="MAILTRAP_PASSWORD" value="2e39d396e5a5b6" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="com.unavu.notification.NotificationApplication" />
+      <module name="notification" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.unavu.notification.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -169,6 +263,9 @@
       </method>
     </configuration>
     <configuration name="RestaurantApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <envs>
+        <env name="PROFILE_ACTIVE" value="dev" />
+      </envs>
       <option name="MAIN_CLASS_NAME" value="com.unavu.restaurants.RestaurantApplication" />
       <module name="restaurant" />
       <extension name="coverage">
@@ -182,6 +279,9 @@
       </method>
     </configuration>
     <configuration name="ReviewsApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <envs>
+        <env name="PROFILE_ACTIVE" value="dev" />
+      </envs>
       <option name="MAIN_CLASS_NAME" value="com.unavu.reviews.ReviewsApplication" />
       <module name="review" />
       <extension name="coverage">
@@ -195,6 +295,9 @@
       </method>
     </configuration>
     <configuration name="SocialGraphApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <envs>
+        <env name="PROFILE_ACTIVE" value="dev" />
+      </envs>
       <option name="MAIN_CLASS_NAME" value="com.unavu.socialGraph.SocialGraphApplication" />
       <module name="social-graph" />
       <extension name="coverage">
@@ -207,12 +310,19 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="com.unavu.gateway_server.GatewayServerApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.unavu.gateway_server.GatewayServerApplication" />
-      <module name="gateway-server" />
+    <configuration name="UsersApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+      <envs>
+        <env name="KEYCLOAK_SERVER_URL" value="http://keycloak:8080" />
+        <env name="KEYCLOAK_REALM" value="unavu" />
+        <env name="KEYCLOAK_CLIENT_ID" value="unavu-admin-client" />
+        <env name="KEYCLOAK_CLIENT_SECRET" value="vbdvlv68763284c98v675svdsv98768" />
+        <env name="PROFILE_ACTIVE" value="dev" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="com.unavu.users.UsersApplication" />
+      <module name="user" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.unvau.gateway_server.*" />
+          <option name="PATTERN" value="com.unavu.users.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -266,20 +376,22 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Application.UsersApplication" />
+      <item itemvalue="Application.EurekaServerApplication" />
       <item itemvalue="Application.ConfigServerApplication" />
-      <item itemvalue="Application.ListsApplication" />
+      <item itemvalue="Application.NotificationApplication" />
       <item itemvalue="Application.RestaurantApplication" />
       <item itemvalue="Application.ReviewsApplication" />
       <item itemvalue="Application.SocialGraphApplication" />
-      <item itemvalue="Application.com.unavu.gateway_server.GatewayServerApplication" />
+      <item itemvalue="Application.GatewayServerApplication" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.com.unavu.gateway_server.GatewayServerApplication" />
-        <item itemvalue="Application.ReviewsApplication" />
-        <item itemvalue="Application.ListsApplication" />
+        <item itemvalue="Application.GatewayServerApplication" />
+        <item itemvalue="Application.NotificationApplication" />
         <item itemvalue="Application.RestaurantApplication" />
         <item itemvalue="Application.SocialGraphApplication" />
+        <item itemvalue="Application.ReviewsApplication" />
       </list>
     </recent_temporary>
   </component>
@@ -347,7 +459,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773079437700</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Initial Postgres Database for prod,AuditAwareImpl bug fix and fix for hardcoded active profile dev.">
+      <option name="closed" value="true" />
+      <created>1773160100673</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1773160100673</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -369,6 +489,7 @@
     <MESSAGE value="Gateway server resilence with Resiliency4J Initial commit" />
     <MESSAGE value="Addition of X-User-Id header to request in gateway and configuring keycloak OpenID Connect" />
     <MESSAGE value="Setting up initial observability and updating yaml files of other config environments." />
-    <option name="LAST_COMMIT_MESSAGE" value="Setting up initial observability and updating yaml files of other config environments." />
+    <MESSAGE value="Initial Postgres Database for prod,AuditAwareImpl bug fix and fix for hardcoded active profile dev." />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial Postgres Database for prod,AuditAwareImpl bug fix and fix for hardcoded active profile dev." />
   </component>
 </project>

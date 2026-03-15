@@ -1,11 +1,11 @@
 package com.unavu.lists.controller;
 
+import com.unavu.common.provider.CurrentUserProvider;
 import com.unavu.common.web.dto.ErrorResponseDto;
 import com.unavu.common.core.ResponseConstants;
 import com.unavu.common.web.dto.ResponseDto;
 import com.unavu.lists.dto.*;
 import com.unavu.lists.entity.ListVisibility;
-import com.unavu.lists.provider.CurrentUserProvider;
 import com.unavu.lists.service.IUserListService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

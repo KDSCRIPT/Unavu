@@ -28,6 +28,7 @@ public class GatewaySecurityConfig {
                         .pathMatchers("/api/v1/social-graph/**").hasRole("USER")
                         .pathMatchers("/api/v1/users/**").hasRole("USER")
                         .pathMatchers("/api/v1/lists/**").hasRole("USER")
+                        .pathMatchers("/api/v1/notifications/**").hasAnyRole("USER","RESTAURANT")
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec

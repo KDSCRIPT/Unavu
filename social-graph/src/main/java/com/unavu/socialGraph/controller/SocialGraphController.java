@@ -22,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(
         name = "CRUD REST APIs for SocialGraph",
         description = "CRUD REST APIs to CREATE, UPDATE, FETCH AND DELETE SocialGraph"
@@ -321,6 +323,14 @@ public class SocialGraphController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(result);
+    }
+
+    @GetMapping("/internal/social-graph/followers/{userId}")
+    public ResponseEntity<List<String>> findFollowerIds(@PathVariable String userId) {
+        log.info("findFollowerIds called with userId={}", userId); // ← add this
+        List<String> ids = iSocialGraphService.findFollowerIds(userId);
+        log.info("findFollowerIds returning ids={}", ids); // ← and this
+        return ResponseEntity.status(HttpStatus.OK).body(ids);
     }
 
 

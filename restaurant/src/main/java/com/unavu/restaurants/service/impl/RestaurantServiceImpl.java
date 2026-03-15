@@ -1,5 +1,10 @@
 package com.unavu.restaurants.service.impl;
 
+import com.unavu.common.messaging.EventPublisher;
+import com.unavu.common.provider.CurrentUserProvider;
+import com.unavu.common.web.dto.EntityType;
+import com.unavu.common.web.dto.NotificationDto;
+import com.unavu.common.web.dto.NotificationType;
 import com.unavu.common.web.exception.ResourceAlreadyExistsException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.restaurants.dto.CreateRestaurantDto;
@@ -8,6 +13,7 @@ import com.unavu.restaurants.dto.SearchRestaurantDto;
 import com.unavu.restaurants.dto.UpdateRestaurantDto;
 import com.unavu.restaurants.entity.Restaurant;
 import com.unavu.restaurants.mapper.RestaurantMapper;
+
 import com.unavu.restaurants.repository.RestaurantRepository;
 import com.unavu.restaurants.service.IRestaurantService;
 import lombok.AllArgsConstructor;
@@ -17,8 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -27,6 +31,8 @@ import java.util.Optional;
 public class RestaurantServiceImpl implements IRestaurantService {
 
     private final RestaurantRepository restaurantRepository;
+    private final EventPublisher eventPublisher;
+    private final CurrentUserProvider currentUserProvider;
 
     @Override
     public Boolean doesRestaurantExistWithId(Long restaurantId) {
@@ -43,6 +49,8 @@ public class RestaurantServiceImpl implements IRestaurantService {
     @Override
     @Transactional
     public void createRestaurant(CreateRestaurantDto createRestaurantDto) {
+
+        String currentUserId= currentUserProvider.getCurrentUserId();
         log.info("Creating restaurant: name={}, area={}, city={}",
                 createRestaurantDto.getName(),
                 createRestaurantDto.getArea(),
@@ -69,6 +77,22 @@ public class RestaurantServiceImpl implements IRestaurantService {
         restaurantRepository.save(restaurant);
 
         log.info("Restaurant created successfully with id={}", restaurant.getId());
+
+        String message = String.format(
+                "New restaurant %s Opened in %s,%s",
+                restaurant.getName(),
+                restaurant.getArea(),
+                restaurant.getCity()
+        );
+        NotificationDto event = new NotificationDto(
+                NotificationType.RESTAURANT_CREATED,
+                currentUserId,
+                currentUserId,
+                EntityType.RESTAURANT,
+                restaurant.getId(),
+                message
+        );
+        eventPublisher.publishNotification(event);
     }
 
     @Override

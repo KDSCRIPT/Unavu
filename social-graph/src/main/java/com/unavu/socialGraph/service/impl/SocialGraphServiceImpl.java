@@ -1,5 +1,10 @@
 package com.unavu.socialGraph.service.impl;
 
+import com.unavu.common.messaging.EventPublisher;
+import com.unavu.common.provider.CurrentUserProvider;
+import com.unavu.common.web.dto.EntityType;
+import com.unavu.common.web.dto.NotificationDto;
+import com.unavu.common.web.dto.NotificationType;
 import com.unavu.common.web.exception.ResourceActionNotAllowedException;
 import com.unavu.common.web.exception.ResourceAlreadyExistsException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
@@ -7,7 +12,6 @@ import com.unavu.socialGraph.dto.SocialGraphDto;
 import com.unavu.socialGraph.entity.RelationshipType;
 import com.unavu.socialGraph.entity.SocialGraph;
 import com.unavu.socialGraph.mapper.SocialGraphMapper;
-import com.unavu.socialGraph.provider.CurrentUserProvider;
 import com.unavu.socialGraph.repository.SocialGraphRepository;
 import com.unavu.socialGraph.service.ISocialGraphService;
 import com.unavu.socialGraph.service.client.UserFeignClient;
@@ -18,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -26,6 +32,8 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     private final SocialGraphRepository socialGraphRepository;
     private UserFeignClient userFeignClient;
     private CurrentUserProvider currentUserProvider;
+    private final EventPublisher eventPublisher;
+
     @Override
     public Page<SocialGraphDto> listFollowers(Pageable pageable) {
         String userId = currentUserProvider.getCurrentUserId();
@@ -73,6 +81,21 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
         }
         SocialGraph socialGraph= SocialGraphMapper.toEntity(fromUserId,toUserId,RelationshipType.FOLLOW);
         socialGraphRepository.save(socialGraph);
+
+
+        String message = String.format(
+                "%s started following you",
+                currentUserProvider.getCurrentUserName()
+        );
+        NotificationDto event = new NotificationDto(
+                NotificationType.USER_FOLLOWED,
+                fromUserId,
+                toUserId,
+                EntityType.USER,
+                socialGraph.getId(),
+                message
+        );
+        eventPublisher.publishNotification(event);
     }
 
     @Override
@@ -188,5 +211,11 @@ public class SocialGraphServiceImpl implements ISocialGraphService {
     public boolean isMuted(String toUserId) {
         String fromUserId = currentUserProvider.getCurrentUserId();
         return socialGraphRepository.existsByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId, RelationshipType.MUTE);
+    }
+
+    @Override
+    public List<String> findFollowerIds(String userId) {
+        System.out.println(socialGraphRepository.findCurrentUserFollowerIds(userId, RelationshipType.FOLLOW));
+        return socialGraphRepository.findCurrentUserFollowerIds(userId, RelationshipType.FOLLOW);
     }
 }

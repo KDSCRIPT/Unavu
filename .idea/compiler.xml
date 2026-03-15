@@ -16,6 +16,7 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="config-server" />
+        <module name="notification" />
         <module name="social-graph" />
         <module name="common" />
         <module name="review" />
@@ -35,6 +36,7 @@
       <module name="eureka-server" options="-parameters" />
       <module name="gateway-server" options="-parameters" />
       <module name="list" options="-parameters" />
+      <module name="notification" options="-parameters" />
       <module name="observability" options="-parameters" />
       <module name="restaurant" options="-parameters" />
       <module name="review" options="-parameters" />

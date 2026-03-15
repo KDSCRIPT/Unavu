@@ -1,5 +1,10 @@
 package com.unavu.lists.service.impl;
 
+import com.unavu.common.messaging.EventPublisher;
+import com.unavu.common.provider.CurrentUserProvider;
+import com.unavu.common.web.dto.EntityType;
+import com.unavu.common.web.dto.NotificationDto;
+import com.unavu.common.web.dto.NotificationType;
 import com.unavu.common.web.exception.ResourceActionNotAllowedException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.lists.dto.*;
@@ -7,7 +12,6 @@ import com.unavu.lists.entity.ListVisibility;
 import com.unavu.lists.entity.UserList;
 import com.unavu.lists.entity.UserListItem;
 import com.unavu.lists.mapper.UserListMapper;
-import com.unavu.lists.provider.CurrentUserProvider;
 import com.unavu.lists.repository.UserListItemRepository;
 import com.unavu.lists.repository.UserListRepository;
 import com.unavu.lists.service.IUserListService;
@@ -33,6 +37,7 @@ public class UserListServiceImpl implements IUserListService {
     private final UserListItemRepository userListItemRepository;
     private RestaurantFeignClient restaurantFeignClient;
     private CurrentUserProvider currentUserProvider;
+    private EventPublisher eventPublisher;
     @Override
     @Transactional
     public void createUserList(CreateUserListDto createUserListDto) {
@@ -40,6 +45,23 @@ public class UserListServiceImpl implements IUserListService {
         createUserListDto.setOwnerId(ownerId);
         UserList userList = UserListMapper.toUserListEntity(createUserListDto);
         userListRepository.save(userList);
+
+        String message = String.format(
+                "New list %s created by %s",
+                userList.getName(),
+                userList.getOwnerId()
+        );
+        if(userList.getListVisibility()!=ListVisibility.PRIVATE) {
+            NotificationDto event = new NotificationDto(
+                    NotificationType.LIST_CREATED,
+                    userList.getOwnerId(),
+                    userList.getOwnerId(),
+                    EntityType.LIST,
+                    userList.getId(),
+                    message
+            );
+            eventPublisher.publishNotification(event);
+        }
     }
 
     @Override
@@ -102,6 +124,25 @@ public class UserListServiceImpl implements IUserListService {
         UserListItem userListItem=UserListMapper.toUserListItemEntity(addItemToUserListDto);
         userListItem.setPosition(position);
         userListItemRepository.save(userListItem);
+
+        String restaurantName=restaurantFeignClient.getRestaurantName(userListItem.getRestaurantId()).getBody();
+        String message = String.format(
+                "%s added %s to list %s",
+                currentUserProvider.getCurrentUserName(),
+                restaurantName,
+                userList.getName()
+        );
+        if(userList.getListVisibility()!=ListVisibility.PRIVATE) {
+            NotificationDto event = new NotificationDto(
+                    NotificationType.LIST_ITEM_ADDED,
+                    userList.getOwnerId(),
+                    userList.getOwnerId(),
+                    EntityType.LIST_ITEM,
+                    userListItem.getId(),
+                    message
+            );
+            eventPublisher.publishNotification(event);
+        }
     }
 
     @Override

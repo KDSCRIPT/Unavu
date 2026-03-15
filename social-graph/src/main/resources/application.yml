@@ -9,6 +9,12 @@ spring:
     openfeign:
       circuitbreaker:
         enabled: true
+    stream:
+      bindings:
+        notification-events-out-0:
+          destination: notification-events
+          content-type: application/json
+      default-binder: rabbit
 eureka:
   instance:
     preferIpAddress: true

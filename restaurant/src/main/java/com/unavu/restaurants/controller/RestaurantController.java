@@ -197,4 +197,13 @@ public class RestaurantController {
         log.info("Checking if Restaurant with id={} exists", restaurantId);
         return ResponseEntity.ok(iRestaurantService.doesRestaurantExistWithId(restaurantId));
     }
+    @GetMapping("/internal/restaurants/{restaurantId}/name")
+    public ResponseEntity<String> getRestaurantName(@PathVariable Long restaurantId) {
+        log.info("Fetching name for restaurant with id={}", restaurantId);
+        RestaurantDto restaurantDto = iRestaurantService.getRestaurantById(restaurantId);
+        if (restaurantDto.getName() == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(restaurantDto.getName());
+    }
 }

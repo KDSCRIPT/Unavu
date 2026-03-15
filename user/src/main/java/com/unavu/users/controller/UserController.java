@@ -204,4 +204,10 @@ public class UserController {
     public ResponseEntity<Boolean> userWithKeycloakIdExists(@PathVariable String keycloakId) {
         return ResponseEntity.ok(iUserService.doesUserExistWithKeycloakId(keycloakId));
     }
+
+    @GetMapping("/internal/users/{keycloakId}/email")
+    public ResponseEntity<String> getUserEmail(@PathVariable String keycloakId) {
+        return ResponseEntity.ok(iUserService.getEmailByKeyCloakId(keycloakId));
+    }
+
 }

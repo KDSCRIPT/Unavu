@@ -39,5 +39,11 @@ public class FallbackController {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body("List service is currently unavailable.");
     }
+
+//    @GetMapping("/notifications")
+//    public ResponseEntity<String> notificationsFallback() {
+//        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+//                .body("Notification service is currently unavailable.");
+//    }
 }
 

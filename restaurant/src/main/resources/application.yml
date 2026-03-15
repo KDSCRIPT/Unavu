@@ -1,6 +1,15 @@
 spring:
   application:
     name: restaurant
+
+  cloud:
+    stream:
+      bindings:
+        notification-events-out-0:
+          destination: notification-events
+          content-type: application/json
+      default-binder: rabbit
+
   profiles:
     active: ${PROFILE_ACTIVE}
   config:
