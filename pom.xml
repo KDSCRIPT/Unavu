@@ -15,6 +15,32 @@
     <packaging>pom</packaging>
     <name>Unavu Platform Parent</name>
 
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+                <spring.java.image>docker.io/library/eclipse-temurin:21-jdk-jammy</spring.java.image>
+            </properties>
+        </profile>
+        <profile>
+            <id>qa</id>
+            <properties>
+                <spring.profiles.active>qa</spring.profiles.active>
+                <spring.java.image>docker.io/library/eclipse-temurin:21-jdk-jammy</spring.java.image>
+            </properties>
+        <!--Will change to distroless image sooner-->
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+                <spring.java.image>docker.io/library/eclipse-temurin:21-jdk-jammy</spring.java.image>
+            </properties>
+        <!--Will change to distroless image sooner-->
+        </profile>
+
+    </profiles>
     <modules>
         <module>common</module>
         <module>restaurant</module>
