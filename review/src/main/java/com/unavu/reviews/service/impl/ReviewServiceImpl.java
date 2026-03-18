@@ -2,9 +2,13 @@ package com.unavu.reviews.service.impl;
 
 import com.unavu.common.messaging.EventPublisher;
 import com.unavu.common.provider.CurrentUserProvider;
-import com.unavu.common.web.dto.EntityType;
+import com.unavu.common.web.dto.ActivityDto;
+import com.unavu.common.web.dto.FeedDto;
+import com.unavu.common.web.enums.ActivityType;
+import com.unavu.common.web.enums.EntityType;
 import com.unavu.common.web.dto.NotificationDto;
-import com.unavu.common.web.dto.NotificationType;
+import com.unavu.common.web.enums.FeedType;
+import com.unavu.common.web.enums.NotificationType;
 import com.unavu.common.web.exception.ResourceActionNotAllowedException;
 import com.unavu.common.web.exception.ResourceAlreadyExistsException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
@@ -141,11 +145,36 @@ public class ReviewServiceImpl implements IReviewService {
                 message
         );
         eventPublisher.publishNotification(event);
+
+        FeedDto feedEvent=new FeedDto(
+                currentUserId,
+                currentUserId,
+                FeedType.REVIEW_CREATED,
+                EntityType.REVIEW,
+                review.getId(),
+                message
+        );
+        eventPublisher.publishFeedEvent(feedEvent);
+
+        String activityMessage = String.format(
+                "You posted a %d-star review for %s",
+                review.getRating(),
+                restaurantName
+        );
+        ActivityDto activityEvent=new ActivityDto(
+                currentUserId,
+                ActivityType.REVIEW_CREATED,
+                EntityType.REVIEW,
+                review.getId(),
+                activityMessage
+        );
+        eventPublisher.publishActivityEvent(activityEvent);
     }
 
     @Override
     @Transactional
     public void updateReview(Long id, UpdateReviewDto updateReviewDto) {
+        String currentUserId= currentUserProvider.getCurrentUserId();
         log.info("Updating review with id={}", id);
 
         Review review=reviewRepository.findById(id)
@@ -161,23 +190,50 @@ public class ReviewServiceImpl implements IReviewService {
         reviewRepository.save(review);
 
         log.info("Review updated successfully, id={}", id);
+        String restaurantName=restaurantFeignClient.getRestaurantName(review.getRestaurantId()).getBody();
+        String activityMessage = String.format(
+                "You updated your review for %s",
+                restaurantName
+        );
+        ActivityDto activityEvent=new ActivityDto(
+                currentUserId,
+                ActivityType.REVIEW_UPDATED,
+                EntityType.REVIEW,
+                review.getId(),
+                activityMessage
+        );
+        eventPublisher.publishActivityEvent(activityEvent);
     }
 
     @Override
     @Transactional
     public void deleteReview(Long id) {
         log.info("Deleting review with id={}", id);
+        String currentUserId= currentUserProvider.getCurrentUserId();
 
         Review review=reviewRepository.findById(id)
                 .orElseThrow(() -> {
                     log.warn("Review not found for delete, id={}", id);
                     return new ResourceNotFoundException("Review", "id", id.toString());
                 });
-        if(!Objects.equals(review.getReviewerId(), currentUserProvider.getCurrentUserId()))
+        if(!Objects.equals(review.getReviewerId(),currentUserId))
         {
             throw new ResourceActionNotAllowedException("User cannot update other's review");
         }
+        String restaurantName=restaurantFeignClient.getRestaurantName(review.getRestaurantId()).getBody();
+        String activityMessage = String.format(
+                "You deleted your review for %s",
+                restaurantName
+        );
         reviewRepository.delete(review);
         log.info("Review deleted successfully, id={}", id);
+        ActivityDto activityEvent=new ActivityDto(
+                currentUserId,
+                ActivityType.REVIEW_DELETED,
+                EntityType.REVIEW,
+                review.getId(),
+                activityMessage
+        );
+        eventPublisher.publishActivityEvent(activityEvent);
     }
 }

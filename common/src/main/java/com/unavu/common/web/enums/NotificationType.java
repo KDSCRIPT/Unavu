@@ -1,8 +1,12 @@
-package com.unavu.common.web.dto;
+package com.unavu.common.web.enums;
 
 public enum NotificationType {
 
+    RESTAURANT_FOLLOWED,
+
     RESTAURANT_CREATED,
+
+    RESTURANT_UPDATED,
 
     REVIEW_CREATED,
 

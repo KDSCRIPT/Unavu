@@ -1,42 +1,89 @@
 package com.unavu.socialGraph.service;
 
+import com.unavu.common.web.enums.EntityType;
 import com.unavu.socialGraph.dto.SocialGraphDto;
-import com.unavu.socialGraph.entity.RelationshipType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
 public interface ISocialGraphService {
 
-    Page<SocialGraphDto> listFollowers(Pageable pageable);
+    Page<SocialGraphDto> listFollowers(Pageable pageable, EntityType targetType);
 
-    Page<SocialGraphDto> listFollowing(Pageable pageable);
+    Page<SocialGraphDto> listFollowing(Pageable pageable, EntityType targetType);
 
-    Page<SocialGraphDto> listBlockedUsers(Pageable pageable);
+    Page<SocialGraphDto> listBlockedTargets(Pageable pageable, EntityType targetType);
 
-    Page<SocialGraphDto> listBlockedByUsers(Pageable pageable);
+    Page<SocialGraphDto> listBlockedByTargets(Pageable pageable, EntityType targetType);
 
-    Page<SocialGraphDto> listMutedUsers(Pageable pageable);
+    Page<SocialGraphDto> listMutedTargets(Pageable pageable, EntityType targetType);
 
-    void followUser(String toUserId);
+    boolean isFollowing(String targetId, EntityType targetType);
 
-    void unFollowUser(String toUserId);
+    boolean isBlocked(String targetId, EntityType targetType);
 
-    void muteUser(String toUserId);
+    boolean isMuted(String targetId, EntityType targetType);
 
-    void unMuteUser(String toUserId);
+    List<String> findFollowerActorIds(String targetId, EntityType targetType);
 
-    void blockUser(String toUserId);
+    void follow(String targetId, EntityType targetType);
 
-    void unBlockUser(String toUserId);
+    void unFollow(String targetId, EntityType targetType);
 
-    boolean isFollowing(String toUserId);
+    void mute(String targetId, EntityType targetType);
 
-    boolean isBlocked(String toUserId);
+    void unMute(String targetId, EntityType targetType);
 
-    boolean isMuted(String toUserId);
+    void block(String targetId, EntityType targetType);
 
-    List<String> findFollowerIds(String userId);
+    void unBlock(String targetId, EntityType targetType);
+
+    default void followUser(String userId) {
+        follow(userId, EntityType.USER);
+    }
+
+    default void unFollowUser(String userId) {
+        unFollow(userId, EntityType.USER);
+    }
+
+    default void blockUser(String userId) {
+        block(userId, EntityType.USER);
+    }
+
+    default void unBlockUser(String userId) {
+        unBlock(userId, EntityType.USER);
+    }
+
+    default void muteUser(String userId) {
+        mute(userId, EntityType.USER);
+    }
+
+    default void unMuteUser(String userId) {
+        unMute(userId, EntityType.USER);
+    }
+
+    default void followRestaurant(String restaurantId) {
+        follow(restaurantId, EntityType.RESTAURANT);
+    }
+
+    default void unFollowRestaurant(String restaurantId) {
+        unFollow(restaurantId, EntityType.RESTAURANT);
+    }
+
+    default void blockRestaurant(String restaurantId) {
+        block(restaurantId, EntityType.RESTAURANT);
+    }
+
+    default void unBlockRestaurant(String restaurantId) {
+        unBlock(restaurantId, EntityType.RESTAURANT);
+    }
+
+    default void muteRestaurant(String restaurantId) {
+        mute(restaurantId, EntityType.RESTAURANT);
+    }
+
+    default void unMuteRestaurant(String restaurantId) {
+        unMute(restaurantId, EntityType.RESTAURANT);
+    }
 }

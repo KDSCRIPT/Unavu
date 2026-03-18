@@ -40,10 +40,22 @@ public class FallbackController {
                 .body("List service is currently unavailable.");
     }
 
-//    @GetMapping("/notifications")
-//    public ResponseEntity<String> notificationsFallback() {
-//        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-//                .body("Notification service is currently unavailable.");
-//    }
+    @GetMapping("/notifications")
+    public ResponseEntity<String> notificationsFallback() {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body("Notification service is currently unavailable.");
+    }
+
+    @GetMapping("/feed")
+    public ResponseEntity<String> feedFallback() {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body("Feed service is currently unavailable.");
+    }
+
+    @GetMapping("/activity")
+    public ResponseEntity<String> activityFallback() {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body("Activity service is currently unavailable.");
+    }
 }
 

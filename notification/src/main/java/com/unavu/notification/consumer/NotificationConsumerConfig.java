@@ -24,23 +24,28 @@ public class NotificationConsumerConfig {
     public Consumer<NotificationDto> notificationConsumer() {
 
         return event -> {
-            System.out.println("🔥 Received NotificationDto event: " + event);
             switch (event.notificationType()) {
 
                 case RESTAURANT_CREATED ->
-                        restaurantHandler.handleRestaurantCreatedEvent(event);
+                        restaurantHandler.handleRestaurantCreatedNotificationEvent(event);
+
+                case RESTURANT_UPDATED ->
+                        restaurantHandler.handleRestaurantUpdatedNotificationEvent(event);
+
+                case RESTAURANT_FOLLOWED ->
+                        restaurantHandler.handleRestaurantFollowedNotificationEvent(event);
 
                 case USER_FOLLOWED ->
-                        socialHandler.handleUserFollowedEvent(event);
+                        socialHandler.handleUserFollowedNotificationEvent(event);
 
                 case REVIEW_CREATED ->
-                        reviewHandler.handleReviewCreatedEvent(event);
+                        reviewHandler.handleReviewCreatedNotificationEvent(event);
 
                 case LIST_CREATED ->
-                        listHandler.handleListCreatedEvent(event);
+                        listHandler.handleListCreatedNotificationEvent(event);
 
                 case LIST_ITEM_ADDED ->
-                        listHandler.handleListItemCreatedEvent(event);
+                        listHandler.handleListItemCreatedNotificationEvent(event);
             }
 
         };

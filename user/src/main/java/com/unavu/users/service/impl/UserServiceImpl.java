@@ -206,16 +206,30 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public void deleteUser() {
+
         String keyCloakId = currentUserProvider.getCurrentUserId();
+
         User user = userRepository.findByKeycloakId(keyCloakId)
                 .orElseThrow(() -> {
                     log.warn("User not found for delete, keyCloakId={}", keyCloakId);
                     return new ResourceNotFoundException("User", "keyCloakId", keyCloakId);
                 });
 
-        userRepository.delete(user);
-        log.info("User deleted successfully, keyCloakId={}", keyCloakId);
+        try {
+            keycloak.realm(realmName)
+                    .users()
+                    .delete(keyCloakId);
 
+            log.info("Deleted user from Keycloak with id={}", keyCloakId);
+
+            userRepository.delete(user);
+
+            log.info("User deleted successfully from DB, keyCloakId={}", keyCloakId);
+
+        } catch (Exception ex) {
+            log.error("Failed to delete user completely for keyCloakId={}", keyCloakId, ex);
+            throw new RuntimeException("Failed to delete user", ex);
+        }
     }
 
     @Override

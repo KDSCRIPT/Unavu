@@ -1,7 +1,9 @@
 package com.unavu.notification.service.impl;
 
+import com.unavu.common.web.dto.NotificationDto;
 import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.notification.entity.Notification;
+import com.unavu.notification.mapper.NotificationMapper;
 import com.unavu.notification.repository.NotificationRepository;
 import com.unavu.notification.service.NotificationDispatcher;
 import com.unavu.notification.service.NotificationService;
@@ -23,7 +25,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserFeignClient userFeignClient;
 
     @Override
-    public void createNotification(Notification notification) {
+    public void createNotification(NotificationDto notificationDto) {
+        Notification notification=NotificationMapper.mapToNotification(notificationDto);
         Notification saved = notificationRepository.save(notification);
         log.info("Notification stored id={}", saved.getId());
 
@@ -44,9 +47,11 @@ public class NotificationServiceImpl implements NotificationService {
         return switch (notification.getNotificationType()) {
             case REVIEW_CREATED -> "Someone reviewed a restaurant you follow";
             case USER_FOLLOWED -> "You have a new follower";
+            case RESTAURANT_FOLLOWED -> "You started following a resturant";
             case RESTAURANT_CREATED -> "A new restaurant was added";
             case LIST_CREATED -> "A new list was created";
             case LIST_ITEM_ADDED -> "A new item was added to a list";
+            case RESTURANT_UPDATED -> "A Resturant was updated";
         };
     }
     @Override

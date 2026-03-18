@@ -16,6 +16,27 @@ public class EventPublisher {
 
         log.info("Publishing notification event {}", event);
 
-        return streamBridge.send("notification-events-out-0", event);
+        boolean sent = streamBridge.send("notification-events-out-0", event);
+        if (!sent) {
+            log.error("Failed to publish notification event {}", event);
+        }
+        return sent;
+    }
+
+    public boolean publishFeedEvent(Object event) {
+        log.info("Publishing feed event {}", event);
+        boolean sent = streamBridge.send("feed-events-out-0", event);
+        if (!sent) {
+            log.error("Failed to publish feed event {}", event);
+        }
+        return sent;
+    }
+    public boolean publishActivityEvent(Object event) {
+        log.info("Publishing activity event {}", event);
+        boolean sent = streamBridge.send("activity-events-out-0", event);
+        if (!sent) {
+            log.error("Failed to publish activity event {}", event);
+        }
+        return sent;
     }
 }

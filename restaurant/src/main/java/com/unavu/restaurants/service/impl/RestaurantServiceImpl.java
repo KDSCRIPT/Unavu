@@ -2,9 +2,10 @@ package com.unavu.restaurants.service.impl;
 
 import com.unavu.common.messaging.EventPublisher;
 import com.unavu.common.provider.CurrentUserProvider;
-import com.unavu.common.web.dto.EntityType;
-import com.unavu.common.web.dto.NotificationDto;
-import com.unavu.common.web.dto.NotificationType;
+import com.unavu.common.web.dto.*;
+import com.unavu.common.web.enums.EntityType;
+import com.unavu.common.web.enums.FeedType;
+import com.unavu.common.web.enums.NotificationType;
 import com.unavu.common.web.exception.ResourceAlreadyExistsException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.restaurants.dto.CreateRestaurantDto;
@@ -84,7 +85,8 @@ public class RestaurantServiceImpl implements IRestaurantService {
                 restaurant.getArea(),
                 restaurant.getCity()
         );
-        NotificationDto event = new NotificationDto(
+
+        NotificationDto notificationEvent = new NotificationDto(
                 NotificationType.RESTAURANT_CREATED,
                 currentUserId,
                 currentUserId,
@@ -92,12 +94,24 @@ public class RestaurantServiceImpl implements IRestaurantService {
                 restaurant.getId(),
                 message
         );
-        eventPublisher.publishNotification(event);
+        eventPublisher.publishNotification(notificationEvent);
+
+        FeedDto feedEvent=new FeedDto(
+                currentUserId,
+                currentUserId,
+                FeedType.RESTAURANT_CREATED,
+                EntityType.RESTAURANT,
+                restaurant.getId(),
+                message
+        );
+        eventPublisher.publishFeedEvent(feedEvent);
     }
 
     @Override
     @Transactional
     public void updateRestaurant(Long id, UpdateRestaurantDto updateRestaurantDto) {
+
+        String currentUserId= currentUserProvider.getCurrentUserId();
         log.info("Updating restaurant with id={}", id);
 
         Restaurant restaurant = restaurantRepository.findById(id)
@@ -110,6 +124,31 @@ public class RestaurantServiceImpl implements IRestaurantService {
         restaurantRepository.save(restaurant);
 
         log.info("Restaurant updated successfully, id={}", id);
+
+        String message = String.format(
+                "%s restaurant updated few details",
+                restaurant.getName()
+        );
+
+        NotificationDto notificationEvent = new NotificationDto(
+                NotificationType.RESTAURANT_CREATED,
+                currentUserId,
+                currentUserId,
+                EntityType.RESTAURANT,
+                restaurant.getId(),
+                message
+        );
+        eventPublisher.publishNotification(notificationEvent);
+
+        FeedDto feedEvent=new FeedDto(
+                currentUserId,
+                currentUserId,
+                FeedType.RESTAURANT_CREATED,
+                EntityType.RESTAURANT,
+                restaurant.getId(),
+                message
+        );
+        eventPublisher.publishFeedEvent(feedEvent);
     }
 
     @Override

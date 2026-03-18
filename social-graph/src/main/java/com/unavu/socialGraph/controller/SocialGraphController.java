@@ -1,16 +1,11 @@
 package com.unavu.socialGraph.controller;
 
-import com.unavu.common.web.dto.ErrorResponseDto;
-import com.unavu.common.core.ResponseConstants;
 import com.unavu.common.web.dto.ResponseDto;
+import com.unavu.common.core.ResponseConstants;
+import com.unavu.common.web.enums.EntityType;
 import com.unavu.socialGraph.dto.SocialGraphDto;
 import com.unavu.socialGraph.service.ISocialGraphService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,314 +19,121 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(
-        name = "CRUD REST APIs for SocialGraph",
-        description = "CRUD REST APIs to CREATE, UPDATE, FETCH AND DELETE SocialGraph"
-)
 @Slf4j
 @RestController
-@RequestMapping(path="/api/v1", produces = {MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path = "/api/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 @Validated
 public class SocialGraphController {
 
-    private final ISocialGraphService iSocialGraphService;
+    private final ISocialGraphService socialGraphService;
 
-    @Operation(
-            summary = "Follow User",
-            description = "REST API to Follow user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "HTTP Status CREATED"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
-                    )
-            )
-    }
-    )
-    @PostMapping(value="/social-graph/follow")
-    public ResponseEntity<ResponseDto> followUser(@NotNull @RequestParam String toUserId)
-    {
-        log.info("Following toUserId={}",toUserId);
-        iSocialGraphService.followUser(toUserId);
+    @PostMapping("/social-graph/follow")
+    @Operation(summary = "Follow a target (User or Restaurant)")
+    public ResponseEntity<ResponseDto> follow(
+            @NotNull @RequestParam String targetId,
+            @RequestParam(defaultValue = "USER") EntityType entityType
+    ) {
+        log.info("Following targetId={} type={}", targetId, entityType);
+        socialGraphService.follow(targetId, entityType);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Social Graph Follow")));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,
+                        String.format(ResponseConstants.MESSAGE_CREATED, "Follow")));
     }
 
-    @Operation(
-            summary = "Unfollow User",
-            description = "REST API to unfollow user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "NO CONTENT"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error"
-            )
-    }
-    )
-    @DeleteMapping(value="/social-graph/unfollow")
-    public ResponseEntity<ResponseDto> unFollowUser(@NotNull @RequestParam String toUserId)
-    {
-        log.info("Unfollowing toUserId={}",toUserId);
-        iSocialGraphService.unFollowUser(toUserId);
+    @DeleteMapping("/social-graph/unfollow")
+    @Operation(summary = "Unfollow a target (User or Restaurant)")
+    public ResponseEntity<ResponseDto> unFollow(
+            @NotNull @RequestParam String targetId,
+            @RequestParam(defaultValue = "USER") EntityType entityType
+    ) {
+        log.info("Unfollowing targetId={} type={}", targetId, entityType);
+        socialGraphService.unFollow(targetId, entityType);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Mute User",
-            description = "REST API to Mute user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "HTTP Status CREATED"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
-                    )
-            )
-    }
-    )
-    @PostMapping(value="/social-graph/mute")
-    public ResponseEntity<ResponseDto> muteUser(@NotNull @RequestParam String toUserId)
-    {
-        log.info("Muting toUserId={}",toUserId);
-        iSocialGraphService.muteUser(toUserId);
+    @PostMapping("/social-graph/mute")
+    public ResponseEntity<ResponseDto> mute(
+            @NotNull @RequestParam String targetId,
+            @RequestParam(defaultValue = "USER") EntityType entityType
+    ) {
+        log.info("Muting targetId={} type={}", targetId, entityType);
+        socialGraphService.mute(targetId, entityType);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Social Graph Mute")));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,
+                        String.format(ResponseConstants.MESSAGE_CREATED, "Mute")));
     }
 
-    @Operation(
-            summary = "Unmute User",
-            description = "REST API to unfollow user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "NO CONTENT"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error"
-            )
-    }
-    )
-    @DeleteMapping(value="/social-graph/unmute")
-    public ResponseEntity<ResponseDto> unMuteUser(@NotNull @RequestParam String toUserId)
-    {
-        log.info("Unmuting toUserId={}",toUserId);
-        iSocialGraphService.unMuteUser(toUserId);
+    @DeleteMapping("/social-graph/unmute")
+    public ResponseEntity<ResponseDto> unMute(
+            @NotNull @RequestParam String targetId,
+            @RequestParam(defaultValue = "USER") EntityType entityType
+    ) {
+        log.info("Unmuting targetId={} type={}", targetId, entityType);
+        socialGraphService.unMute(targetId, entityType);
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(
-            summary = "Block User",
-            description = "REST API to Mute user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "HTTP Status CREATED"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
-                    )
-            )
-    }
-    )
-    @PostMapping(value="/social-graph/block")
-    public ResponseEntity<ResponseDto> blockUser(@NotNull @RequestParam String toUserId)
-    {
-        log.info("Blocking toUserId={}",toUserId);
-        iSocialGraphService.blockUser(toUserId);
+    @PostMapping("/social-graph/block")
+    public ResponseEntity<ResponseDto> block(
+            @NotNull @RequestParam String targetId,
+            @RequestParam(defaultValue = "USER") EntityType entityType
+    ) {
+        log.info("Blocking targetId={} type={}", targetId, entityType);
+        socialGraphService.block(targetId, entityType);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,String.format(ResponseConstants.MESSAGE_CREATED,"Social Graph Block")));
+                .body(new ResponseDto(ResponseConstants.STATUS_CREATED,
+                        String.format(ResponseConstants.MESSAGE_CREATED, "Block")));
     }
 
-    @Operation(
-            summary = "Unblock User",
-            description = "REST API to unblock user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "NO CONTENT"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error"
-            )
-    }
-    )
-    @DeleteMapping(value="/social-graph/unblock")
-    public ResponseEntity<ResponseDto> unBlockUser(@NotNull @RequestParam String toUserId)
-    {
-        log.info("UnBlocking toUserId={}",toUserId);
-        iSocialGraphService.unBlockUser(toUserId);
+    @DeleteMapping("/social-graph/unblock")
+    public ResponseEntity<ResponseDto> unBlock(
+            @NotNull @RequestParam String targetId,
+            @RequestParam(defaultValue = "USER") EntityType entityType
+    ) {
+        log.info("Unblocking targetId={} type={}", targetId, entityType);
+        socialGraphService.unBlock(targetId, entityType);
         return ResponseEntity.noContent().build();
-    }
-
-    @Operation(
-            summary = "Get followers of user",
-            description = "REST API to Get followers of user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "HTTP Status OK"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
-                    )
-            )
-    }
-    )
-    @GetMapping(value="/social-graph/followers")
-    public ResponseEntity<Page<SocialGraphDto>> getFollowersOfUser(Pageable pageable)
-    {
-        Page<SocialGraphDto> result=iSocialGraphService.listFollowers(pageable);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(result);
-    }
-
-    @Operation(
-            summary = "Get following of user",
-            description = "REST API to Get following of user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "HTTP Status OK"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
-                    )
-            )
-    }
-    )
-    @GetMapping(value="/social-graph/following")
-    public ResponseEntity<Page<SocialGraphDto>> getFollowingOfUser(Pageable pageable)
-    {
-        Page<SocialGraphDto> result =iSocialGraphService.listFollowing(pageable);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(result);
-    }
-
-    @Operation(
-            summary = "Get Blocked list of user",
-            description = "REST API to get blocked list of user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "HTTP Status OK"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
-                    )
-            )
-    }
-    )
-    @GetMapping(value="/social-graph/blocked")
-    public ResponseEntity<Page<SocialGraphDto>> getBlockedOfUser(Pageable pageable)
-    {
-        Page<SocialGraphDto> result =iSocialGraphService.listBlockedUsers(pageable);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(result);
-    }
-
-    @Operation(
-            summary = "Get BlockedBy list of user",
-            description = "REST API to get blockedBy list of user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "HTTP Status OK"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
-                    )
-            )
-    }
-    )
-    @GetMapping(value="/social-graph/blockedBy")
-    public ResponseEntity<Page<SocialGraphDto>> getBlockedByOfUser(Pageable pageable)
-    {
-        Page<SocialGraphDto> result =iSocialGraphService.listBlockedByUsers(pageable);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(result);
-    }
-
-    @Operation(
-            summary = "Get Muted list of user",
-            description = "REST API to get muted list of user"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "HTTP Status OK"
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "HTTP Status Internal Server Error",
-                    content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
-                    )
-            )
-    }
-    )
-    @GetMapping(value="/social-graph/muted")
-    public ResponseEntity<Page<SocialGraphDto>> getMutedOfUser(Pageable pageable)
-    {
-        Page<SocialGraphDto>result=iSocialGraphService.listMutedUsers(pageable);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(result);
     }
 
     @GetMapping("/internal/social-graph/followers/{userId}")
     public ResponseEntity<List<String>> findFollowerIds(@PathVariable String userId) {
-        log.info("findFollowerIds called with userId={}", userId); // ← add this
-        List<String> ids = iSocialGraphService.findFollowerIds(userId);
-        log.info("findFollowerIds returning ids={}", ids); // ← and this
-        return ResponseEntity.status(HttpStatus.OK).body(ids);
+        log.info("findFollowerIds called with userId={}", userId);
+        List<String> ids = socialGraphService.findFollowerActorIds(userId, EntityType.USER);
+        log.info("findFollowerIds returning ids={}", ids);
+        return ResponseEntity.ok(ids);
     }
 
+    @GetMapping("/social-graph/followers")
+    public ResponseEntity<Page<SocialGraphDto>> getFollowers(Pageable pageable) {
+        Page<SocialGraphDto> result = socialGraphService.listFollowers(pageable, EntityType.USER);
+        return ResponseEntity.ok(result);
+    }
 
+    @GetMapping("/social-graph/following")
+    public ResponseEntity<Page<SocialGraphDto>> getFollowing(Pageable pageable) {
+        Page<SocialGraphDto> result = socialGraphService.listFollowing(pageable, EntityType.USER);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/social-graph/blocked")
+    public ResponseEntity<Page<SocialGraphDto>> getBlocked(Pageable pageable) {
+        Page<SocialGraphDto> result = socialGraphService.listBlockedTargets(pageable, EntityType.USER);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/social-graph/blockedBy")
+    public ResponseEntity<Page<SocialGraphDto>> getBlockedBy(Pageable pageable) {
+        Page<SocialGraphDto> result = socialGraphService.listBlockedByTargets(pageable, EntityType.USER);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/social-graph/muted")
+    public ResponseEntity<Page<SocialGraphDto>> getMuted(Pageable pageable) {
+        Page<SocialGraphDto> result = socialGraphService.listMutedTargets(pageable, EntityType.USER);
+        return ResponseEntity.ok(result);
+    }
 }

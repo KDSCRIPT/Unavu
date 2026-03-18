@@ -2,9 +2,13 @@ package com.unavu.lists.service.impl;
 
 import com.unavu.common.messaging.EventPublisher;
 import com.unavu.common.provider.CurrentUserProvider;
-import com.unavu.common.web.dto.EntityType;
+import com.unavu.common.web.dto.ActivityDto;
+import com.unavu.common.web.dto.FeedDto;
+import com.unavu.common.web.enums.ActivityType;
+import com.unavu.common.web.enums.EntityType;
 import com.unavu.common.web.dto.NotificationDto;
-import com.unavu.common.web.dto.NotificationType;
+import com.unavu.common.web.enums.FeedType;
+import com.unavu.common.web.enums.NotificationType;
 import com.unavu.common.web.exception.ResourceActionNotAllowedException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
 import com.unavu.lists.dto.*;
@@ -42,6 +46,7 @@ public class UserListServiceImpl implements IUserListService {
     @Transactional
     public void createUserList(CreateUserListDto createUserListDto) {
         String ownerId = currentUserProvider.getCurrentUserId();
+        String userName=currentUserProvider.getCurrentUserName();
         createUserListDto.setOwnerId(ownerId);
         UserList userList = UserListMapper.toUserListEntity(createUserListDto);
         userListRepository.save(userList);
@@ -49,7 +54,7 @@ public class UserListServiceImpl implements IUserListService {
         String message = String.format(
                 "New list %s created by %s",
                 userList.getName(),
-                userList.getOwnerId()
+                userName
         );
         if(userList.getListVisibility()!=ListVisibility.PRIVATE) {
             NotificationDto event = new NotificationDto(
@@ -61,6 +66,29 @@ public class UserListServiceImpl implements IUserListService {
                     message
             );
             eventPublisher.publishNotification(event);
+
+            FeedDto feedEvent=new FeedDto(
+                    userList.getOwnerId(),
+                    userList.getOwnerId(),
+                    FeedType.LIST_CREATED,
+                    EntityType.LIST,
+                    userList.getId(),
+                    message
+            );
+            eventPublisher.publishFeedEvent(feedEvent);
+
+            String activityMessage = String.format(
+                    "You created a new list %s",
+                    userList.getName()
+            );
+            ActivityDto activityEvent=new ActivityDto(
+                    userList.getOwnerId(),
+                    ActivityType.LIST_CREATED,
+                    EntityType.LIST,
+                    userList.getId(),
+                    activityMessage
+            );
+            eventPublisher.publishActivityEvent(activityEvent);
         }
     }
 
@@ -80,6 +108,18 @@ public class UserListServiceImpl implements IUserListService {
         }
         UserListMapper.updateUserListEntity(updateUserListDto, userList);
         userListRepository.save(userList);
+        String activityMessage = String.format(
+                "You updated list %s",
+                userList.getName()
+        );
+        ActivityDto activityEvent=new ActivityDto(
+                userList.getOwnerId(),
+                ActivityType.LIST_UPDATED,
+                EntityType.LIST,
+                userList.getId(),
+                activityMessage
+        );
+        eventPublisher.publishActivityEvent(activityEvent);
     }
 
     @Override
@@ -96,8 +136,20 @@ public class UserListServiceImpl implements IUserListService {
         {
             throw new ResourceActionNotAllowedException("User cannot delete other's List");
         }
+        String activityMessage = String.format(
+                "You deleted list %s",
+                userList.getName()
+        );
         userListItemRepository.deleteByListId(id);
         userListRepository.deleteById(id);
+        ActivityDto activityEvent=new ActivityDto(
+                userList.getOwnerId(),
+                ActivityType.LIST_DELETED,
+                EntityType.LIST,
+                userList.getId(),
+                activityMessage
+        );
+        eventPublisher.publishActivityEvent(activityEvent);
     }
 
     @Override
@@ -142,6 +194,30 @@ public class UserListServiceImpl implements IUserListService {
                     message
             );
             eventPublisher.publishNotification(event);
+
+            FeedDto feedEvent=new FeedDto(
+                    userList.getOwnerId(),
+                    userList.getOwnerId(),
+                    FeedType.LIST_ITEM_ADDED,
+                    EntityType.LIST_ITEM,
+                    userListItem.getId(),
+                    message
+            );
+            eventPublisher.publishFeedEvent(feedEvent);
+
+            String activityMessage = String.format(
+                    "You added %s to list %s",
+                    restaurantName,
+                    userList.getName()
+            );
+            ActivityDto activityEvent=new ActivityDto(
+                    userList.getOwnerId(),
+                    ActivityType.LIST_ITEM_ADDED,
+                    EntityType.LIST_ITEM,
+                    userListItem.getId(),
+                    activityMessage
+            );
+            eventPublisher.publishActivityEvent(activityEvent);
         }
     }
 
@@ -165,7 +241,24 @@ public class UserListServiceImpl implements IUserListService {
         {
             throw new ResourceActionNotAllowedException("User cannot delete item to other's List");
         }
+        String restaurantName=restaurantFeignClient.getRestaurantName(userListItem.getRestaurantId()).getBody();
+        String activityMessage = String.format(
+                "You removed %s from list %s",
+                currentUserProvider.getCurrentUserName(),
+                restaurantName,
+                userList.getName()
+        );
+
         userListItemRepository.deleteById(id);
+
+        ActivityDto activityEvent=new ActivityDto(
+                userList.getOwnerId(),
+                ActivityType.LIST_ITEM_REMOVED,
+                EntityType.LIST_ITEM,
+                userListItem.getId(),
+                activityMessage
+        );
+        eventPublisher.publishActivityEvent(activityEvent);
     }
 
     @Override

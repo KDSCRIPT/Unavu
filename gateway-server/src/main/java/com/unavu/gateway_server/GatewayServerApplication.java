@@ -55,7 +55,8 @@ public class GatewayServerApplication {
                             .build();
 
                     return chain.filter(mutatedExchange);
-                });
+                })
+                .switchIfEmpty(chain.filter(exchange));
     }
 
     @Bean
@@ -125,7 +126,13 @@ public class GatewayServerApplication {
                                         .setKeyResolver(userKeyResolver()))
                         )
                         .uri("lb://SOCIAL-GRAPH"))
-                .route("users", r -> r
+                .route("users-public", r -> r
+                        .path("/api/v1/users")
+                        .and()
+                        .method(HttpMethod.POST)
+                        .uri("lb://USER")
+                )
+                .route("users-secured", r -> r
                         .path("/api/v1/users/**")
                         .filters(f -> f
                                 .circuitBreaker(config -> config
@@ -146,7 +153,7 @@ public class GatewayServerApplication {
                         .filters(f -> f
                                 .circuitBreaker(config -> config
                                         .setName("notificationCircuitBreaker")
-//                                        .setFallbackUri("forward:/fallback/notifications")
+                                        .setFallbackUri("forward:/fallback/notifications")
                                 )
                                 .retry(retryConfig -> retryConfig
                                         .setRetries(3)
@@ -157,6 +164,38 @@ public class GatewayServerApplication {
                                         .setKeyResolver(userKeyResolver()))
                         )
                         .uri("lb://NOTIFICATION"))
+                .route("feed", r -> r
+                        .path("/api/v1/feed/**")
+                        .filters(f -> f
+                                        .circuitBreaker(config -> config
+                                                        .setName("feedCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback/feed")
+                                        )
+                                        .retry(retryConfig -> retryConfig
+                                                .setRetries(3)
+                                                .setMethods(HttpMethod.GET)
+                                                .setBackoff(Duration.ofMillis(100), Duration.ofMillis(1000), 2, true))
+                                        .requestRateLimiter(config -> config
+                                                .setRateLimiter(redisRateLimiter())
+                                                .setKeyResolver(userKeyResolver()))
+                        )
+                        .uri("lb://FEED"))
+                .route("activity", r -> r
+                        .path("/api/v1/activity/**")
+                        .filters(f -> f
+                                .circuitBreaker(config -> config
+                                        .setName("activityCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback/activity")
+                                )
+                                .retry(retryConfig -> retryConfig
+                                        .setRetries(3)
+                                        .setMethods(HttpMethod.GET)
+                                        .setBackoff(Duration.ofMillis(100), Duration.ofMillis(1000), 2, true))
+                                .requestRateLimiter(config -> config
+                                        .setRateLimiter(redisRateLimiter())
+                                        .setKeyResolver(userKeyResolver()))
+                        )
+                        .uri("lb://ACTIVITY"))
                 .build();
     }
 
@@ -165,9 +204,6 @@ public class GatewayServerApplication {
         return new RedisRateLimiter(10, 20, 1); // Increased from 1,1,1 — was likely throttling all requests
     }
 
-    // -------------------------------------------------------------------------
-    // KEY RESOLVER — with fallback to IP to avoid silent rate limiter failures
-    // -------------------------------------------------------------------------
     @Bean
     public KeyResolver userKeyResolver() {
         return exchange ->

@@ -22,13 +22,15 @@ public class GatewaySecurityConfig {
 
         return http
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers(HttpMethod.POST, "/api/v1/users/**").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
                         .pathMatchers("/api/v1/restaurants/**").hasRole("RESTAURANT")
                         .pathMatchers("/api/v1/review/**").hasRole("USER")
                         .pathMatchers("/api/v1/social-graph/**").hasRole("USER")
                         .pathMatchers("/api/v1/users/**").hasRole("USER")
                         .pathMatchers("/api/v1/lists/**").hasRole("USER")
-                        .pathMatchers("/api/v1/notifications/**").hasAnyRole("USER","RESTAURANT")
+                        .pathMatchers("/api/v1/notifications/**").hasAnyRole("USER")
+                        .pathMatchers("/api/v1/feed/**").hasAnyRole("USER")
+                        .pathMatchers("/api/v1/activity/**").hasAnyRole("USER")
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec

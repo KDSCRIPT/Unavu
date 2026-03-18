@@ -2,9 +2,13 @@ package com.unavu.socialGraph.service.impl;
 
 import com.unavu.common.messaging.EventPublisher;
 import com.unavu.common.provider.CurrentUserProvider;
-import com.unavu.common.web.dto.EntityType;
+import com.unavu.common.web.dto.ActivityDto;
+import com.unavu.common.web.dto.FeedDto;
+import com.unavu.common.web.enums.ActivityType;
+import com.unavu.common.web.enums.EntityType;
 import com.unavu.common.web.dto.NotificationDto;
-import com.unavu.common.web.dto.NotificationType;
+import com.unavu.common.web.enums.FeedType;
+import com.unavu.common.web.enums.NotificationType;
 import com.unavu.common.web.exception.ResourceActionNotAllowedException;
 import com.unavu.common.web.exception.ResourceAlreadyExistsException;
 import com.unavu.common.web.exception.ResourceNotFoundException;
@@ -14,6 +18,7 @@ import com.unavu.socialGraph.entity.SocialGraph;
 import com.unavu.socialGraph.mapper.SocialGraphMapper;
 import com.unavu.socialGraph.repository.SocialGraphRepository;
 import com.unavu.socialGraph.service.ISocialGraphService;
+import com.unavu.socialGraph.service.client.RestaurantFeignClient;
 import com.unavu.socialGraph.service.client.UserFeignClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,192 +35,278 @@ import java.util.List;
 public class SocialGraphServiceImpl implements ISocialGraphService {
 
     private final SocialGraphRepository socialGraphRepository;
-    private UserFeignClient userFeignClient;
-    private CurrentUserProvider currentUserProvider;
+    private final UserFeignClient userFeignClient;
+    private final RestaurantFeignClient restaurantFeignClient;
+    private final CurrentUserProvider currentUserProvider;
     private final EventPublisher eventPublisher;
 
     @Override
-    public Page<SocialGraphDto> listFollowers(Pageable pageable) {
-        String userId = currentUserProvider.getCurrentUserId();
-        return socialGraphRepository.findByToUserIdAndRelationshipType(userId, RelationshipType.FOLLOW, pageable).map(SocialGraphMapper::toDto);
+    public Page<SocialGraphDto> listFollowers(Pageable pageable, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        return socialGraphRepository.findByTargetIdAndTargetTypeAndRelationshipType(
+                actorId,
+                targetType,
+                RelationshipType.FOLLOW,
+                pageable
+        ).map(SocialGraphMapper::toDto);
     }
 
     @Override
-    public Page<SocialGraphDto> listFollowing(Pageable pageable) {
-        String userId = currentUserProvider.getCurrentUserId();
-        return socialGraphRepository.findByFromUserIdAndRelationshipType(userId, RelationshipType.FOLLOW, pageable).map(SocialGraphMapper::toDto);
+    public Page<SocialGraphDto> listFollowing(Pageable pageable, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        return socialGraphRepository.findByActorIdAndRelationshipType(
+                actorId,
+                RelationshipType.FOLLOW,
+                pageable
+        ).map(SocialGraphMapper::toDto);
     }
 
     @Override
-    public Page<SocialGraphDto> listBlockedUsers(Pageable pageable) {
-        String userId = currentUserProvider.getCurrentUserId();
-        return socialGraphRepository.findByFromUserIdAndRelationshipType(userId, RelationshipType.BLOCK, pageable).map(SocialGraphMapper::toDto);
+    public Page<SocialGraphDto> listBlockedTargets(Pageable pageable, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        return socialGraphRepository.findByActorIdAndRelationshipType(
+                actorId,
+                RelationshipType.BLOCK,
+                pageable
+        ).map(SocialGraphMapper::toDto);
     }
 
     @Override
-    public Page<SocialGraphDto> listBlockedByUsers(Pageable pageable) {
-        String userId = currentUserProvider.getCurrentUserId();
-        return socialGraphRepository.findByToUserIdAndRelationshipType(userId,RelationshipType.BLOCK,pageable).map(SocialGraphMapper::toDto);
+    public Page<SocialGraphDto> listBlockedByTargets(Pageable pageable, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        return socialGraphRepository.findByTargetIdAndTargetTypeAndRelationshipType(
+                actorId,
+                targetType,
+                RelationshipType.BLOCK,
+                pageable
+        ).map(SocialGraphMapper::toDto);
     }
 
     @Override
-    public Page<SocialGraphDto> listMutedUsers(Pageable pageable) {
-        String userId = currentUserProvider.getCurrentUserId();
-        return socialGraphRepository.findByFromUserIdAndRelationshipType(userId,RelationshipType.MUTE,pageable).map(SocialGraphMapper::toDto);
+    public Page<SocialGraphDto> listMutedTargets(Pageable pageable, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        return socialGraphRepository.findByActorIdAndRelationshipType(
+                actorId,
+                RelationshipType.MUTE,
+                pageable
+        ).map(SocialGraphMapper::toDto);
+    }
+
+    @Override
+    public boolean isFollowing(String targetId, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        return socialGraphRepository.existsByActorIdAndTargetIdAndTargetTypeAndRelationshipType(
+                actorId, targetId, targetType, RelationshipType.FOLLOW
+        );
+    }
+
+    @Override
+    public boolean isBlocked(String targetId, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        return socialGraphRepository.existsByActorIdAndTargetIdAndTargetTypeAndRelationshipType(
+                actorId, targetId, targetType, RelationshipType.BLOCK
+        );
+    }
+
+    @Override
+    public boolean isMuted(String targetId, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        return socialGraphRepository.existsByActorIdAndTargetIdAndTargetTypeAndRelationshipType(
+                actorId, targetId, targetType, RelationshipType.MUTE
+        );
+    }
+
+    @Override
+    public List<String> findFollowerActorIds(String targetId, EntityType targetType) {
+        return socialGraphRepository.findFollowerActorIds(targetId, targetType, RelationshipType.FOLLOW);
     }
 
     @Override
     @Transactional
-    public void followUser(String toUserId) {
-        String fromUserId = currentUserProvider.getCurrentUserId();
-        if (!userFeignClient.userWithKeycloakIdExists(toUserId)) {
-            throw new ResourceNotFoundException("toUser","id", toUserId);
-        }
-        if (isBlocked(toUserId)) {
-            throw new ResourceActionNotAllowedException(
-                    "User " + fromUserId + " cannot follow user " + toUserId + " due to block"
-            );
-        }
-        if (isFollowing(toUserId)) {
-            throw new ResourceAlreadyExistsException("Follow","fromUserId and toUserId", RelationshipType.FOLLOW);
-        }
-        SocialGraph socialGraph= SocialGraphMapper.toEntity(fromUserId,toUserId,RelationshipType.FOLLOW);
-        socialGraphRepository.save(socialGraph);
+    public void follow(String targetId, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
 
+        validateTargetExists(targetId, targetType);
 
-        String message = String.format(
-                "%s started following you",
-                currentUserProvider.getCurrentUserName()
-        );
-        NotificationDto event = new NotificationDto(
-                NotificationType.USER_FOLLOWED,
-                fromUserId,
-                toUserId,
-                EntityType.USER,
-                socialGraph.getId(),
+        if (targetType == EntityType.USER && actorId.equals(targetId)) {
+            throw new ResourceActionNotAllowedException("User cannot follow themselves");
+        }
+
+        if (isBlocked(targetId, targetType)) {
+            throw new ResourceActionNotAllowedException("Cannot follow blocked target");
+        }
+
+        if (isFollowing(targetId, targetType)) {
+            throw new ResourceAlreadyExistsException("Follow", "actorId and targetId", RelationshipType.FOLLOW);
+        }
+
+        if (isMuted(targetId, targetType)) {
+            unMute(targetId, targetType);
+        }
+
+        SocialGraph edge = SocialGraphMapper.toEntity(actorId, targetId, targetType, RelationshipType.FOLLOW);
+        socialGraphRepository.save(edge);
+
+        String message = String.format("%s started following you", currentUserProvider.getCurrentUserName());
+        NotificationDto notification = new NotificationDto(
+                targetType == EntityType.USER ? NotificationType.USER_FOLLOWED : NotificationType.RESTAURANT_FOLLOWED,
+                actorId,
+                targetId,
+                targetType,
+                edge.getId(),
                 message
         );
-        eventPublisher.publishNotification(event);
+        eventPublisher.publishNotification(notification);
+
+        FeedDto feedEvent=new FeedDto(
+                actorId,
+                targetId,
+                targetType == EntityType.USER ? FeedType.USER_FOLLOWED : FeedType.RESTAURANT_FOLLOWED,
+                targetType,
+                edge.getId(),
+                message
+        );
+        eventPublisher.publishFeedEvent(feedEvent);
+
+        ActivityDto activity = new ActivityDto(
+                actorId,
+                targetType == EntityType.USER ? ActivityType.USER_FOLLOWED : ActivityType.RESTAURANT_FOLLOWED,
+                targetType,
+                edge.getId(),
+                String.format("You started following %s", currentUserProvider.getCurrentUserName())
+        );
+        eventPublisher.publishActivityEvent(activity);
     }
 
     @Override
     @Transactional
-    public void unFollowUser(String toUserId) {
-        String fromUserId = currentUserProvider.getCurrentUserId();
-        if (!userFeignClient.userWithKeycloakIdExists(toUserId)) {
-            throw new ResourceNotFoundException("toUser","id", toUserId);
+    public void unFollow(String targetId, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+
+        validateTargetExists(targetId, targetType);
+
+        if (targetType == EntityType.USER && actorId.equals(targetId)) {
+            throw new ResourceActionNotAllowedException("Cannot unfollow yourself");
         }
-        if (fromUserId.equals(toUserId)) {
-            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
+
+        if (!isFollowing(targetId, targetType)) {
+            throw new ResourceNotFoundException("Follow", "actorId and targetId", RelationshipType.FOLLOW);
         }
-        if (!isFollowing(toUserId)) {
-            throw new ResourceNotFoundException("Follow","fromUserId and toUserId", RelationshipType.FOLLOW);
-        }
-        socialGraphRepository.deleteByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId,RelationshipType.FOLLOW);
+
+        socialGraphRepository.deleteByActorIdAndTargetIdAndTargetTypeAndRelationshipType(
+                actorId, targetId, targetType, RelationshipType.FOLLOW
+        );
+
+        ActivityDto activity = new ActivityDto(
+                actorId,
+                targetType == EntityType.USER ? ActivityType.USER_UNFOLLOWED : ActivityType.RESTAURANT_UNFOLLOWED,
+                targetType,
+                0L,
+                String.format("You unfollowed %s", currentUserProvider.getCurrentUserName())
+        );
+        eventPublisher.publishActivityEvent(activity);
     }
 
     @Override
     @Transactional
-    public void muteUser(String toUserId) {
-        String fromUserId = currentUserProvider.getCurrentUserId();
-        if (!userFeignClient.userWithKeycloakIdExists(toUserId)) {
-            throw new ResourceNotFoundException("toUser","id", toUserId);
-        }
-        if (fromUserId.equals(toUserId)) {
-            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
-        }
-        if (isBlocked(toUserId)) {
-            throw new ResourceActionNotAllowedException("Blocked users cannot be muted");
-        }
-        else if (isMuted(toUserId)) {
-            throw new ResourceAlreadyExistsException("Mute","fromUserId and toUserId",RelationshipType.MUTE);
-        }
-        else if(isFollowing(toUserId))
-        {
-            socialGraphRepository.deleteByFromUserIdAndToUserIdAndRelationshipType(fromUserId, toUserId,RelationshipType.FOLLOW);
-        }
-        SocialGraph newEdge=SocialGraphMapper.toEntity(fromUserId,toUserId,RelationshipType.MUTE);
-        socialGraphRepository.save(newEdge);
-    }
-    @Override
-    @Transactional
-    public void unMuteUser(String toUserId) {
-        String fromUserId = currentUserProvider.getCurrentUserId();
-        if (!userFeignClient.userWithKeycloakIdExists(toUserId)) {
-            throw new ResourceNotFoundException("toUser","id", toUserId);
-        }
-        if (fromUserId.equals(toUserId)) {
-            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
-        }
-        if (!isMuted(toUserId)) {
-            throw new ResourceNotFoundException("Mute","fromUserId and toUserId",RelationshipType.MUTE);
-        }
-        socialGraphRepository.deleteByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId,RelationshipType.MUTE);
-    }
+    public void mute(String targetId, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        validateTargetExists(targetId, targetType);
 
+        if (targetType == EntityType.USER && actorId.equals(targetId)) {
+            throw new ResourceActionNotAllowedException("Cannot mute yourself");
+        }
 
-    @Override
-    @Transactional
-    public void blockUser(String toUserId) {
-        String fromUserId = currentUserProvider.getCurrentUserId();
-        if (!userFeignClient.userWithKeycloakIdExists(toUserId)) {
-            throw new ResourceNotFoundException("toUser","id", toUserId);
+        if (isBlocked(targetId, targetType)) {
+            throw new ResourceActionNotAllowedException("Cannot mute blocked target");
         }
-        if (fromUserId.equals(toUserId)) {
-            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
+
+        if (isMuted(targetId, targetType)) {
+            throw new ResourceAlreadyExistsException("Mute", "actorId and targetId", RelationshipType.MUTE);
         }
-        if (isBlocked(toUserId) || isBlocked(fromUserId)) {
-            throw new ResourceAlreadyExistsException("Block","fromUserId and toUserId",RelationshipType.BLOCK);
+
+        // Remove existing follow
+        if (isFollowing(targetId, targetType)) {
+            unFollow(targetId, targetType);
         }
-        else if(isMuted(toUserId))
-        {
-            socialGraphRepository.deleteByFromUserIdAndToUserIdAndRelationshipType(fromUserId, toUserId,RelationshipType.MUTE);
-        }
-        else if(isFollowing(toUserId))
-        {
-            socialGraphRepository.deleteByFromUserIdAndToUserIdAndRelationshipType(fromUserId, toUserId,RelationshipType.FOLLOW);
-        }
-        SocialGraph newEdge=SocialGraphMapper.toEntity(fromUserId,toUserId,RelationshipType.BLOCK);
-        socialGraphRepository.save(newEdge);
+
+        SocialGraph edge = SocialGraphMapper.toEntity(actorId, targetId, targetType, RelationshipType.MUTE);
+        socialGraphRepository.save(edge);
     }
 
     @Override
     @Transactional
-    public void unBlockUser(String toUserId) {
-        String fromUserId = currentUserProvider.getCurrentUserId();
-        if (!userFeignClient.userWithKeycloakIdExists(toUserId)) {
-            throw new ResourceNotFoundException("toUser","id", toUserId);
+    public void unMute(String targetId, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        validateTargetExists(targetId, targetType);
+
+        if (targetType == EntityType.USER && actorId.equals(targetId)) {
+            throw new ResourceActionNotAllowedException("Cannot unmute yourself");
         }
-        if (fromUserId.equals(toUserId)) {
-            throw new ResourceActionNotAllowedException("User cannot perform this action on themselves");
+
+        if (!isMuted(targetId, targetType)) {
+            throw new ResourceNotFoundException("Mute", "actorId and targetId", RelationshipType.MUTE);
         }
-        if (!isBlocked(toUserId)) {
-            throw new ResourceNotFoundException("Block","fromUserId and toUserId",RelationshipType.BLOCK);
+
+        socialGraphRepository.deleteByActorIdAndTargetIdAndTargetTypeAndRelationshipType(
+                actorId, targetId, targetType, RelationshipType.MUTE
+        );
+    }
+
+    @Override
+    @Transactional
+    public void block(String targetId, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        validateTargetExists(targetId, targetType);
+
+        if (targetType == EntityType.USER && actorId.equals(targetId)) {
+            throw new ResourceActionNotAllowedException("Cannot block yourself");
         }
-        socialGraphRepository.deleteByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId,RelationshipType.BLOCK);
+
+        if (isBlocked(targetId, targetType) || isBlocked(actorId, targetType)) {
+            throw new ResourceAlreadyExistsException("Block", "actorId and targetId", RelationshipType.BLOCK);
+        }
+
+        // Remove existing follow or mute
+        if (isMuted(targetId, targetType)) unMute(targetId, targetType);
+        if (isFollowing(targetId, targetType)) unFollow(targetId, targetType);
+
+        SocialGraph edge = SocialGraphMapper.toEntity(actorId, targetId, targetType, RelationshipType.BLOCK);
+        socialGraphRepository.save(edge);
     }
 
     @Override
-    public boolean isFollowing(String toUserId) {
-        String fromUserId = currentUserProvider.getCurrentUserId();
-        return socialGraphRepository.existsByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId, RelationshipType.FOLLOW);
+    @Transactional
+    public void unBlock(String targetId, EntityType targetType) {
+        String actorId = currentUserProvider.getCurrentUserId();
+        validateTargetExists(targetId, targetType);
+
+        if (targetType == EntityType.USER && actorId.equals(targetId)) {
+            throw new ResourceActionNotAllowedException("Cannot unblock yourself");
+        }
+
+        if (!isBlocked(targetId, targetType)) {
+            throw new ResourceNotFoundException("Block", "actorId and targetId", RelationshipType.BLOCK);
+        }
+
+        socialGraphRepository.deleteByActorIdAndTargetIdAndTargetTypeAndRelationshipType(
+                actorId, targetId, targetType, RelationshipType.BLOCK
+        );
     }
 
-    @Override
-    public boolean isBlocked(String toUserId) {
-        String fromUserId = currentUserProvider.getCurrentUserId();
-        return socialGraphRepository.existsByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId, RelationshipType.BLOCK);
-    }
-
-    @Override
-    public boolean isMuted(String toUserId) {
-        String fromUserId = currentUserProvider.getCurrentUserId();
-        return socialGraphRepository.existsByFromUserIdAndToUserIdAndRelationshipType(fromUserId,toUserId, RelationshipType.MUTE);
-    }
-
-    @Override
-    public List<String> findFollowerIds(String userId) {
-        System.out.println(socialGraphRepository.findCurrentUserFollowerIds(userId, RelationshipType.FOLLOW));
-        return socialGraphRepository.findCurrentUserFollowerIds(userId, RelationshipType.FOLLOW);
+    private void validateTargetExists(String targetId, EntityType targetType) {
+        switch (targetType) {
+            case USER -> {
+                if (!userFeignClient.userWithKeycloakIdExists(targetId)) {
+                    throw new ResourceNotFoundException("User", "id", targetId);
+                }
+            }
+            case RESTAURANT -> {
+                if (!restaurantFeignClient.doesRestaurantExist(Long.valueOf(targetId))) {
+                    throw new ResourceNotFoundException("Restaurant", "id", targetId);
+                }
+            }
+            default -> throw new IllegalArgumentException("Unsupported target type: " + targetType);
+        }
     }
 }

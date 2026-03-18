@@ -1,8 +1,8 @@
 package com.unavu.notification.entity;
 
 
-import com.unavu.common.web.dto.EntityType;
-import com.unavu.common.web.dto.NotificationType;
+import com.unavu.common.web.enums.EntityType;
+import com.unavu.common.web.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 import com.unavu.common.core.BaseEntity;

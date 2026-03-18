@@ -1,29 +1,32 @@
 package com.unavu.notification.handler;
 
 import com.unavu.common.web.dto.NotificationDto;
-import com.unavu.notification.entity.Notification;
-import com.unavu.notification.mapper.NotificationMapper;
-import com.unavu.notification.service.NotificationDispatcher;
 import com.unavu.notification.service.NotificationService;
-import lombok.RequiredArgsConstructor;
+import com.unavu.notification.service.client.SocialGraphFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class RestaurantNotificationHandler {
+public class RestaurantNotificationHandler extends BaseNotificationHandler {
 
-    private final NotificationDispatcher dispatcher;
-    private final NotificationService notificationService;
 
-    public void handleRestaurantCreatedEvent(NotificationDto event) {
+    public RestaurantNotificationHandler(NotificationService notificationService, SocialGraphFeignClient socialGraphFeignClient) {
+        super(notificationService, socialGraphFeignClient);
+    }
 
-        log.info("Processing restaurant event {}", event);
+    public void handleRestaurantCreatedNotificationEvent(NotificationDto event) {
+        log.info("Restaurant created notification event {}", event);
+        fanOutToFollowers(event);
+    }
 
-        Notification notification = NotificationMapper.mapToNotification(event);
+    public void handleRestaurantUpdatedNotificationEvent(NotificationDto event) {
+        log.info("Restaurant updated notification event {}", event);
+        fanOutToFollowers(event);
+    }
 
-        notificationService.createNotification(notification);
-
+    public void handleRestaurantFollowedNotificationEvent(NotificationDto event) {
+        log.info("Restaurant followed notification event {}", event);
+        fanOutToFollowers(event);
     }
 }

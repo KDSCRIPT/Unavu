@@ -59,6 +59,38 @@ services:
       file: common-config.yml
       service: microservice-db-config
 
+  kafka:
+    image: apache/kafka:4.1.1
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://kafka:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z kafka 9092 || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   read:
     image: grafana/loki:2.9.4
     command: "-config.file=/etc/loki/config.yaml -target=read"
@@ -74,7 +106,7 @@ services:
       test: [ "CMD", "/usr/bin/loki", "-health" ]
       start_period: 30s
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
     networks: &loki-dns
       unavu:
@@ -94,7 +126,7 @@ services:
       test: [ "CMD", "/usr/bin/loki", "-health" ]
       start_period: 30s
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
     depends_on:
       - minio
@@ -185,7 +217,7 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1" ]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
     extends:
       file: common-config.yml
@@ -274,7 +306,7 @@ services:
     healthcheck:
       test: [ "CMD", "service", "nginx", "status" ]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
     extends:
       file: common-config.yml
@@ -314,7 +346,7 @@ services:
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
       start_period: 5s
     extends:
@@ -341,7 +373,7 @@ services:
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health | grep UP || exit 1"
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
       start_period: 60s
     extends:
@@ -356,7 +388,7 @@ services:
     healthcheck:
       test: "curl --fail --silent localhost:8070/actuator/health | grep UP || exit 1"
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
       start_period: 60s
     extends:
@@ -382,6 +414,12 @@ services:
         condition: service_healthy
       user:
         condition: service_healthy
+      notification:
+        condition: service_healthy
+      activity:
+        condition: service_healthy
+      feed:
+        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "gateway-server"
       OTEL_SERVICE_NAME: "gateway-server"
@@ -401,7 +439,7 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "bash -c '</dev/tcp/localhost/9010'" ]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
       start_period: 60s
     depends_on:
@@ -411,13 +449,61 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
-      notifications-db:
-        condition: service_healthy
     environment:
       SPRING_RABBITMQ_HOST: "rabbit"
       SPRING_APPLICATION_NAME: "notification"
       OTEL_SERVICE_NAME: "notification"
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://notifications-db:5432/notifications-db"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+  feed:
+    image: "containedtogether/feed"
+    container_name: feed-ms
+    ports:
+      - "9011:9011"
+    healthcheck:
+      test: [ "CMD-SHELL", "bash -c '</dev/tcp/localhost/9011'" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "feed"
+      OTEL_SERVICE_NAME: "feed"
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: "kafka:9092"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+
+  activity:
+    image: "containedtogether/activity"
+    container_name: activity-ms
+    ports:
+      - "9012:9012"
+    healthcheck:
+      test: [ "CMD-SHELL", "bash -c '</dev/tcp/localhost/9012'" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "activity"
+      OTEL_SERVICE_NAME: "activity"
+      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: "kafka:9092"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -430,16 +516,12 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8085'"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
       start_period: 60s
-    depends_on:
-      restaurants-db:
-          condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "restaurant"
       OTEL_SERVICE_NAME: "restaurant"
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://restaurants-db:5432/restaurants-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -452,16 +534,12 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8081'"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
       start_period: 60s
-    depends_on:
-      reviews-db:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "review"
       OTEL_SERVICE_NAME: "review"
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://reviews-db:5432/reviews-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -474,16 +552,12 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8082'"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
       start_period: 60s
-    depends_on:
-      users-db:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "user"
       OTEL_SERVICE_NAME: "user"
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://users-db:5432/users-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -496,16 +570,12 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8083'"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
       start_period: 60s
-    depends_on:
-      social-graph-db:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "social-graph"
       OTEL_SERVICE_NAME: "social-graph"
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://social-graph-db:5432/social-graph-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -518,16 +588,12 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/8084'"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 10
       start_period: 60s
-    depends_on:
-      lists-db:
-        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "list"
       OTEL_SERVICE_NAME: "list"
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://lists-db:5432/lists-db"
     extends:
       file: common-config.yml
       service: microservice-eureka-config

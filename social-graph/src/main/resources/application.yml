@@ -10,11 +10,29 @@ spring:
       circuitbreaker:
         enabled: true
     stream:
+      binders:
+        rabbit:
+          type: rabbit
+        kafka:
+          type: kafka
+      default-binder: rabbit
+      kafka:
+        binder:
+          brokers: ${KAFKA_HOSTNAME:localhost}:9092
       bindings:
         notification-events-out-0:
           destination: notification-events
           content-type: application/json
-      default-binder: rabbit
+          binder: rabbit
+        feed-events-out-0:
+          destination: feed-events
+          content-type: application/json
+          binder: kafka
+        activity-events-out-0:
+          destination: activity-events
+          content-type: application/json
+          binder: kafka
+
 eureka:
   instance:
     preferIpAddress: true
