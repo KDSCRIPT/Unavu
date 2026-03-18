@@ -1,0 +1,5 @@
+spring:
+  datasource:
+      url: jdbc:h2:mem:notification_dev_db
+server:
+  port: 9010

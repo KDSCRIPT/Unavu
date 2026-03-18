@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://activity-db:5432/activity-db
+server:
+  port: 9012

@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://notifications-db:5432/notifications-db
+server:
+  port: 9010
