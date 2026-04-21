@@ -31,11 +31,6 @@
             <id>dev</id>
             <dependencies>
 
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-devtools</artifactId>
-                    <scope>runtime</scope>
-                </dependency>
 
                 <dependency>
                     <groupId>org.springframework.boot</groupId>
@@ -62,6 +57,11 @@
         </profile>
     </profiles>
     <dependencies>
+        <dependency>
+            <groupId>com.unavu</groupId>
+            <artifactId>unavu-observability</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
