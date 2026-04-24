@@ -12,9 +12,17 @@ spring:
   profiles:
     active: ${PROFILE_ACTIVE}
   config:
-    import: "optional:configserver:http://localhost:8071/"
+    import: "optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8071/}"
   cloud:
     gateway:
+      kubernetes:
+        discovery:
+          enabled: true
+          all-namespaces: true
+      discovery:
+        client:
+          health-indicator:
+            enabled: false
       server:
         webflux:
           discovery:
@@ -33,12 +41,12 @@ management:
   info:
     env:
       enabled: true
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8070/eureka/
-    register-with-eureka: false
-    fetch-registry: true # Gateway fetches the registry to discover services
+#eureka:
+#  client:
+#    serviceUrl:
+#      defaultZone: http://localhost:8070/eureka/
+#    register-with-eureka: false
+#    fetch-registry: true # Gateway fetches the registry to discover services
 
 resilience4j:
   circuitbreaker:

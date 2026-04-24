@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "social-graph", path = "/api/v1")
+@FeignClient(name = "social-graph",url="http://social-graph:8083",path = "/api/v1")
 public interface SocialGraphFeignClient {
 
     @GetMapping("/internal/social-graph/followers/{targetId}")

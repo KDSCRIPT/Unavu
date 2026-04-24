@@ -8,7 +8,7 @@ spring:
   profiles:
     active: ${PROFILE_ACTIVE}
   config:
-    import: optional:configserver:http://localhost:8071/
+    import: optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8071/}
 
   cloud:
     function:
@@ -26,12 +26,20 @@ spring:
         binder:
           brokers:
             - ${KAFKA_HOSTNAME:localhost}:9092
+    kubernetes:
+      discovery:
+        enabled: true
+        all-namespaces: true
+    discovery:
+      client:
+        health-indicator:
+          enabled: false
 
-eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    fetchRegistry: true
-    registerWithEureka: true
-    serviceUrl:
-      defaultZone: http://localhost:8070/eureka
+#eureka:
+#  instance:
+#    preferIpAddress: true
+#  client:
+#    fetchRegistry: true
+#    registerWithEureka: true
+#    serviceUrl:
+#      defaultZone: http://localhost:8070/eureka

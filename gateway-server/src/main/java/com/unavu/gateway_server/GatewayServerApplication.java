@@ -77,7 +77,9 @@ public class GatewayServerApplication {
                                         .setRateLimiter(redisRateLimiter())
                                         .setKeyResolver(userKeyResolver()))
                         )
-                        .uri("lb://RESTAURANT"))
+//                        .uri("lb://RESTAURANT"))
+                        .uri("http://restaurant:8085"))
+
                 .route("reviews", r -> r
                         .path("/api/v1/reviews/**")
                         .filters(f -> f
@@ -93,7 +95,8 @@ public class GatewayServerApplication {
                                         .setRateLimiter(redisRateLimiter())
                                         .setKeyResolver(userKeyResolver()))
                         )
-                        .uri("lb://REVIEW"))
+//                        .uri("lb://REVIEW"))
+                        .uri("http://review:8081"))
                 .route("lists", r -> r
                         .path("/api/v1/lists/**")
                         .filters(f -> f
@@ -109,7 +112,8 @@ public class GatewayServerApplication {
                                         .setRateLimiter(redisRateLimiter())
                                         .setKeyResolver(userKeyResolver()))
                         )
-                        .uri("lb://LIST"))
+//                        .uri("lb://LIST"))
+                        .uri("http://list:8084"))
                 .route("social-graph", r -> r
                         .path("/api/v1/social-graph/**")
                         .filters(f -> f
@@ -125,12 +129,14 @@ public class GatewayServerApplication {
                                         .setRateLimiter(redisRateLimiter())
                                         .setKeyResolver(userKeyResolver()))
                         )
-                        .uri("lb://SOCIAL-GRAPH"))
+//                        .uri("lb://SOCIAL-GRAPH"))
+                        .uri("http://social-graph:8083"))
                 .route("users-public", r -> r
                         .path("/api/v1/users")
                         .and()
                         .method(HttpMethod.POST)
-                        .uri("lb://USER")
+//                        .uri("lb://USER")
+                        .uri("http://user:8082")
                 )
                 .route("users-secured", r -> r
                         .path("/api/v1/users/**")
@@ -147,7 +153,8 @@ public class GatewayServerApplication {
                                         .setRateLimiter(redisRateLimiter())
                                         .setKeyResolver(userKeyResolver()))
                         )
-                        .uri("lb://USER"))
+//                        .uri("lb://USER"))
+                        .uri("http://user:8082"))
                 .route("notifications", r -> r
                         .path("/api/v1/notifications/**")
                         .filters(f -> f
@@ -163,7 +170,8 @@ public class GatewayServerApplication {
                                         .setRateLimiter(redisRateLimiter())
                                         .setKeyResolver(userKeyResolver()))
                         )
-                        .uri("lb://NOTIFICATION"))
+//                        .uri("lb://NOTIFICATION"))
+                        .uri("http://notification:9010"))
                 .route("feed", r -> r
                         .path("/api/v1/feed/**")
                         .filters(f -> f
@@ -179,7 +187,8 @@ public class GatewayServerApplication {
                                                 .setRateLimiter(redisRateLimiter())
                                                 .setKeyResolver(userKeyResolver()))
                         )
-                        .uri("lb://FEED"))
+//                        .uri("lb://FEED"))
+                        .uri("http://feed:9011"))
                 .route("activity", r -> r
                         .path("/api/v1/activity/**")
                         .filters(f -> f
@@ -195,7 +204,8 @@ public class GatewayServerApplication {
                                         .setRateLimiter(redisRateLimiter())
                                         .setKeyResolver(userKeyResolver()))
                         )
-                        .uri("lb://ACTIVITY"))
+//                        .uri("lb://ACTIVITY"))
+                        .uri("http://activity:9012"))
                 .build();
     }
 

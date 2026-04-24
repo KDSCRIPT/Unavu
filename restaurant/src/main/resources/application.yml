@@ -3,6 +3,14 @@ spring:
     name: restaurant
 
   cloud:
+    kubernetes:
+      discovery:
+        enabled: true
+        all-namespaces: true
+    discovery:
+      client:
+        health-indicator:
+          enabled: false
     stream:
       binders:
         rabbit:
@@ -31,13 +39,13 @@ spring:
   profiles:
     active: ${PROFILE_ACTIVE}
   config:
-    import: optional:configserver:http://localhost:8071/
+    import: optional:configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8071/}
 
-eureka:
-  instance:
-    preferIpAddress: true
-  client:
-    fetchRegistry: true
-    registerWithEureka: true
-    serviceUrl:
-      defaultZone: http://localhost:8070/eureka
+#eureka:
+#  instance:
+#    preferIpAddress: true
+#  client:
+#    fetchRegistry: true
+#    registerWithEureka: true
+#    serviceUrl:
+#      defaultZone: http://localhost:8070/eureka
