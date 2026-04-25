@@ -1,0 +1,49 @@
+services:
+  network-deploy-service:
+    networks:
+      - unavu
+
+  microservice-db-config:
+    extends:
+      service: network-deploy-service
+    image: postgres:16
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+
+  microservice-base-config:
+    extends:
+      service: network-deploy-service
+    env_file:
+      - .env
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    environment:
+      SPRING_RABBITMQ_HOST: rabbit
+
+  microservice-config-server-config:
+    extends:
+      service: microservice-base-config
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8071/
+
+  microservice-eureka-config:
+    extends:
+      service: microservice-config-server-config
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8070/eureka

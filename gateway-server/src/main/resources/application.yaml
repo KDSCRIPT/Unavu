@@ -1,0 +1,84 @@
+server:
+  port: 8072
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://keycloak:8080/realms/unavu}
+          jwk-set-uri: ${JWK_SET_URI:http://keycloak:8080/realms/unavu/protocol/openid-connect/certs}
+  application:
+    name: "gateway-server"
+  profiles:
+    active: ${PROFILE_ACTIVE}
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lowerCaseServiceId: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      enabled: true
+  info:
+    env:
+      enabled: true
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+    register-with-eureka: false
+    fetch-registry: true # Gateway fetches the registry to discover services
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 2
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+    instances:
+      userCircuitBreaker:
+        baseConfig: default
+      restaurantCircuitBreaker:
+        baseConfig: default
+      reviewCircuitBreaker:
+        baseConfig: default
+      socialGraphCircuitBreaker:
+        baseConfig: default
+      listCircuitBreaker:
+        baseConfig: default
+
+  timelimiter:
+    instances:
+      userCircuitBreaker:
+        timeoutDuration: 5s
+      restaurantCircuitBreaker:
+        timeoutDuration: 5s
+      reviewCircuitBreaker:
+        timeoutDuration: 5s
+      socialGraphCircuitBreaker:
+        timeoutDuration: 5s
+      listCircuitBreaker:
+        timeoutDuration: 5s
+
+  ratelimiter:
+    configs:
+      default:
+        timeoutDuration: 1000
+        limitRefreshPeriod: 5000
+        limitForPeriod: 1
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

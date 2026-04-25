@@ -1,0 +1,20 @@
+package com.unavu.common.web.enums;
+
+public enum ActivityType {
+
+    RESTAURANT_FOLLOWED,
+    RESTAURANT_UNFOLLOWED,
+
+    REVIEW_CREATED,
+    REVIEW_UPDATED,
+    REVIEW_DELETED,
+
+    LIST_CREATED,
+    LIST_UPDATED,
+    LIST_DELETED,
+    LIST_ITEM_ADDED,
+    LIST_ITEM_REMOVED,
+
+    USER_FOLLOWED,
+    USER_UNFOLLOWED,
+}

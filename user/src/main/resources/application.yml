@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: user
+  profiles:
+    active: ${PROFILE_ACTIVE}
+  config:
+    import: optional:configserver:http://localhost:8071/
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka
