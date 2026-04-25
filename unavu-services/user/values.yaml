@@ -1,0 +1,28 @@
+deploymentName: user
+appLabel: user
+appName: user
+
+replicaCount: 1
+
+image:
+  repository: containedtogether/user
+  tag: latest
+
+containerPort: 8082
+
+service:
+  type: ClusterIP
+  port: 8082
+  targetPort: 8082
+global:
+  configMapName: unavu-configmap
+
+startupProbe:
+  failureThreshold: 30
+  periodSeconds: 10
+
+readinessProbe:
+  periodSeconds: 30
+
+livenessProbe:
+  periodSeconds: 30

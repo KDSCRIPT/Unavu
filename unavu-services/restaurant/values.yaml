@@ -1,0 +1,29 @@
+deploymentName: restaurant
+appLabel: restaurant
+appName: restaurant
+
+replicaCount: 1
+
+image:
+  repository: containedtogether/restaurant
+  tag: latest
+
+containerPort: 8085
+
+service:
+  type: ClusterIP
+  port: 8085
+  targetPort: 8085
+global:
+  configMapName: unavu-configmap
+
+startupProbe:
+  failureThreshold: 30
+  periodSeconds: 10
+
+readinessProbe:
+  periodSeconds: 30
+
+livenessProbe:
+  periodSeconds: 30
+

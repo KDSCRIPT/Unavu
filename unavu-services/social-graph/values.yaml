@@ -1,0 +1,28 @@
+deploymentName: social-graph
+appLabel: social-graph
+appName: social-graph
+
+replicaCount: 1
+
+image:
+  repository: containedtogether/social-graph
+  tag: latest
+
+containerPort: 8083
+
+service:
+  type: ClusterIP
+  port: 8083
+  targetPort: 8083
+global:
+  configMapName: unavu-configmap
+
+startupProbe:
+  failureThreshold: 30
+  periodSeconds: 10
+
+readinessProbe:
+  periodSeconds: 30
+
+livenessProbe:
+  periodSeconds: 30

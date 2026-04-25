@@ -1,0 +1,26 @@
+deploymentName: config-server
+appLabel: config-server
+appName: config-server
+
+replicaCount: 1
+
+image:
+  repository: containedtogether/config-server
+  tag: latest
+
+containerPort: 8071
+
+service:
+  type: ClusterIP
+  port: 8071
+  targetPort: 8071
+
+startupProbe:
+  failureThreshold: 30
+  periodSeconds: 10
+
+readinessProbe:
+  periodSeconds: 30
+
+livenessProbe:
+  periodSeconds: 30

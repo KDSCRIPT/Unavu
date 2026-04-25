@@ -1,0 +1,200 @@
+environments:
+  prod:
+    values:
+      - ../environments/prod.yaml
+      - ../environments/secrets.prod.yaml
+  dev:
+    values:
+      - ../environments/dev.yaml
+      - ../environments/secrets.dev.yaml
+  qa:
+    values:
+      - ../environments/qa.yaml
+      - ../environments/secrets.qa.yaml
+
+---
+
+helmDefaults:
+  wait: true
+  timeout: 600
+  atomic: true
+  createNamespace: true
+
+releases:
+
+  - name: postgres
+    namespace: default
+    chart: ../postgres
+    values:
+      - ../environments/{{ .Environment.Name }}.yaml
+      - ../environments/secrets.{{ .Environment.Name }}.yaml
+
+  - name: kafka
+    namespace: default
+    chart: ../kafka
+    needs:
+      - default/postgres
+
+  - name: rabbitmq
+    namespace: default
+    chart: ../rabbitmq
+    needs:
+      - default/postgres
+
+  - name: keycloak
+    namespace: default
+    chart: ../keycloak
+    needs:
+      - default/postgres
+
+  - name: kube-prometheus
+    namespace: default
+    chart: ../kube-prometheus
+
+  - name: grafana-loki
+    namespace: default
+    chart: ../grafana-loki
+    needs:
+      - default/kube-prometheus
+
+  - name: grafana-tempo
+    namespace: default
+    chart: ../grafana-tempo
+    needs:
+      - default/kube-prometheus
+
+  - name: grafana-alloy
+    namespace: default
+    chart: ../grafana-alloy
+    needs:
+      - default/grafana-loki
+      - default/grafana-tempo
+
+  - name: grafana
+    namespace: default
+    chart: ../grafana
+    needs:
+      - default/grafana-loki
+      - default/grafana-tempo
+
+  - name: config-server
+    namespace: default
+    chart: ../config-server
+    needs:
+      - default/kafka
+      - default/rabbitmq
+      - default/keycloak
+    values:
+      - ../environments/{{ .Environment.Name }}.yaml
+      - ../environments/secrets.{{ .Environment.Name }}.yaml
+      
+    skipDeps: true
+  
+  - name: spring-discovery
+    namespace: default
+    chart: ../discovery-server
+    skipDeps: true
+    needs:
+      - default/config-server
+  
+  - name: unavu-common
+    namespace: default
+    chart: ../unavu-common
+    skipDeps: true
+    values:
+      - ../environments/{{ .Environment.Name }}.yaml
+      - ../environments/secrets.{{ .Environment.Name }}.yaml
+    needs:
+      - default/spring-discovery
+
+  - name: activity
+    namespace: default
+    chart: ../unavu-services/activity
+    skipDeps: true
+    needs:
+      - default/unavu-common
+      - default/kafka
+      - default/rabbitmq
+
+  - name: feed
+    namespace: default
+    chart: ../unavu-services/feed
+    skipDeps: true
+    needs:
+      - default/unavu-common
+      - default/kafka
+      - default/rabbitmq
+
+  - name: list
+    namespace: default
+    chart: ../unavu-services/list
+    skipDeps: true
+    needs:
+      - default/unavu-common
+      - default/kafka
+      - default/rabbitmq
+
+  - name: notification
+    namespace: default
+    chart: ../unavu-services/notification
+    skipDeps: true
+    needs:
+      - default/unavu-common
+      - default/kafka
+      - default/rabbitmq
+
+  - name: restaurant
+    namespace: default
+    chart: ../unavu-services/restaurant
+    skipDeps: true
+    needs:
+      - default/unavu-common
+      - default/kafka
+      - default/rabbitmq
+
+  - name: review
+    namespace: default
+    chart: ../unavu-services/review
+    skipDeps: true
+    needs:
+      - default/unavu-common
+      - default/kafka
+      - default/rabbitmq
+
+  - name: social-graph
+    namespace: default
+    chart: ../unavu-services/social-graph
+    skipDeps: true
+    needs:
+      - default/unavu-common
+      - default/kafka
+      - default/rabbitmq
+
+  - name: user
+    namespace: default
+    chart: ../unavu-services/user
+    skipDeps: true
+    needs:
+      - default/unavu-common
+      - default/kafka
+      - default/rabbitmq
+      - default/keycloak
+
+  - name: gateway-server
+    namespace: default
+    chart: ../gateway-server
+    skipDeps: true
+    values:
+      - ../environments/{{ .Environment.Name }}.yaml
+      - ../environments/secrets.{{ .Environment.Name }}.yaml
+    needs:
+      - default/unavu-common
+      - default/keycloak
+      - default/activity
+      - default/feed
+      - default/list
+      - default/notification
+      - default/restaurant
+      - default/review
+      - default/social-graph
+      - default/user

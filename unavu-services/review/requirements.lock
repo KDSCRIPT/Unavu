@@ -1,0 +1,6 @@
+dependencies:
+- name: unavu-common
+  repository: file://../../unavu-common
+  version: 1.0.0
+digest: sha256:9a9bbf02e456db5133e4beea7700e4ca57361a8bd5798e3da2460f5e2d24b51a
+generated: "2026-04-19T11:40:14.7291178+05:30"

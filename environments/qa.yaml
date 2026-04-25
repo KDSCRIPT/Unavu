@@ -1,0 +1,83 @@
+global:
+  configMapName: unavu-configmap
+  activeProfile: qa
+  profileActive: qa
+  configServerURL: configserver:http://config-server:8071/
+  discoveryServerURL: "http://spring-cloud-kubernetes-discoveryserver:80/"
+
+  KeycloakServerUrl: http://keycloak:80
+  KeycloakRealm: unavu
+  KeycloakClientId: unavu-admin-client
+  KeycloakIssuerUri: http://keycloak/realms/unavu
+  KeycloakJWKSetUri: http://keycloak/realms/unavu/protocol/openid-connect/certs
+
+  openTelemetryJavaAgent: "-javaagent:/app/libs/opentelemetry-javaagent-2.22.0.jar"
+  otelExporterEndPoint: http://grafana-tempo.default.svc.cluster.local:4318
+  otelMetricsExporter: none
+  otelLogsExporter: none
+
+  kafkaBrokerURL: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local:9092
+  KafkaHostname: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local
+
+  rabbitMQHost: rabbitmq
+  rabbitMQUsername: guest
+
+  springCloudConfigURI: http://config-server:8071/
+  configRepoUserUrl: https://github.com/KDSCRIPT/Unavu.git
+  configRepoUsername: KDSCRIPT
+  readinessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 30
+
+  livenessProbe:
+    initialDelaySeconds: 60
+    periodSeconds: 30
+
+instances:
+  - name: activity-db
+    database: activity-db
+    username: postgres
+    port: 5432
+    storage: 5Gi
+
+  - name: feed-db
+    database: feed-db
+    username: postgres
+    port: 5432
+    storage: 5Gi
+
+  - name: lists-db
+    database: lists-db
+    username: postgres
+    port: 5432
+    storage: 5Gi
+
+  - name: notifications-db
+    database: notifications-db
+    username: postgres
+    port: 5432
+    storage: 5Gi
+
+  - name: restaurants-db
+    database: restaurants-db
+    username: postgres
+    port: 5432
+    storage: 5Gi
+
+  - name: reviews-db
+    database: reviews-db
+    username: postgres
+    port: 5432
+    storage: 5Gi
+
+  - name: social-graph-db
+    database: social-graph-db
+    username: postgres
+    port: 5432
+    storage: 5Gi
+
+  - name: users-db
+    database: users-db
+    username: postgres
+    port: 5432
+    storage: 5Gi

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: config-server
+description: config-server microservice
+type: application
+version: 0.1.0

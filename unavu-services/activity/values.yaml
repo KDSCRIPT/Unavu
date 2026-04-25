@@ -1,0 +1,29 @@
+deploymentName: activity
+appLabel: activity
+appName: activity
+
+replicaCount: 1
+
+image:
+  repository: containedtogether/activity
+  tag: latest
+
+containerPort: 9012
+
+service:
+  type: ClusterIP
+  port: 9012
+  targetPort: 9012
+global:
+  configMapName: unavu-configmap
+
+startupProbe:
+  failureThreshold: 30
+  periodSeconds: 10
+
+readinessProbe:
+  periodSeconds: 30
+
+livenessProbe:
+  periodSeconds: 30
+

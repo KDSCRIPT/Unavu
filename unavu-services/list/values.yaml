@@ -1,0 +1,28 @@
+deploymentName: list
+appLabel: list
+appName: list
+
+replicaCount: 1
+
+image:
+  repository: containedtogether/list
+  tag: latest
+
+containerPort: 8084
+
+service:
+  type: ClusterIP
+  port: 8084
+  targetPort: 8084
+global:
+  configMapName: unavu-configmap
+
+startupProbe:
+  failureThreshold: 30
+  periodSeconds: 10
+
+readinessProbe:
+  periodSeconds: 30
+
+livenessProbe:
+  periodSeconds: 30

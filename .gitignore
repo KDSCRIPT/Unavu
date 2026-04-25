@@ -1,0 +1,8 @@
+# Secrets - never commit these
+environments/secrets.*.yaml
+key.txt
+
+# Helm cache
+charts/
+Chart.lock
+*.tgz

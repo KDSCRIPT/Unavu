@@ -1,0 +1,28 @@
+deploymentName: feed
+appLabel: feed
+appName: feed
+
+replicaCount: 1
+
+image:
+  repository: containedtogether/feed
+  tag: latest
+
+containerPort: 9011
+
+service:
+  type: ClusterIP
+  port: 9011
+  targetPort: 9011
+global:
+  configMapName: unavu-configmap
+
+startupProbe:
+  failureThreshold: 30
+  periodSeconds: 10
+
+readinessProbe:
+  periodSeconds: 30
+
+livenessProbe:
+  periodSeconds: 30
