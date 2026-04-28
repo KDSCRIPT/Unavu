@@ -2,7 +2,8 @@
 
 Unavu is a social catalog platform for restaurants. Discover restaurants, post reviews, follow friends to see what they like, and curate lists of your favourite places.
 
-> Frontend (Angular) in progress.
+> This is the `pre-kubernetes-docker-compose` branch — the Docker Compose version of the platform.
+> The project has since been migrated to Kubernetes with Helm and Helmfile. See the `main` branch for the latest.
 
 ---
 
@@ -144,20 +145,6 @@ gateway-server   # port 8072
 ## API Overview
 
 All requests go through the gateway at `http://localhost:8072`.
-
-| Endpoint | Service | Auth |
-|---|---|---|
-| `POST /api/v1/users` | User | Public |
-| `GET /api/v1/users/me` | User | Required |
-| `GET /api/v1/restaurants` | Restaurant | Required |
-| `POST /api/v1/restaurants` | Restaurant | Required |
-| `GET /api/v1/reviews` | Review | Required |
-| `POST /api/v1/reviews` | Review | Required |
-| `GET /api/v1/lists` | List | Required |
-| `POST /api/v1/social-graph/follow/{userId}` | Social Graph | Required |
-| `GET /api/v1/feed/me` | Feed | Required |
-| `GET /api/v1/notifications/me` | Notification | Required |
-| `GET /api/v1/activity/me` | Activity | Required |
 
 Full API documentation available via Swagger UI at each service's `/swagger-ui.html`.
 
