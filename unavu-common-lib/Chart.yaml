@@ -1,0 +1,5 @@
+apiVersion: v2
+name: unavu-common-lib
+description: Shared template library for Unavu microservices
+type: library
+version: 1.0.0

@@ -3,3 +3,7 @@ name: unavu-common
 description: Common reusable templates for Unavu microservices
 type: application
 version: 1.0.0
+dependencies:
+  - name: unavu-common-lib
+    version: 1.0.0
+    repository: "file://../unavu-common-lib"

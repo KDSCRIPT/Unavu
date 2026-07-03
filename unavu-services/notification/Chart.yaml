@@ -4,6 +4,6 @@ description: notification microservice
 type: application
 version: 0.1.0
 dependencies:
-  - name: unavu-common
+  - name: unavu-common-lib
     version: 1.0.0
-    repository: file://../../unavu-common
+    repository: "file://../../unavu-common-lib"
