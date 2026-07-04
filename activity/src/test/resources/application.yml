@@ -1,0 +1,43 @@
+server:
+  port: 9012
+
+spring:
+  application:
+    name: activity
+  profiles:
+    active: test
+  cloud:
+    config:
+      enabled: false
+    kubernetes:
+      discovery:
+        enabled: false
+    discovery:
+      client:
+        health-indicator:
+          enabled: false
+    function:
+      definition: activityConsumer
+    openfeign:
+      circuitbreaker:
+        enabled: true
+    stream:
+      bindings:
+        activityConsumer-in-0:
+          destination: activity-events
+          group: activity
+          content-type: application/json
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092
+          auto-create-topics: false
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop

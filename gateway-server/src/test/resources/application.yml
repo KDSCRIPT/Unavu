@@ -1,0 +1,83 @@
+server:
+  port: 8072
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/unavu
+          jwk-set-uri: http://localhost:8080/realms/unavu/protocol/openid-connect/certs
+  application:
+    name: "gateway-server"
+  profiles:
+    active: test
+  cloud:
+    config:
+      enabled: false
+    gateway:
+      kubernetes:
+        discovery:
+          enabled: false
+      discovery:
+        client:
+          health-indicator:
+            enabled: false
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lowerCaseServiceId: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      enabled: true
+  info:
+    env:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 2
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+    instances:
+      userCircuitBreaker:
+        baseConfig: default
+      restaurantCircuitBreaker:
+        baseConfig: default
+      reviewCircuitBreaker:
+        baseConfig: default
+      socialGraphCircuitBreaker:
+        baseConfig: default
+      listCircuitBreaker:
+        baseConfig: default
+
+  timelimiter:
+    instances:
+      userCircuitBreaker:
+        timeoutDuration: 5s
+      restaurantCircuitBreaker:
+        timeoutDuration: 5s
+      reviewCircuitBreaker:
+        timeoutDuration: 5s
+      socialGraphCircuitBreaker:
+        timeoutDuration: 5s
+      listCircuitBreaker:
+        timeoutDuration: 5s
+
+  ratelimiter:
+    configs:
+      default:
+        timeoutDuration: 1000
+        limitRefreshPeriod: 5000
+        limitForPeriod: 1

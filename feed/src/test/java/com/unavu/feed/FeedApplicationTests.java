@@ -1,10 +1,10 @@
-package com.unavu.list;
+package com.unavu.feed;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ListApplicationTests {
+class FeedApplicationTests {
 
 	@Test
 	void contextLoads() {

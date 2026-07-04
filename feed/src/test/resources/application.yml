@@ -1,0 +1,50 @@
+server:
+  port: 9011
+
+spring:
+  application:
+    name: feed
+  profiles:
+    active: test
+  cloud:
+    config:
+      enabled: false
+    kubernetes:
+      discovery:
+        enabled: false
+    discovery:
+      client:
+        health-indicator:
+          enabled: false
+    function:
+      definition: feedConsumer
+    openfeign:
+      circuitbreaker:
+        enabled: true
+    stream:
+      bindings:
+        feedConsumer-in-0:
+          destination: feed-events
+          group: feed
+          content-type: application/json
+          consumer:
+            auto-startup: false
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092
+          auto-create-topics: false
+
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+management:
+  health:
+    binders:
+      enabled: false

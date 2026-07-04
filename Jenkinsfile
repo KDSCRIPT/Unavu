@@ -5,6 +5,9 @@ pipeline {
         maven 'Maven3916'
     }
 
+    environment {
+        NVD_API_KEY=credentials('nvd-api-key')
+    }
     options {
         disableResume()
         disableConcurrentBuilds abortPrevious: true
@@ -19,9 +22,11 @@ pipeline {
                 }
             }
         }
+
         stage('OWASP Dependency Scanning') {
             steps {
                 dependencyCheck additionalArguments: '''
+                    --nvdApiKey $NVD_API_KEY
                     --scan './'
                     --out './'
                     --format 'ALL'
@@ -29,5 +34,12 @@ pipeline {
                 dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: true
             }
         }
+
+        stage('Unit Testing') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
     }
 }
