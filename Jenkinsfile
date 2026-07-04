@@ -25,17 +25,15 @@ pipeline {
 
         stage('OWASP Dependency Scanning') {
             steps {
-                catchError(buildResult: 'SUCCESS', message: 'Oops! It will be fixed in future releases', stageResult: 'UNSTABLE') {  
-                    dependencyCheck additionalArguments: '''
-                        --nvdApiKey $NVD_API_KEY
-                        --scan './'
-                        --out './'
-                        --format 'HTML'
-                        --format 'XML'
-                        --format 'JUNIT'
-                        --prettyPrint''', odcInstallation: 'OWASP-DepCheck-10'
-                        dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: true
-                }
+                dependencyCheck additionalArguments: '''
+                    --nvdApiKey $NVD_API_KEY
+                    --scan './'
+                    --out './'
+                    --format 'HTML'
+                    --format 'XML'
+                    --format 'JUNIT'
+                    --prettyPrint''', odcInstallation: 'OWASP-DepCheck-10'
+                dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', //stopBuild: true
             }
         }
 
@@ -45,12 +43,19 @@ pipeline {
             }
         }
 
+        stage('Code Coverage') {
+            steps {
+                sh 'mvn jacoco:report'
+            }
+        }
     }
     
     post {
         always {
             archiveArtifacts artifacts: '**/dependency-check-report.html, **/dependency-check-report.xml, **/dependency-check-junit.xml', allowEmptyArchive: true
             junit allowEmptyResults: true, keepProperties: true, testResults: '**/target/surefire-reports/*.xml'
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: '**/target/site/jacoco', reportFiles: 'index.html', reportName: 'JaCoCo Coverage Report', reportTitles: '', useWrapperFileDirectly: true])
+
         }
     }
 }
