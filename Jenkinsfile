@@ -11,7 +11,7 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
+        stage('Build Maven Dependencies') {
             options { timestamps()}
             steps {
                 script {
