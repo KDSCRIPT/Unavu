@@ -25,12 +25,14 @@ pipeline {
 
         stage('OWASP Dependency Scanning') {
             steps {
-                dependencyCheck additionalArguments: '''
-                    --nvdApiKey $NVD_API_KEY
-                    --scan './'
-                    --out './'
-                    --format 'ALL'
-                    --prettyPrint''', odcInstallation: 'OWASP-DepCheck-10'
+               dependencyCheck additionalArguments: '''
+                --nvdApiKey $NVD_API_KEY
+                --scan './'
+                --out './'
+                --format 'HTML'
+                --format 'XML'
+                --format 'JUNIT'
+                --prettyPrint''', odcInstallation: 'OWASP-DepCheck-10'
                 dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml', stopBuild: true
             }
         }
@@ -41,5 +43,12 @@ pipeline {
             }
         }
 
+    }
+    
+    post {
+        always {
+            archiveArtifacts artifacts: '**/dependency-check-report.html, **/dependency-check-report.xml, **/dependency-check-junit.xml', allowEmptyArchive: true
+            junit allowEmptyResults: true, keepProperties: true, testResults: '**/target/surefire-reports/*.xml'
+        }
     }
 }
