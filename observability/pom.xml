@@ -11,6 +11,9 @@
         <artifactId>unavu-platform</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+    <properties>
+        <jib.skip>true</jib.skip>
+    </properties>
     <dependencies>
 
         <dependency>

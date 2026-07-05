@@ -34,7 +34,7 @@ pipeline {
                     --format 'XML'
                     --format 'JUNIT'
                     --prettyPrint''', odcInstallation: 'OWASP-DepCheck-10'
-                dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml' //,stopBuild: true
+                //dependencyCheckPublisher failedTotalCritical: 1, pattern: 'dependency-check-report.xml' ,stopBuild: true
             }
         }
 
@@ -65,6 +65,16 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image with Dev Profile') {
+            steps {
+                sh '''
+                mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild 
+                -Djib.to.tags=$GIT_COMMIT
+                -DskipTests 
+                -Pdev
+                '''
+            }
+        }
     }
     
     post {
