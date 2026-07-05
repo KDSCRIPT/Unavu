@@ -122,7 +122,19 @@ pipeline {
         }
 
         stage('Push Docker Images to DockerHub') {
-            
+            steps {
+                withDockerRegistry(credentialsId: 'docker-hub-credentials', url: 'https://index.docker.io/v1/') {
+                    script {
+                        def services = [
+                            'restaurant', 'user', 'list', 'review', 'social-graph',
+                            'config-server', 'gateway-server', 'notification', 'feed', 'activity'
+                        ]
+                        services.each { svc ->
+                            sh "docker push containedtogether/${svc}:${GIT_COMMIT}"
+                        }
+                    }
+                }
+            }
         }
 
         
