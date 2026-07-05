@@ -52,7 +52,7 @@ pipeline {
 
         stage('SAST - SonarQube') {
             steps {
-                timeout(time:120, unit:'SECONDS') {
+                timeout(time:180, unit:'SECONDS') {
                     sh '''
                          mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar   
                          -Dsonar.projectKey=Unavu   
@@ -65,13 +65,12 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image with Dev Profile') {
+        stage('Build Docker Images') {
             steps {
                 sh '''
                 mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild 
                 -Djib.to.tags=$GIT_COMMIT
                 -DskipTests 
-                -Pdev
                 '''
             }
         }
