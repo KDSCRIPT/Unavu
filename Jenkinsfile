@@ -54,7 +54,7 @@ pipeline {
             steps {
                 timeout(time:180, unit:'SECONDS') {
                 sh '''
-                    mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                    mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \                        
                         -Dsonar.projectKey=Unavu \
                         -Dsonar.projectName='Unavu' \
                         -Dsonar.host.url=http://localhost:9000 \
@@ -84,43 +84,45 @@ pipeline {
                     ]
                     services.each { svc ->
                         sh """
-                            trivy image containedtogether/${svc}:$GIT_COMMIT \
-                            --severity LOW,MEDIUM,HIGH \
-                            --exit-code 0 \
-                            --quiet \
-                            --format json -o trivy-image-MEDIUM-results.json
+                            trivy image containedtogether/${svc}:${GIT_COMMIT} \
+                                --severity LOW,MEDIUM,HIGH \
+                                --exit-code 0 --quiet \
+                                --format json -o trivy-${svc}-MEDIUM-results.json
 
-                            trivy image containedtogether/${svc}:$GIT_COMMIT \
-                            --severity CRITICAL \
-                            --exit-code 0 \
-                            --quiet \
-                            --format json -o trivy-image-CRITICAL-results.json
+                            trivy image containedtogether/${svc}:${GIT_COMMIT} \
+                                --severity CRITICAL \
+                                --exit-code 0 --quiet \
+                                --format json -o trivy-${svc}-CRITICAL-results.json
                         """
                     }
                 }
-                post {
-                    always {
-                        sh '''
-                            trivy convert \
-                                --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                                --output trivy-image-MEDIUM-results.html trivy-image-MEDIUM-results.json
-                            
-                            trivy convert \
-                                --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                                --output trivy-image-CRITICAL-results.html trivy-image-CRITICAL-results.json
-
-                            trivy convert \
-                                --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-                                --output trivy-image-MEDIUM-results.xml trivy-image-MEDIUM-results.json
-                            
-                            trivy convert \
-                                --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-                                --output trivy-image-CRITICAL-results.xml trivy-image-CRITICAL-results.json
-                            
-                        '''
+            }
+            post {
+                always {
+                    script {
+                        def services = [
+                            'restaurant', 'user', 'list', 'review', 'social-graph',
+                            'config-server', 'gateway-server', 'notification', 'feed', 'activity'
+                        ]
+                        services.each { svc ->
+                            sh """
+                                trivy convert --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+                                    --output trivy-${svc}-MEDIUM-results.html trivy-${svc}-MEDIUM-results.json
+                                trivy convert --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+                                    --output trivy-${svc}-CRITICAL-results.html trivy-${svc}-CRITICAL-results.json
+                                trivy convert --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+                                    --output trivy-${svc}-MEDIUM-results.xml trivy-${svc}-MEDIUM-results.json
+                                trivy convert --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+                                    --output trivy-${svc}-CRITICAL-results.xml trivy-${svc}-CRITICAL-results.json
+                            """
+                        }
                     }
                 }
             }
+        }
+
+        stage('Push Docker Images to DockerHub') {
+            
         }
 
         
@@ -134,13 +136,13 @@ pipeline {
             
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: '**/target/site/jacoco', reportFiles: 'index.html', reportName: 'JaCoCo Coverage Report', reportTitles: '', useWrapperFileDirectly: true])
 
-            junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-image-CRITICAL-results.xml'
+            junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-*-CRITICAL-results.xml'
+            
+            junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-*-MEDIUM-results.xml'
 
-            junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-image-MEDIUM-results.xml'
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: './', reportFiles: 'trivy-*-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
 
-            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
-
-            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: './', reportFiles: 'trivy-*-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
         }
     }
 }
