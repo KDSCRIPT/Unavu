@@ -54,7 +54,7 @@ pipeline {
             steps {
                 timeout(time:180, unit:'SECONDS') {
                 sh '''
-                    mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \                        
+                    mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar                        
                         -Dsonar.projectKey=Unavu \
                         -Dsonar.projectName='Unavu' \
                         -Dsonar.host.url=http://localhost:9000 \
@@ -83,7 +83,7 @@ pipeline {
                         'config-server', 'gateway-server', 'notification', 'feed', 'activity'
                     ]
                     services.each { svc ->
-                        sh """
+                        sh '''
                             trivy image containedtogether/${svc}:${GIT_COMMIT} \
                                 --severity LOW,MEDIUM,HIGH \
                                 --exit-code 0 --quiet \
@@ -93,7 +93,7 @@ pipeline {
                                 --severity CRITICAL \
                                 --exit-code 0 --quiet \
                                 --format json -o trivy-${svc}-CRITICAL-results.json
-                        """
+                        '''
                     }
                 }
             }
