@@ -84,12 +84,12 @@ pipeline {
                     ]
                     services.each { svc ->
                         sh '''
-                            trivy image containedtogether/${svc}:${GIT_COMMIT} \
+                            trivy image containedtogether/${svc}:GIT_COMMIT \
                                 --severity LOW,MEDIUM,HIGH \
                                 --exit-code 0 --quiet \
                                 --format json -o trivy-${svc}-MEDIUM-results.json
 
-                            trivy image containedtogether/${svc}:${GIT_COMMIT} \
+                            trivy image containedtogether/${svc}:GIT_COMMIT \
                                 --severity CRITICAL \
                                 --exit-code 0 --quiet \
                                 --format json -o trivy-${svc}-CRITICAL-results.json
