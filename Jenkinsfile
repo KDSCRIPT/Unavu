@@ -105,7 +105,7 @@ pipeline {
                             'config-server', 'gateway-server', 'notification', 'feed', 'activity'
                         ]
                         services.each { svc ->
-                            sh '''
+                            sh """
                                 trivy convert --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
                                     --output trivy-${svc}-MEDIUM-results.html trivy-${svc}-MEDIUM-results.json
                                 trivy convert --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
@@ -114,7 +114,7 @@ pipeline {
                                     --output trivy-${svc}-MEDIUM-results.xml trivy-${svc}-MEDIUM-results.json
                                 trivy convert --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
                                     --output trivy-${svc}-CRITICAL-results.xml trivy-${svc}-CRITICAL-results.json
-                            '''
+                            """
                         }
                     }
                 }
