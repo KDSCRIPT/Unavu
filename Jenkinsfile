@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         NVD_API_KEY=credentials('nvd-api-key')
+        SONARQUBE_TOKEN=credentials('sonarqube-server-token')        
     }
     options {
         disableResume()
@@ -48,6 +49,22 @@ pipeline {
                 sh 'mvn jacoco:report'
             }
         }
+
+        stage('SAST - SonarQube') {
+            steps {
+                timeout(time:60, unit:'SECONDS') {
+                    sh '''
+                         mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar   
+                         -Dsonar.projectKey=Unavu   
+                         -Dsonar.projectName='Unavu'   
+                         -Dsonar.host.url=http://localhost:9000   
+                         -Dsonar.token=$SONARQUBE_TOKEN
+                         -Dsonar.qualitygate.wait=true
+                    '''
+                }
+            }
+        }
+
     }
     
     post {
