@@ -53,14 +53,14 @@ pipeline {
         stage('SAST - SonarQube') {
             steps {
                 timeout(time:180, unit:'SECONDS') {
-                    sh '''
-                         mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar   
-                         -Dsonar.projectKey=Unavu   
-                         -Dsonar.projectName='Unavu'   
-                         -Dsonar.host.url=http://localhost:9000   
-                         -Dsonar.token=$SONARQUBE_TOKEN
-                         -Dsonar.qualitygate.wait=true
-                    '''
+                sh '''
+                    mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                        -Dsonar.projectKey=Unavu \
+                        -Dsonar.projectName='Unavu' \
+                        -Dsonar.host.url=http://localhost:9000 \
+                        -Dsonar.token=$SONARQUBE_TOKEN \
+                        -Dsonar.qualitygate.wait=true
+                '''
                 }
             }
         }
@@ -68,8 +68,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh '''
-                mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild 
-                -Djib.to.tags=$GIT_COMMIT
+                mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild \
+                -Djib.to.tags=$GIT_COMMIT \
                 -DskipTests 
                 '''
             }
@@ -98,8 +98,32 @@ pipeline {
                         """
                     }
                 }
+                post {
+                    always {
+                        sh '''
+                            trivy convert \
+                                --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+                                --output trivy-image-MEDIUM-results.html trivy-image-MEDIUM-results.json
+                            
+                            trivy convert \
+                                --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+                                --output trivy-image-CRITICAL-results.html trivy-image-CRITICAL-results.json
+
+                            trivy convert \
+                                --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+                                --output trivy-image-MEDIUM-results.xml trivy-image-MEDIUM-results.json
+                            
+                            trivy convert \
+                                --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
+                                --output trivy-image-CRITICAL-results.xml trivy-image-CRITICAL-results.json
+                            
+                        '''
+                    }
+                }
             }
         }
+
+        
     }
     
     post {
