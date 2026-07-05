@@ -54,7 +54,7 @@ pipeline {
             steps {
                 timeout(time:180, unit:'SECONDS') {
                 sh '''
-                    mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar                        
+                    mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
                         -Dsonar.projectKey=Unavu \
                         -Dsonar.projectName='Unavu' \
                         -Dsonar.host.url=http://localhost:9000 \
@@ -105,7 +105,7 @@ pipeline {
                             'config-server', 'gateway-server', 'notification', 'feed', 'activity'
                         ]
                         services.each { svc ->
-                            sh """
+                            sh '''
                                 trivy convert --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
                                     --output trivy-${svc}-MEDIUM-results.html trivy-${svc}-MEDIUM-results.json
                                 trivy convert --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
@@ -114,7 +114,7 @@ pipeline {
                                     --output trivy-${svc}-MEDIUM-results.xml trivy-${svc}-MEDIUM-results.json
                                 trivy convert --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
                                     --output trivy-${svc}-CRITICAL-results.xml trivy-${svc}-CRITICAL-results.json
-                            """
+                            '''
                         }
                     }
                 }
