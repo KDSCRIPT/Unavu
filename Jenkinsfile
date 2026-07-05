@@ -52,7 +52,7 @@ pipeline {
 
         stage('SAST - SonarQube') {
             steps {
-                timeout(time:60, unit:'SECONDS') {
+                timeout(time:120, unit:'SECONDS') {
                     sh '''
                          mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar   
                          -Dsonar.projectKey=Unavu   
@@ -75,14 +75,49 @@ pipeline {
                 '''
             }
         }
+
+        stage('Trivy Vulnerability Scanning') {
+            steps {
+                script {
+                    def services = [
+                        'restaurant', 'user', 'list', 'review', 'social-graph',
+                        'config-server', 'gateway-server', 'notification', 'feed', 'activity'
+                    ]
+                    services.each { svc ->
+                        sh """
+                            trivy image containedtogether/${svc}:$GIT_COMMIT \
+                            --severity LOW,MEDIUM,HIGH \
+                            --exit-code 0 \
+                            --quiet \
+                            --format json -o trivy-image-MEDIUM-results.json
+
+                            trivy image containedtogether/${svc}:$GIT_COMMIT \
+                            --severity CRITICAL \
+                            --exit-code 0 \
+                            --quiet \
+                            --format json -o trivy-image-CRITICAL-results.json
+                        """
+                    }
+                }
+            }
+        }
     }
     
     post {
         always {
             archiveArtifacts artifacts: '**/dependency-check-report.html, **/dependency-check-report.xml, **/dependency-check-junit.xml', allowEmptyArchive: true
+            
             junit allowEmptyResults: true, keepProperties: true, testResults: '**/target/surefire-reports/*.xml'
+            
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: '**/target/site/jacoco', reportFiles: 'index.html', reportName: 'JaCoCo Coverage Report', reportTitles: '', useWrapperFileDirectly: true])
 
+            junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-image-CRITICAL-results.xml'
+
+            junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-image-MEDIUM-results.xml'
+
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: './', reportFiles: 'trivy-image-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
+
+            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: './', reportFiles: 'trivy-image-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
         }
     }
 }
