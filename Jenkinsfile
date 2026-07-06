@@ -52,7 +52,7 @@ pipeline {
 
         stage('SAST - SonarQube') {
             steps {
-                timeout(time:180, unit:'SECONDS') {
+                timeout(time:300, unit:'SECONDS') {
                 sh '''
                     mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
                         -Dsonar.projectKey=Unavu \
