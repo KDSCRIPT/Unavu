@@ -87,6 +87,10 @@ releases:
     values:
       - ../environments/{{ .Environment.Name }}.yaml
       - ../environments/secrets.{{ .Environment.Name }}.yaml
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
+
       
     skipDeps: true
   
@@ -110,15 +114,22 @@ releases:
   - name: activity
     namespace: default
     chart: ../unavu-services/activity
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
     skipDeps: true
     needs:
       - default/unavu-common
       - default/kafka
       - default/rabbitmq
+    
 
   - name: feed
     namespace: default
     chart: ../unavu-services/feed
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
     skipDeps: true
     needs:
       - default/unavu-common
@@ -128,6 +139,9 @@ releases:
   - name: list
     namespace: default
     chart: ../unavu-services/list
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
     skipDeps: true
     needs:
       - default/unavu-common
@@ -137,6 +151,9 @@ releases:
   - name: notification
     namespace: default
     chart: ../unavu-services/notification
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
     skipDeps: true
     needs:
       - default/unavu-common
@@ -146,6 +163,9 @@ releases:
   - name: restaurant
     namespace: default
     chart: ../unavu-services/restaurant
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
     skipDeps: true
     needs:
       - default/unavu-common
@@ -155,6 +175,9 @@ releases:
   - name: review
     namespace: default
     chart: ../unavu-services/review
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
     skipDeps: true
     needs:
       - default/unavu-common
@@ -164,6 +187,9 @@ releases:
   - name: social-graph
     namespace: default
     chart: ../unavu-services/social-graph
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
     skipDeps: true
     needs:
       - default/unavu-common
@@ -173,6 +199,9 @@ releases:
   - name: user
     namespace: default
     chart: ../unavu-services/user
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
     skipDeps: true
     needs:
       - default/unavu-common
@@ -183,6 +212,9 @@ releases:
   - name: gateway-server
     namespace: default
     chart: ../gateway-server
+    set:
+      - name: image.tag
+        value: {{ requiredEnv "IMAGE_TAG" }}
     skipDeps: true
     values:
       - ../environments/{{ .Environment.Name }}.yaml
