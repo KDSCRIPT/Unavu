@@ -145,7 +145,7 @@ pipeline {
                     (cd "$d" && helm dependency update)
                 done
                 '''
-                withCredentials([file(credentialsId: 'dev-secrets-yaml', variable: 'DEV_SECRETS_FILE')]) {
+                withCredentials([file(credentialsId: 'secrets-dev-yaml', variable: 'DEV_SECRETS_FILE')]) {
                     sh """
                         cp "\$DEV_SECRETS_FILE" ./environments/dev/secrets.dev.yaml
                         helmfile -e dev --state-values-set IMAGE_TAG="${GIT_COMMIT}" sync
