@@ -132,6 +132,27 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Development Environment') {
+            steps {
+                sh 'git checkout helm'
+                sh '''
+                for d in unavu-common/ unavu-services/*/; do
+                    [ -d "$d" ] || continue
+                    echo "=== $d ==="
+                    rm -f "${d}Chart.lock"
+                    rm -rf "${d}charts"
+                    (cd "$d" && helm dependency update)
+                done
+                '''
+                withCredentials([file(credentialsId: 'dev-secrets-yaml', variable: 'DEV_SECRETS_FILE')]) {
+                    sh """
+                        cp "\$DEV_SECRETS_FILE" ./environments/dev/secrets.dev.yaml
+                        helmfile -e dev --state-values-set IMAGE_TAG="${GIT_COMMIT}" sync
+                    """
+                }
+            }
+        }
   
     }
     
