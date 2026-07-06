@@ -26,36 +26,6 @@
         <url/>
     </scm>
 
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <dependencies>
-
-
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-actuator</artifactId>
-                </dependency>
-
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>qa</id>
-            <dependencies>
-
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-actuator</artifactId>
-                </dependency>
-
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>prod</id>
-        </profile>
-    </profiles>
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

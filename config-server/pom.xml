@@ -16,37 +16,6 @@
     <packaging>jar</packaging> <!-- ensures Maven knows it's a Java module -->
     <name>config-server</name>
 
-    <profiles>
-        <profile>
-            <id>dev</id>
-            <dependencies>
-
-
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-actuator</artifactId>
-                </dependency>
-
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>qa</id>
-            <dependencies>
-
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-actuator</artifactId>
-                </dependency>
-
-            </dependencies>
-        </profile>
-
-        <profile>
-            <id>prod</id>
-        </profile>
-    </profiles>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
