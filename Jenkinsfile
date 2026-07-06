@@ -110,10 +110,6 @@ pipeline {
                                     --output trivy-${svc}-MEDIUM-results.html trivy-${svc}-MEDIUM-results.json
                                 trivy convert --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
                                     --output trivy-${svc}-CRITICAL-results.html trivy-${svc}-CRITICAL-results.json
-                                trivy convert --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-                                    --output trivy-${svc}-MEDIUM-results.xml trivy-${svc}-MEDIUM-results.json
-                                trivy convert --format template --template "@/usr/local/share/trivy/templates/junit.tpl" \
-                                    --output trivy-${svc}-CRITICAL-results.xml trivy-${svc}-CRITICAL-results.json
                             """
                         }
                     }
@@ -136,8 +132,7 @@ pipeline {
                 }
             }
         }
-
-        
+  
     }
     
     post {
@@ -152,10 +147,6 @@ pipeline {
                 sourceCodeRetention: 'LAST_BUILD'
             )
             
-            junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-*-CRITICAL-results.xml'
-            
-            junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-*-MEDIUM-results.xml'
-
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: './', reportFiles: 'trivy-*-CRITICAL-results.html', reportName: 'Trivy Image Critical Vul Report', reportTitles: '', useWrapperFileDirectly: true])
 
             publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: './', reportFiles: 'trivy-*-MEDIUM-results.html', reportName: 'Trivy Image Medium Vul Report', reportTitles: '', useWrapperFileDirectly: true])
