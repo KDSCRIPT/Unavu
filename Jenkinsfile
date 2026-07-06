@@ -135,6 +135,7 @@ pipeline {
 
         stage('Deploy to Development Environment') {
             steps {
+                sh 'git fetch origin helm'
                 sh 'git checkout helm'
                 sh '''
                 for d in unavu-common/ unavu-services/*/; do
