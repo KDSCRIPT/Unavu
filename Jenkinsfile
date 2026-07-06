@@ -145,9 +145,13 @@ pipeline {
             archiveArtifacts artifacts: '**/dependency-check-report.html, **/dependency-check-report.xml, **/dependency-check-junit.xml', allowEmptyArchive: true
             
             junit allowEmptyResults: true, keepProperties: true, testResults: '**/target/surefire-reports/*.xml'
-            
-            publishHTML([allowMissing: true, alwaysLinkToLastBuild: true, icon: '', keepAll: true, reportDir: '**/target/site/jacoco', reportFiles: 'index.html', reportName: 'JaCoCo Coverage Report', reportTitles: '', useWrapperFileDirectly: true])
 
+            recordCoverage(
+                tools: [[parser: 'JACOCO', pattern: '**/target/site/jacoco/index.html']],
+                id: 'jacoco', name: 'JaCoCo Coverage',
+                sourceCodeRetention: 'LAST_BUILD'
+            )
+            
             junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-*-CRITICAL-results.xml'
             
             junit allowEmptyResults: true, keepProperties: true, testResults: 'trivy-*-MEDIUM-results.xml'
