@@ -133,23 +133,6 @@ pipeline {
             }
         }
 
-        stage('Install Helm') {
-            steps {
-                sh '''
-                    if ! command -v helm >/dev/null 2>&1; then
-                        echo "Installing Helm..."
-                        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-                        chmod 700 get_helm.sh
-                        sudo ./get_helm.sh
-                    else
-                        echo "Helm is already installed."
-                    fi
-
-                    helm version
-                '''
-            }
-        }
-
         stage('Deploy to Development Environment') {
             steps {
                 checkout scmGit(branches: [[name: 'helm']], extensions: [], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
@@ -171,7 +154,6 @@ pipeline {
             }
         }
 
-  
     }
     
     post {
