@@ -135,8 +135,7 @@ pipeline {
 
         stage('Deploy to Development Environment') {
             steps {
-                sh 'git fetch origin helm'
-                sh 'git checkout helm'
+                checkout scmGit(branches: [[name: 'helm']], extensions: [], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
                 sh '''
                 for d in unavu-common/ unavu-services/*/; do
                     [ -d "$d" ] || continue
