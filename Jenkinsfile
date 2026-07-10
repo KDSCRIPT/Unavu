@@ -135,7 +135,7 @@ pipeline {
 
         stage('Deploy to Development Environment') {
             steps {
-                checkout scmGit(branches: [[name: 'helm']], extensions: [], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
+                checkout scmGit(branches: [[name: 'helm']], extensions: [[$class: 'CleanBeforeCheckout']], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
                 sh '''
                 for d in unavu-common/ unavu-services/*/; do
                     [ -d "$d" ] || continue
@@ -147,7 +147,8 @@ pipeline {
                 '''
                 withCredentials([file(credentialsId: 'secrets-dev-yaml', variable: 'DEV_SECRETS_FILE')]) {
                     sh """
-                        cp "\$DEV_SECRETS_FILE" ./environments/secrets.dev.yaml
+                        rm -f ./environments/secrets.dev.yaml
+                        cp "$DEV_SECRETS_FILE" ./environments/secrets.dev.yaml
                         cd deploy
                         helmfile -e dev --state-values-set IMAGE_TAG="${GIT_COMMIT}" sync
                     """
