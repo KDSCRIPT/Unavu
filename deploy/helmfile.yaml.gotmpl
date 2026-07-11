@@ -230,3 +230,23 @@ releases:
       - default/review
       - default/social-graph
       - default/user
+    
+  - name: ingress-nginx
+    namespace: ingress-nginx
+    createNamespace: true
+    chart: ingress-nginx/ingress-nginx
+    version: ~4
+    set:
+      - name: controller.service.type
+        value: NodePort
+      - name: controller.service.nodePorts.http
+        value: 30080
+      - name: controller.service.nodePorts.https
+        value: 30443
+    skipDeps: true
+    values:
+      - ../environments/{{ .Environment.Name }}.yaml
+      - ../environments/secrets.{{ .Environment.Name }}.yaml
+    needs:
+      - default/gateway-server
+    
