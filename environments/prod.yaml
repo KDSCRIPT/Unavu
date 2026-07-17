@@ -1,4 +1,6 @@
 global:
+  ingress:
+    host: prod.app.local
   configMapName: unavu-configmap
   activeProfile: prod
   profileActive: prod
@@ -12,12 +14,12 @@ global:
   KeycloakJWKSetUri: http://keycloak/realms/unavu/protocol/openid-connect/certs
 
   openTelemetryJavaAgent: "-javaagent:/app/libs/opentelemetry-javaagent-2.22.0.jar"
-  otelExporterEndPoint: http://grafana-tempo.default.svc.cluster.local:4318
+  otelExporterEndPoint: http://grafana-tempo.prod.svc.cluster.local:4318
   otelMetricsExporter: none
   otelLogsExporter: none
 
-  kafkaBrokerURL: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local:9092
-  KafkaHostname: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local
+  kafkaBrokerURL: kafka-controller-0.kafka-controller-headless.prod.svc.cluster.local:9092
+  KafkaHostname: kafka-controller-0.kafka-controller-headless.prod.svc.cluster.local
 
   rabbitMQHost: rabbitmq
   rabbitMQUsername: guest
@@ -33,18 +35,7 @@ global:
     initialDelaySeconds: 60
     periodSeconds: 30
 
-instances:
-  - name: activity-db
-    database: activity-db
-    username: postgres
-    port: 5432
-    storage: 10Gi
 
-  - name: feed-db
-    database: feed-db
-    username: postgres
-    port: 5432
-    storage: 10Gi
 
   - name: lists-db
     database: lists-db

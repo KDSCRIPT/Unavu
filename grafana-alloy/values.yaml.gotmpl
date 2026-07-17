@@ -1,12 +1,10 @@
 # Official Grafana Alloy chart configuration for local development
+namespaceOverride: {{ .Environment.Name }}
 alloy:
-  # Alloy runs as a DaemonSet to collect logs from all nodes
   alloy:
-    # Clustering disabled for simplicity in local dev
     clustering:
       enabled: false
 
-    # Configuration for Alloy
     configMap:
       create: true
       content: |-
@@ -37,7 +35,15 @@ alloy:
             target_label  = "container"
           }
 
-          // Add app label if exists
+          // Set service_name from standard k8s app label (prevents unknown_service)
+          rule {
+            source_labels = ["__meta_kubernetes_pod_label_app", "__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+            separator     = ";"
+            regex         = "([^;]+);?.*"
+            target_label  = "service_name"
+          }
+
+          // Add app label if exists (legacy/plain "app" label)
           rule {
             source_labels = ["__meta_kubernetes_pod_label_app"]
             target_label  = "app"
@@ -72,10 +78,16 @@ alloy:
             }
           }
 
-          // Extract trace ID to label for linking with Tempo
+          // level stays a label (low cardinality)
           stage.labels {
             values = {
               level = "",
+            }
+          }
+
+          // trace_id goes to structured metadata, NOT a label (avoids cardinality blowup)
+          stage.structured_metadata {
+            values = {
               trace_id = "",
             }
           }
@@ -84,11 +96,10 @@ alloy:
         // Write logs to Loki
         loki.write "default" {
           endpoint {
-            url = "http://grafana-loki-gateway.default.svc.cluster.local/loki/api/v1/push"
+            url = "http://grafana-loki-gateway.{{ .Environment.Name }}.svc.cluster.local/loki/api/v1/push"
           }
         }
 
-    # Resources - reduced for GKE compatibility
     resources:
       requests:
         cpu: 50m
@@ -97,26 +108,20 @@ alloy:
         cpu: 200m
         memory: 128Mi
 
-    # Mount host paths to read container logs
     mounts:
       varlog: true
       dockercontainers: true
 
-  # Controller settings
-  controller:
-    type: "daemonset"
-    # Tolerations for GKE nodes
-    tolerations:
-      - effect: NoSchedule
-        operator: Exists
-    # Node affinity - allow scheduling on all nodes
-    nodeSelector: {}
-    affinity: {}
+controller:
+  type: "daemonset"
+  tolerations:
+    - effect: NoSchedule
+      operator: Exists
+  nodeSelector: {}
+  affinity: {}
 
-  # Service account
-  serviceAccount:
-    create: true
+serviceAccount:
+  create: true
 
-  # RBAC
-  rbac:
-    create: true
+rbac:
+  create: true

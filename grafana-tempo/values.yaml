@@ -70,7 +70,7 @@ tempo:
         storage:
           path: /var/tempo/wal
           remote_write:
-            - url: http://prometheus-kube-prometheus.default.svc.cluster.local:9090/api/v1/write
+            - url: http://prometheus-kube-prometheus.{{ .Release.Namespace }}.svc.cluster.local:9090/api/v1/write
               send_exemplars: true
 
       overrides:

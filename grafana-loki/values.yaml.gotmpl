@@ -1,20 +1,9 @@
 # Official Loki Helm chart configuration for local development
+namespaceOverride: "{{ .Environment.Name }}"
 loki:
   # Use SimpleScalable mode for local/dev environments
   deploymentMode: SimpleScalable
 
-  # Enable MinIO for object storage (simple for local dev)
-  minio:
-    enabled: true
-    replicas: 1
-    persistence:
-      size: 5Gi
-    resources:
-      requests:
-        cpu: 100m
-        memory: 128Mi
-
-  # Loki configuration
   loki:
     auth_enabled: false
 
@@ -28,6 +17,10 @@ loki:
         ruler: loki-ruler
         admin: loki-admin
       s3:
+        endpoint: minio.{{ .Environment.Name }}.svc.cluster.local:9000
+        region: us-east-1
+        accessKeyId: "{{ .Values.loki.accessKeyId }}"
+        secretAccessKey: "{{ .Values.loki.secretAccessKey }}"
         s3ForcePathStyle: true
         insecure: true
 

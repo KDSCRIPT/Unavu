@@ -1,4 +1,6 @@
 global:
+  ingress:
+    host: dev.app.local
   configMapName: unavu-configmap
   activeProfile: dev
   profileActive: dev
@@ -12,12 +14,12 @@ global:
   KeycloakJWKSetUri: http://keycloak/realms/unavu/protocol/openid-connect/certs
 
   openTelemetryJavaAgent: "-javaagent:/app/libs/opentelemetry-javaagent-2.22.0.jar"
-  otelExporterEndPoint: http://grafana-tempo.default.svc.cluster.local:4318
+  otelExporterEndPoint: http://grafana-tempo.dev.svc.cluster.local:4318
   otelMetricsExporter: none
   otelLogsExporter: none
 
-  kafkaBrokerURL: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local:9092
-  KafkaHostname: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local
+  kafkaBrokerURL: kafka-controller-0.kafka-controller-headless.dev.svc.cluster.local:9092
+  KafkaHostname: kafka-controller-0.kafka-controller-headless.dev.svc.cluster.local
 
   rabbitMQHost: rabbitmq
   rabbitMQUsername: guest

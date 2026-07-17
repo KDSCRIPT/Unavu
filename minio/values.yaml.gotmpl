@@ -1,0 +1,28 @@
+mode: standalone
+replicas: 1
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+rootUser: "{{ .Values.loki.accessKeyId }}"
+rootPassword: "{{ .Values.loki.secretAccessKey }}"
+
+buckets:
+  - name: loki-chunks
+    policy: none
+    purge: false
+  - name: loki-ruler
+    policy: none
+    purge: false
+  - name: loki-admin
+    policy: none
+    purge: false
+
+service:
+  type: ClusterIP

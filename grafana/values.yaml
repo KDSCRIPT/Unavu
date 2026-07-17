@@ -17,11 +17,11 @@ grafana:
 
 datasources:
   prometheus:
-    url: http://prometheus-kube-prometheus.default.svc.cluster.local:9090
+    url: http://kube-prometheus.{{ .Release.Namespace }}.svc.cluster.local:9090
   tempo:
-    url: http://grafana-tempo.default.svc.cluster.local:3100
+    url: http://grafana-tempo.{{ .Release.Namespace }}.svc.cluster.local:3100
   loki:
-    url: http://grafana-loki-gateway.default.svc.cluster.local
+    url: http://grafana-loki-gateway.{{ .Release.Namespace }}.svc.cluster.local
 
 resources: {}
 

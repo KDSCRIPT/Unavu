@@ -1,0 +1,11 @@
+apiVersion: v1
+name: Minio
+description: A simple Helm chart for Grafana Loki logging
+type: application
+version: 1.0.0
+appVersion: "3.1.2"
+
+dependencies:
+  - name: minio
+    version: "6.42.0"
+    repository: https://charts.min.io/

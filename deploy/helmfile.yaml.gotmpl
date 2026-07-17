@@ -23,67 +23,83 @@ helmDefaults:
 releases:
 
   - name: postgres
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../postgres
     values:
       - ../environments/{{ .Environment.Name }}.yaml
       - ../environments/secrets.{{ .Environment.Name }}.yaml
 
   - name: kafka
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../kafka
     needs:
-      - default/postgres
+      - {{ .Environment.Name }}/postgres
 
   - name: rabbitmq
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../rabbitmq
     needs:
-      - default/postgres
+      - {{ .Environment.Name }}/postgres
 
   - name: keycloak
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../keycloak
     needs:
-      - default/postgres
+      - {{ .Environment.Name }}/postgres
 
   - name: kube-prometheus
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../kube-prometheus
+    values:
+      - ../kube-prometheus/values.yaml
+
+  - name: minio
+    namespace: {{ .Environment.Name }}
+    chart: minio/minio
+    values:
+      - ../minio/values.yaml.gotmpl
+      - ../environments/secrets.{{ .Environment.Name }}.yaml
 
   - name: grafana-loki
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../grafana-loki
+    values:
+      - ../grafana-loki/values.yaml.gotmpl
+      - ../environments/{{ .Environment.Name }}.yaml
     needs:
-      - default/kube-prometheus
+      - {{ .Environment.Name }}/minio
+      - {{ .Environment.Name }}/kube-prometheus
 
   - name: grafana-tempo
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../grafana-tempo
     needs:
-      - default/kube-prometheus
+      - {{ .Environment.Name }}/kube-prometheus
+    values:
+      - ../grafana-tempo/values.yaml
 
   - name: grafana-alloy
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../grafana-alloy
+    values:
+      - ../grafana-alloy/values.yaml.gotmpl
     needs:
-      - default/grafana-loki
-      - default/grafana-tempo
+      - {{ .Environment.Name }}/grafana-loki
+      - {{ .Environment.Name }}/grafana-tempo
 
   - name: grafana
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../grafana
     needs:
-      - default/grafana-loki
-      - default/grafana-tempo
+      - {{ .Environment.Name }}/grafana-tempo
 
   - name: config-server
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../config-server
     needs:
-      - default/kafka
-      - default/rabbitmq
-      - default/keycloak
+      - {{ .Environment.Name }}/kafka
+      - {{ .Environment.Name }}/rabbitmq
+      - {{ .Environment.Name }}/keycloak
     values:
       - ../environments/{{ .Environment.Name }}.yaml
       - ../environments/secrets.{{ .Environment.Name }}.yaml
@@ -95,122 +111,122 @@ releases:
     skipDeps: true
   
   - name: spring-discovery
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../discovery-server
     skipDeps: true
     needs:
-      - default/config-server
+      - {{ .Environment.Name }}/config-server
   
   - name: unavu-common
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../unavu-common
     skipDeps: true
     values:
       - ../environments/{{ .Environment.Name }}.yaml
       - ../environments/secrets.{{ .Environment.Name }}.yaml
     needs:
-      - default/spring-discovery
+      - {{ .Environment.Name }}/spring-discovery
 
   - name: activity
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../unavu-services/activity
     set:
       - name: image.tag
         value: {{ .Values.IMAGE_TAG }}
     skipDeps: true
     needs:
-      - default/unavu-common
-      - default/kafka
-      - default/rabbitmq
+      - {{ .Environment.Name }}/unavu-common
+      - {{ .Environment.Name }}/kafka
+      - {{ .Environment.Name }}/rabbitmq
     
 
   - name: feed
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../unavu-services/feed
     set:
       - name: image.tag
         value: {{ .Values.IMAGE_TAG }}
     skipDeps: true
     needs:
-      - default/unavu-common
-      - default/kafka
-      - default/rabbitmq
+      - {{ .Environment.Name }}/unavu-common
+      - {{ .Environment.Name }}/kafka
+      - {{ .Environment.Name }}/rabbitmq
 
   - name: list
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../unavu-services/list
     set:
       - name: image.tag
         value: {{ .Values.IMAGE_TAG }}
     skipDeps: true
     needs:
-      - default/unavu-common
-      - default/kafka
-      - default/rabbitmq
+      - {{ .Environment.Name }}/unavu-common
+      - {{ .Environment.Name }}/kafka
+      - {{ .Environment.Name }}/rabbitmq
 
   - name: notification
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../unavu-services/notification
     set:
       - name: image.tag
         value: {{ .Values.IMAGE_TAG }}
     skipDeps: true
     needs:
-      - default/unavu-common
-      - default/kafka
-      - default/rabbitmq
+      - {{ .Environment.Name }}/unavu-common
+      - {{ .Environment.Name }}/kafka
+      - {{ .Environment.Name }}/rabbitmq
 
   - name: restaurant
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../unavu-services/restaurant
     set:
       - name: image.tag
         value: {{ .Values.IMAGE_TAG }}
     skipDeps: true
     needs:
-      - default/unavu-common
-      - default/kafka
-      - default/rabbitmq
+      - {{ .Environment.Name }}/unavu-common
+      - {{ .Environment.Name }}/kafka
+      - {{ .Environment.Name }}/rabbitmq
 
   - name: review
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../unavu-services/review
     set:
       - name: image.tag
         value: {{ .Values.IMAGE_TAG }}
     skipDeps: true
     needs:
-      - default/unavu-common
-      - default/kafka
-      - default/rabbitmq
+      - {{ .Environment.Name }}/unavu-common
+      - {{ .Environment.Name }}/kafka
+      - {{ .Environment.Name }}/rabbitmq
 
   - name: social-graph
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../unavu-services/social-graph
     set:
       - name: image.tag
         value: {{ .Values.IMAGE_TAG }}
     skipDeps: true
     needs:
-      - default/unavu-common
-      - default/kafka
-      - default/rabbitmq
+      - {{ .Environment.Name }}/unavu-common
+      - {{ .Environment.Name }}/kafka
+      - {{ .Environment.Name }}/rabbitmq
 
   - name: user
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../unavu-services/user
     set:
       - name: image.tag
         value: {{ .Values.IMAGE_TAG }}
     skipDeps: true
     needs:
-      - default/unavu-common
-      - default/kafka
-      - default/rabbitmq
-      - default/keycloak
+      - {{ .Environment.Name }}/unavu-common
+      - {{ .Environment.Name }}/kafka
+      - {{ .Environment.Name }}/rabbitmq
+      - {{ .Environment.Name }}/keycloak
 
   - name: gateway-server
-    namespace: default
+    namespace: {{ .Environment.Name }}
     chart: ../gateway-server
     set:
       - name: image.tag
@@ -220,16 +236,16 @@ releases:
       - ../environments/{{ .Environment.Name }}.yaml
       - ../environments/secrets.{{ .Environment.Name }}.yaml
     needs:
-      - default/unavu-common
-      - default/keycloak
-      - default/activity
-      - default/feed
-      - default/list
-      - default/notification
-      - default/restaurant
-      - default/review
-      - default/social-graph
-      - default/user
+      - {{ .Environment.Name }}/unavu-common
+      - {{ .Environment.Name }}/keycloak
+      - {{ .Environment.Name }}/activity
+      - {{ .Environment.Name }}/feed
+      - {{ .Environment.Name }}/list
+      - {{ .Environment.Name }}/notification
+      - {{ .Environment.Name }}/restaurant
+      - {{ .Environment.Name }}/review
+      - {{ .Environment.Name }}/social-graph
+      - {{ .Environment.Name }}/user
     
   - name: ingress-nginx
     namespace: ingress-nginx
@@ -248,5 +264,5 @@ releases:
       - ../environments/{{ .Environment.Name }}.yaml
       - ../environments/secrets.{{ .Environment.Name }}.yaml
     needs:
-      - default/gateway-server
+      - {{ .Environment.Name }}/gateway-server
     

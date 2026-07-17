@@ -17,7 +17,7 @@ data:
       - name: Prometheus
         type: prometheus
         uid: prometheus
-        url: {{ .Values.datasources.prometheus.url }}
+        url: {{tpl .Values.datasources.prometheus.url .}}
         access: proxy
         orgId: 1
         basicAuth: false
@@ -29,7 +29,7 @@ data:
       - name: Tempo
         type: tempo
         uid: tempo
-        url: {{ .Values.datasources.tempo.url }}
+        url: {{tpl .Values.datasources.tempo.url .}}
         access: proxy
         orgId: 1
         basicAuth: false
@@ -46,7 +46,7 @@ data:
         access: proxy
         orgId: 1
         editable: true
-        url: {{ .Values.datasources.loki.url }}
+        url: {{ tpl .Values.datasources.loki.url .}}
         jsonData:
           derivedFields:
             - datasourceUid: tempo
