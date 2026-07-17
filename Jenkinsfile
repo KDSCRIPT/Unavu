@@ -155,6 +155,107 @@ pipeline {
                 }
             }
         }
+
+         stage('Approve QA Deployment') {
+            steps {
+                timeout(time: 1, unit: 'DAYS') {
+                    input message: 'Dev is up. Approve deployment to QA? (This will tear down Dev first)', 
+                          ok: 'Yes! Tear down Dev and Deploy to QA', 
+                          submitter: 'admin'
+                }
+            }
+        }
+ 
+        stage('Tear Down Development Environment') {
+            steps {
+                withCredentials([file(credentialsId: 'secrets-dev-yaml', variable: 'DEV_SECRETS_FILE')]) {
+                    sh """
+                        rm -f ./environments/secrets.dev.yaml
+                        cp "$DEV_SECRETS_FILE" ./environments/secrets.dev.yaml
+                        cd deploy
+                        helmfile -e dev destroy
+                    """
+                }
+            }
+        }
+ 
+        stage('Deploy to QA Environment') {
+            steps {
+                withCredentials([file(credentialsId: 'secrets-qa-yaml', variable: 'QA_SECRETS_FILE')]) {
+                    sh """
+                        rm -f ./environments/secrets.qa.yaml
+                        cp "$QA_SECRETS_FILE" ./environments/secrets.qa.yaml
+                        cd deploy
+                        helmfile -e qa --state-values-set IMAGE_TAG="${GIT_COMMIT}" sync
+                    """
+                }
+            }
+        }
+ 
+        stage('Raise PR to Main') {
+            steps {
+                sh """
+                    curl -X 'POST' \
+                        'http://172.20.217.56:3000/api/v1/repos/adminaccount/Unavu/pulls' \
+                        -H 'accept: application/json' \
+                        -H 'Authorization: token $GITEA_TOKEN' \
+                        -H 'Content-Type: application/json' \
+                        -d '{
+                            "assignee": "adminaccount",
+                            "assignees": ["adminaccount"],
+                            "base": "main",
+                            "body": "QA validated. Requesting merge to main for production deployment. Image tag: ${GIT_COMMIT}",
+                            "head": "${GIT_BRANCH.replaceAll("origin/", "")}",
+                            "title": "Release to Production - ${GIT_COMMIT.take(8)}"
+                        }'
+                """
+            }
+        }
+ 
+        stage('Wait for PR Merge & Approve Production Deployment') {
+            when {
+                branch 'main'
+            }
+            steps {
+                timeout(time: 1, unit: 'DAYS') {
+                    input message: 'PR has been merged to main. Approve Production deployment? (This will tear down QA first)', 
+                          ok: 'Yes! Tear down QA and Deploy to Production', 
+                          submitter: 'admin'
+                }
+            }
+        }
+ 
+        stage('Tear Down QA Environment') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([file(credentialsId: 'secrets-qa-yaml', variable: 'QA_SECRETS_FILE')]) {
+                    sh """
+                        rm -f ./environments/secrets.qa.yaml
+                        cp "$QA_SECRETS_FILE" ./environments/secrets.qa.yaml
+                        cd deploy
+                        helmfile -e qa destroy
+                    """
+                }
+            }
+        }
+ 
+        stage('Deploy to Production Environment') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([file(credentialsId: 'secrets-prod-yaml', variable: 'PROD_SECRETS_FILE')]) {
+                    sh """
+                        rm -f ./environments/secrets.prod.yaml
+                        cp "$PROD_SECRETS_FILE" ./environments/secrets.prod.yaml
+                        cd deploy
+                        helmfile -e prod --state-values-set IMAGE_TAG="${GIT_COMMIT}" sync
+                    """
+                }
+            }
+        }
     }
     
     post {
