@@ -194,10 +194,12 @@ pipeline {
             }
             steps {
                 withCredentials([file(credentialsId: 'secrets-qa-yaml', variable: 'QA_SECRETS_FILE')]) {
-                    sh """
+                    sh '''
                         rm -f ./environments/secrets.qa.yaml
                         cp "$QA_SECRETS_FILE" ./environments/secrets.qa.yaml
-                        cd ../deploy
+                    '''
+                    sh """
+                        cd deploy
                         helmfile -e qa --state-values-set IMAGE_TAG="${GIT_COMMIT}" sync
                     """
                 }
