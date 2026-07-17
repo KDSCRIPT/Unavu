@@ -197,7 +197,6 @@ pipeline {
                     sh """
                         rm -f ./environments/secrets.qa.yaml
                         cp "$QA_SECRETS_FILE" ./environments/secrets.qa.yaml
-                        cd deploy
                         helmfile -e qa --state-values-set IMAGE_TAG="${GIT_COMMIT}" sync
                     """
                 }
@@ -249,7 +248,6 @@ pipeline {
                     sh """
                         rm -f ./environments/secrets.qa.yaml
                         cp "$QA_SECRETS_FILE" ./environments/secrets.qa.yaml
-                        cd deploy
                         helmfile -e qa --state-values-set IMAGE_TAG="${GIT_COMMIT}" destroy
                     """
                 }
