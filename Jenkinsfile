@@ -134,6 +134,9 @@ pipeline {
         }
 
         stage('Deploy to Development Environment') {
+            when {
+                branch 'feature/*'
+            }
             steps {
                 checkout scmGit(branches: [[name: 'helm']], extensions: [[$class: 'CleanBeforeCheckout']], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
                 sh '''
@@ -157,6 +160,9 @@ pipeline {
         }
 
          stage('Approve QA Deployment') {
+            when {
+                branch 'feature/*'
+            }
             steps {
                 timeout(time: 1, unit: 'DAYS') {
                     input message: 'Dev is up. Approve deployment to QA? (This will tear down Dev first)', 
@@ -167,6 +173,9 @@ pipeline {
         }
  
         stage('Tear Down Development Environment') {
+        when {
+                branch 'feature/*'
+            }
             steps {
                 withCredentials([file(credentialsId: 'secrets-dev-yaml', variable: 'DEV_SECRETS_FILE')]) {
                     sh """
@@ -180,6 +189,9 @@ pipeline {
         }
  
         stage('Deploy to QA Environment') {
+            when {
+                branch 'feature/*'
+            }
             steps {
                 withCredentials([file(credentialsId: 'secrets-qa-yaml', variable: 'QA_SECRETS_FILE')]) {
                     sh """
@@ -193,6 +205,9 @@ pipeline {
         }
  
         stage('Raise PR to Main') {
+            when {
+                branch 'feature/*'
+            }
             steps {
                 sh """
                     curl -X 'POST' \
