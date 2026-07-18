@@ -182,8 +182,9 @@ pipeline {
                         rm -f ./environments/secrets.dev.yaml
                         cp "$DEV_SECRETS_FILE" ./environments/secrets.dev.yaml
                         cd deploy
-                        helmfile -e dev --state-values-set IMAGE_TAG="${GIT_COMMIT}" destroy
+                        kubectl delete namespace dev
                     """
+                    // helmfile -e dev --state-values-set IMAGE_TAG="${GIT_COMMIT}" destroy
                 }
             }
         }
@@ -251,8 +252,9 @@ pipeline {
                     sh """
                         rm -f ./environments/secrets.qa.yaml
                         cp "$QA_SECRETS_FILE" ./environments/secrets.qa.yaml
-                        helmfile -e qa --state-values-set IMAGE_TAG="${GIT_COMMIT}" destroy
+                        kubectl delete namespace qa
                     """
+                    // delete the namespace to tear down QA environment.
                 }
             }
         }
