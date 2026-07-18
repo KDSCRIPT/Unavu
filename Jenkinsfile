@@ -309,9 +309,9 @@ pipeline {
         }
 
         stage('Tear Down QA Environment') {
-            checkout scmGit(branches: [[name: 'helm']], extensions: [[$class: 'CleanBeforeCheckout']], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
             when { branch 'main' }
             steps {
+                checkout scmGit(branches: [[name: 'helm']], extensions: [[$class: 'CleanBeforeCheckout']], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
                 withCredentials([file(credentialsId: 'secrets-qa-yaml', variable: 'QA_SECRETS_FILE')]) {
                     sh """
                         rm -f ./environments/secrets.qa.yaml
