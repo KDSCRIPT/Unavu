@@ -175,18 +175,18 @@ pipeline {
         }
  
         stage('Tear Down Development Environment') {
-            when {
+        when {
                 branch 'feature/*'
             }
             steps {
-                sh '''
-                    kubectl delete namespace dev --ignore-not-found
-                    kubectl wait --for=delete namespace/dev --timeout=180s || true
-                    while kubectl get namespace dev >/dev/null 2>&1; do
-                        echo "Waiting for namespace dev to fully terminate..."
-                        sleep 5
-                    done
-                '''
+                withCredentials([file(credentialsId: 'secrets-dev-yaml', variable: 'DEV_SECRETS_FILE')]) {
+                    sh """
+                        rm -f ./environments/secrets.dev.yaml
+                        cp "$DEV_SECRETS_FILE" ./environments/secrets.dev.yaml
+                        cd deploy
+                        helmfile -e dev --state-values-set IMAGE_TAG="${GIT_COMMIT}" destroy
+                    """
+                }
             }
         }
  
@@ -250,14 +250,13 @@ pipeline {
                 branch 'main'
             }
             steps {
-                sh '''
-                    kubectl delete namespace qa --ignore-not-found
-                    kubectl wait --for=delete namespace/qa --timeout=180s || true
-                    while kubectl get namespace qa >/dev/null 2>&1; do
-                        echo "Waiting for namespace qa to fully terminate..."
-                        sleep 5
-                    done
-                '''
+                withCredentials([file(credentialsId: 'secrets-qa-yaml', variable: 'QA_SECRETS_FILE')]) {
+                    sh """
+                        rm -f ./environments/secrets.qa.yaml
+                        cp "$QA_SECRETS_FILE" ./environments/secrets.qa.yaml
+                        helmfile -e qa --state-values-set IMAGE_TAG="${GIT_COMMIT}" destroy
+                    """
+                }
             }
         }
  
@@ -268,11 +267,9 @@ pipeline {
             steps {
                 checkout scmGit(branches: [[name: 'helm']], extensions: [[$class: 'CleanBeforeCheckout']], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
                 withCredentials([file(credentialsId: 'secrets-prod-yaml', variable: 'PROD_SECRETS_FILE')]) {
-                    sh '''
+                    sh """
                         rm -f ./environments/secrets.prod.yaml
                         cp "$PROD_SECRETS_FILE" ./environments/secrets.prod.yaml
-                    '''
-                    sh """
                         cd deploy
                         helmfile -e prod --state-values-set IMAGE_TAG="${GIT_COMMIT}" sync
                     """
