@@ -60,7 +60,7 @@ pipeline {
                         -Dsonar.projectName='Unavu' \
                         -Dsonar.host.url=http://localhost:9000 \
                         -Dsonar.token=$SONARQUBE_TOKEN \
-                        -Dsonar.qualitygate.wait=true
+                        -Dsonar.qualitygate.wait=true \
                         -DskipTests
                 '''
                 }
