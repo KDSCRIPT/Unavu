@@ -81,6 +81,7 @@ pipeline {
                     services.each { svc ->
                         sh """
                             mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild \
+                                -pl ${svc} \
                                 -Djib.to.image=containedtogether/${svc}:$GIT_COMMIT \
                                 -DskipTests
                         """
