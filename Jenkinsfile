@@ -196,6 +196,15 @@ pipeline {
             }
             steps {
                 checkout scmGit(branches: [[name: 'helm']], extensions: [[$class: 'CleanBeforeCheckout']], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
+                sh '''
+                for d in unavu-common/ unavu-services/*/; do
+                    [ -d "$d" ] || continue
+                    echo "=== $d ==="
+                    rm -f "${d}Chart.lock"
+                    rm -rf "${d}charts"
+                    (cd "$d" && helm dependency update)
+                done
+                '''
                 withCredentials([file(credentialsId: 'secrets-qa-yaml', variable: 'QA_SECRETS_FILE')]) {
                     sh '''
                         rm -f ./environments/secrets.qa.yaml
@@ -266,6 +275,15 @@ pipeline {
             }
             steps {
                 checkout scmGit(branches: [[name: 'helm']], extensions: [[$class: 'CleanBeforeCheckout']], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
+                sh '''
+                for d in unavu-common/ unavu-services/*/; do
+                    [ -d "$d" ] || continue
+                    echo "=== $d ==="
+                    rm -f "${d}Chart.lock"
+                    rm -rf "${d}charts"
+                    (cd "$d" && helm dependency update)
+                done
+                '''
                 withCredentials([file(credentialsId: 'secrets-prod-yaml', variable: 'PROD_SECRETS_FILE')]) {
                     sh """
                         rm -f ./environments/secrets.prod.yaml
