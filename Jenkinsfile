@@ -7,7 +7,8 @@ pipeline {
 
     environment {
         NVD_API_KEY=credentials('nvd-api-key')
-        SONARQUBE_TOKEN=credentials('sonarqube-server-token')        
+        SONARQUBE_TOKEN=credentials('sonarqube-server-token')
+        GITEA_TOKEN=credentials('gitea-api-token')
     }
     options {
         disableResume()
@@ -60,6 +61,7 @@ pipeline {
                         -Dsonar.host.url=http://localhost:9000 \
                         -Dsonar.token=$SONARQUBE_TOKEN \
                         -Dsonar.qualitygate.wait=true
+                        -DskipTests
                 '''
                 }
             }
@@ -173,19 +175,18 @@ pipeline {
         }
  
         stage('Tear Down Development Environment') {
-        when {
+            when {
                 branch 'feature/*'
             }
             steps {
-                withCredentials([file(credentialsId: 'secrets-dev-yaml', variable: 'DEV_SECRETS_FILE')]) {
-                    sh """
-                        rm -f ./environments/secrets.dev.yaml
-                        cp "$DEV_SECRETS_FILE" ./environments/secrets.dev.yaml
-                        cd deploy
-                        kubectl delete namespace dev
-                    """
-                    // helmfile -e dev --state-values-set IMAGE_TAG="${GIT_COMMIT}" destroy
-                }
+                sh '''
+                    kubectl delete namespace dev --ignore-not-found
+                    kubectl wait --for=delete namespace/dev --timeout=180s || true
+                    while kubectl get namespace dev >/dev/null 2>&1; do
+                        echo "Waiting for namespace dev to fully terminate..."
+                        sleep 5
+                    done
+                '''
             }
         }
  
@@ -194,6 +195,7 @@ pipeline {
                 branch 'feature/*'
             }
             steps {
+                checkout scmGit(branches: [[name: 'helm']], extensions: [[$class: 'CleanBeforeCheckout']], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
                 withCredentials([file(credentialsId: 'secrets-qa-yaml', variable: 'QA_SECRETS_FILE')]) {
                     sh '''
                         rm -f ./environments/secrets.qa.yaml
@@ -248,14 +250,14 @@ pipeline {
                 branch 'main'
             }
             steps {
-                withCredentials([file(credentialsId: 'secrets-qa-yaml', variable: 'QA_SECRETS_FILE')]) {
-                    sh """
-                        rm -f ./environments/secrets.qa.yaml
-                        cp "$QA_SECRETS_FILE" ./environments/secrets.qa.yaml
-                        kubectl delete namespace qa
-                    """
-                    // delete the namespace to tear down QA environment.
-                }
+                sh '''
+                    kubectl delete namespace qa --ignore-not-found
+                    kubectl wait --for=delete namespace/qa --timeout=180s || true
+                    while kubectl get namespace qa >/dev/null 2>&1; do
+                        echo "Waiting for namespace qa to fully terminate..."
+                        sleep 5
+                    done
+                '''
             }
         }
  
@@ -264,10 +266,13 @@ pipeline {
                 branch 'main'
             }
             steps {
+                checkout scmGit(branches: [[name: 'helm']], extensions: [[$class: 'CleanBeforeCheckout']], userRemoteConfigs: [[credentialsId: 'Gitea-Credentials', url: 'http://172.20.217.56:3000/adminaccount/Unavu']])
                 withCredentials([file(credentialsId: 'secrets-prod-yaml', variable: 'PROD_SECRETS_FILE')]) {
-                    sh """
+                    sh '''
                         rm -f ./environments/secrets.prod.yaml
                         cp "$PROD_SECRETS_FILE" ./environments/secrets.prod.yaml
+                    '''
+                    sh """
                         cd deploy
                         helmfile -e prod --state-values-set IMAGE_TAG="${GIT_COMMIT}" sync
                     """
