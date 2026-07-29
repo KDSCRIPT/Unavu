@@ -1,0 +1,377 @@
+name: unavu-main-workflow
+run-name: ${{ github.actor }} is Building Unavu application
+on: [push]
+jobs:
+  Checkout_Repository:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+  
+  Build_Maven_Dependencies_skipping_Tests:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    needs: [Checkout_Repository]
+    steps:
+      - name: Build Maven Dependencies skipping Tests
+        run: 'mvn clean install -DskipTests'
+  
+  OWASP_Dependency_Scanning:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    needs: [Build_Maven_Dependencies_skipping_Tests]
+    steps:
+      - name: OWASP Dependency Scanning
+        uses: dependency-check/Dependency-Check_Action@1.1.0        
+        id: Depcheck
+        with:
+          project: 'Unavu'
+          path: '.'
+          out: 'reports'
+          args: >
+              --nvdApiKey ${{secrets.NVD_API_KEY}}
+              --format 'HTML'
+              --format 'XML'
+              --format 'JUNIT'
+              --prettyPrint
+      - name: Upload DependencyCheck Reports
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: Dependency Check Reports
+          path: |
+            **/dependency-check-report.html
+            **/dependency-check-report.xml 
+            **/dependency-check-junit.xml
+  
+  Unit_Testing:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    needs: [OWASP_Dependency_Scanning]
+    steps: 
+      - name: Unit Testing
+        run: 'mvn test'
+      - name: Upload SureFire Reports
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: surefire-reports
+          path: |
+            **/target/surefire-reports/*.xml
+      
+  Code_Coverage:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    needs: [Unit_Testing]
+    steps: 
+      - name: Code Coverage
+        run: 'mvn jacoco:report'
+      - name: Upload JaCoCo Code Coverage Report
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: JaCoCo Code Coverage Reports
+          path: |
+              **/target/site/jacoco/index.html
+
+  SAST_SonarQube:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    needs: [Code_Coverage]
+    steps:
+      - name: SAST SonarQube
+        run: |
+              mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+              -Dsonar.projectKey=Unavu \
+              -Dsonar.projectName='Unavu' \
+              -Dsonar.host.url=${{ vars.SONARQUBE_URL }} \
+              -Dsonar.token=${{secrets.SONARQUBE_TOKEN}} \
+              -Dsonar.qualitygate.wait=true \
+              -DskipTests
+  
+  Build_Docker_Images:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        service:
+          - restaurant
+          - user
+          - list
+          - review
+          - social-graph
+          - config-server
+          - gateway-server
+          - notification
+          - feed
+          - activity
+    steps:
+      - name: Build Docker Image - ${{ matrix.service }}
+        run: |
+          mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild \
+            -pl ${{ matrix.service }} \
+            -Djib.to.image=containedtogether/${{ matrix.service }}:${{ github.sha }} \
+            -DskipTests
+
+  Trivy_Vulnerability_Scanning:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    needs: [Build_Docker_Images]
+    strategy:
+      matrix:
+        service:
+          - restaurant
+          - user
+          - list
+          - review
+          - social-graph
+          - config-server
+          - gateway-server
+          - notification
+          - feed
+          - activity
+    steps:
+      - name: Trivy Vulnerability Scanning
+        run: |
+              trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
+                  --severity LOW,MEDIUM,HIGH \
+                  --exit-code 0 --quiet \
+                  --format json -o trivy-${{ matrix.service }}-MEDIUM-results.json
+
+              trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
+                  --severity CRITICAL \
+                  --exit-code 0 --quiet \
+                  --format json -o trivy-${{ matrix.service }}-CRITICAL-results.json
+      
+      - name: Upload Trivy Vulnerability Reports
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: trivy-report-${{ matrix.service }}
+          path: |
+            trivy-${{ matrix.service }}-CRITICAL-results.html
+            trivy-${{ matrix.service }}-MEDIUM-results.html
+            
+  Push_Docker_Images_to_DockerHub:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    permissions:
+      packages: write
+    strategy:
+        matrix:
+          service:
+            - restaurant
+            - user
+            - list
+            - review
+            - social-graph
+            - config-server
+            - gateway-server
+            - notification
+            - feed
+            - activity
+    steps:
+      - name: Docker Login
+        uses: docker/login-action@v4.5.1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Push Docker Images to DockerHub
+        run: docker push containedtogether/${{ matrix.service }}:${{ github.sha }}
+
+  Deploy_to_Development:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    needs: [Push_Docker_Images_to_DockerHub]
+    steps:
+      - name: Checkout Helm charts
+        uses: actions/checkout@v4
+        with:
+          repository: KDSCRIPT/Unavu
+          ref: helm
+          clean: true
+
+      - name: Update Helm dependencies
+        run: |
+          for d in unavu-common/ unavu-services/*/; do
+              [ -d "$d" ] || continue
+              echo "=== $d ==="
+              rm -f "${d}Chart.lock"
+              rm -rf "${d}charts"
+              (cd "$d" && helm dependency update)
+          done
+
+      - name: Deploy to Development
+        env:
+          DEV_SECRETS_CONTENT: ${{ secrets.DEV_SECRETS_YAML }}
+        run: |
+          rm -f ./environments/secrets.dev.yaml
+          echo "$DEV_SECRETS_CONTENT" > ./environments/secrets.dev.yaml
+          cd deploy
+          helmfile -e dev --state-values-set IMAGE_TAG="${{ github.sha }}" sync
+
+  Teardown_Development:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    needs: [Deploy_to_Development]
+    runs-on: self-hosted
+    environment: qa-gate
+    steps:
+      - name: Checkout Helm charts
+        uses: actions/checkout@v4
+        with:
+          repository: KDSCRIPT/Unavu
+          ref: helm
+          clean: true
+
+      - name: Tear down Development
+        env:
+          DEV_SECRETS_CONTENT: ${{ secrets.DEV_SECRETS_YAML }}
+        run: |
+          rm -f ./environments/secrets.dev.yaml
+          echo "$DEV_SECRETS_CONTENT" > ./environments/secrets.dev.yaml
+          cd deploy
+          helmfile -e dev --state-values-set IMAGE_TAG="${{ github.sha }}" destroy
+
+  Deploy_to_QA:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    needs: [Teardown_Development]
+    runs-on: self-hosted
+    environment: qa
+    outputs:
+      qa_image_tag: ${{ github.sha }}
+    steps:
+      - name: Checkout Helm charts
+        uses: actions/checkout@v4
+        with:
+          repository: KDSCRIPT/Unavu
+          ref: helm
+          clean: true
+
+      - name: Update Helm dependencies
+        run: |
+          for d in unavu-common/ unavu-services/*/; do
+              [ -d "$d" ] || continue
+              echo "=== $d ==="
+              rm -f "${d}Chart.lock"
+              rm -rf "${d}charts"
+              (cd "$d" && helm dependency update)
+          done
+
+      - name: Deploy to QA
+        env:
+          QA_SECRETS_CONTENT: ${{ secrets.QA_SECRETS_YAML }}
+        run: |
+          rm -f ./environments/secrets.qa.yaml
+          echo "$QA_SECRETS_CONTENT" > ./environments/secrets.qa.yaml
+          cd deploy
+          helmfile -e qa --state-values-set IMAGE_TAG="${{ github.sha }}" sync
+  
+  Raise_Pull_Request_to_Prod:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    runs-on: self-hosted
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Raise pull request
+        run: |
+          curl -L -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/KDSCRIPT/Unavu/pulls \
+          -d '{"title":"Release - image tag ${{ github.sha }}","body":"Image tag: ${{ github.sha }}","base":"main"}'
+    
+  Promote_Images_for_Production:
+    if: startsWith(github.ref, 'refs/heads/main')
+    runs-on: self-hosted
+    outputs:
+      qa_image_tag: ${{ steps.resolve.outputs.tag }}
+    permissions:
+      packages: write
+    strategy:
+        matrix:
+          service:
+            - restaurant
+            - user
+            - list
+            - review
+            - social-graph
+            - config-server
+            - gateway-server
+            - notification
+            - feed
+            - activity
+    steps:
+      - name: Resolve QA-tested image tag from merged PR
+        id: resolve
+        run: |
+          pr_json=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/KDSCRIPT/Unavu/pulls?state=closed&sort=updated&direction=desc&base=main&per_page=5")
+          tag=$(echo "$pr_json" | jq -r '[.[] | select(.merged_at != null)][0].body' | grep -oP 'Image tag:\s*\K\w+')
+          if [ -z "$tag" ]; then echo "Could not resolve tag" && exit 1; fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Docker Login
+        uses: docker/login-action@v4.5.1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Pull QA Docker Images
+        run: docker pull containedtogether/${{ matrix.service }}:${{vars.qa_image_tag}}
+
+      - name: Change label of QA images to Production Pull request Commit
+        run: docker tag containedtogether/${{ matrix.service }}:${{vars.qa_image_tag}} containedtogether/${{ matrix.service }}:${{ github.sha }}
+
+      - name: Push Docker Images to DockerHub
+        run: docker push containedtogether/${{ matrix.service }}:${{ github.sha }}
+      
+  Teardown_QA:
+    needs: [Promote_Images_for_Production]
+    runs-on: self-hosted
+    environment: prod-gate
+    steps:
+      - name: Checkout Helm charts
+        uses: actions/checkout@v4
+        with:
+          repository: KDSCRIPT/Unavu
+          ref: helm
+          clean: true
+
+      - name: Tear down QA
+        env:
+          QA_SECRETS_CONTENT: ${{ secrets.QA_SECRETS_YAML }}
+        run: |
+          rm -f ./environments/secrets.dev.yaml
+          echo "$QA_SECRETS_CONTENT" > ./environments/secrets.qa.yaml
+          cd deploy
+          helmfile -e qa --state-values-set IMAGE_TAG="${{ github.sha }}" destroy    
+
+  Deploy_to_Prod:
+    needs: [Teardown_QA]
+    runs-on: self-hosted
+    environment: prod
+    steps:
+      - name: Checkout Helm charts
+        uses: actions/checkout@v4
+        with:
+          repository: KDSCRIPT/Unavu
+          ref: helm
+          clean: true
+
+      - name: Update Helm dependencies
+        run: |
+          for d in unavu-common/ unavu-services/*/; do
+              [ -d "$d" ] || continue
+              echo "=== $d ==="
+              rm -f "${d}Chart.lock"
+              rm -rf "${d}charts"
+              (cd "$d" && helm dependency update)
+          done
+
+      - name: Deploy to Prod
+        env:
+          PROD_SECRETS_CONTENT: ${{ secrets.PROD_SECRETS_YAML }}
+        run: |
+          rm -f ./environments/secrets.prod.yaml
+          echo "$PROD_SECRETS_CONTENT" > ./environments/secrets.prod.yaml
+          cd deploy
+          helmfile -e prod --state-values-set IMAGE_TAG="${{ github.sha }}" sync
