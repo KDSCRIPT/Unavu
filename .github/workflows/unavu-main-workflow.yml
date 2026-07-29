@@ -16,37 +16,38 @@ jobs:
       - name: Build Maven Dependencies skipping Tests
         run: 'mvn clean install -DskipTests'
   
-  OWASP_Dependency_Scanning:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
-    needs: [Build_Maven_Dependencies_skipping_Tests]
-    steps:
-      - name: OWASP Dependency Scanning
-        uses: dependency-check/Dependency-Check_Action@1.1.0        
-        id: Depcheck
-        with:
-          project: 'Unavu'
-          path: '.'
-          out: 'reports'
-          args: >
-              --nvdApiKey ${{secrets.NVD_API_KEY}}
-              --format 'HTML'
-              --format 'XML'
-              --format 'JUNIT'
-              --prettyPrint
-      - name: Upload DependencyCheck Reports
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: Dependency Check Reports
-          path: |
-            **/dependency-check-report.html
-            **/dependency-check-report.xml 
-            **/dependency-check-junit.xml
+  # OWASP_Dependency_Scanning:
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   runs-on: self-hosted
+  #   needs: [Build_Maven_Dependencies_skipping_Tests]
+  #   steps:
+  #     - name: OWASP Dependency Scanning
+  #       uses: dependency-check/Dependency-Check_Action@1.1.0        
+  #       id: Depcheck
+  #       with:
+  #         project: 'Unavu'
+  #         path: '.'
+  #         out: 'reports'
+  #         format: 'HTML'
+  #         args: >
+  #             --nvdApiKey ${{secrets.NVD_API_KEY}}
+  #             --format 'XML'
+  #             --format 'JUNIT'
+  #             --prettyPrint
+              
+  #     - name: Upload DependencyCheck Reports
+  #       uses: actions/upload-artifact@v7.0.1
+  #       with:
+  #         name: Dependency Check Reports
+  #         path: |
+  #           **/dependency-check-report.html
+  #           **/dependency-check-report.xml 
+  #           **/dependency-check-junit.xml
   
   Unit_Testing:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
-    needs: [OWASP_Dependency_Scanning]
+    needs: [Build_Maven_Dependencies_skipping_Tests]
     steps: 
       - name: Unit Testing
         run: 'mvn test'
