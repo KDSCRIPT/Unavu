@@ -89,6 +89,7 @@ jobs:
   Build_Docker_Images:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
+    needs: [SAST_SonarQube]
     strategy:
       matrix:
         service:
@@ -151,6 +152,7 @@ jobs:
   Push_Docker_Images_to_DockerHub:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
+    needs: [Trivy_Vulnerability_Scanning]
     permissions:
       packages: write
     strategy:
@@ -266,6 +268,7 @@ jobs:
   Raise_Pull_Request_to_Prod:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
+    needs: [Deploy_to_QA]
     permissions:
       pull-requests: write
     steps:
@@ -325,6 +328,7 @@ jobs:
         run: docker push containedtogether/${{ matrix.service }}:${{ github.sha }}
       
   Teardown_QA:
+    if: startsWith(github.ref, 'refs/heads/main')
     needs: [Promote_Images_for_Production]
     runs-on: self-hosted
     environment: prod-gate
@@ -346,6 +350,7 @@ jobs:
           helmfile -e qa --state-values-set IMAGE_TAG="${{ github.sha }}" destroy    
 
   Deploy_to_Prod:
+    if: startsWith(github.ref, 'refs/heads/main')
     needs: [Teardown_QA]
     runs-on: self-hosted
     environment: prod
