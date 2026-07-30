@@ -1,6 +1,6 @@
 # Unavu — Social Restaurant Catalog Platform
 
-> Like Letterboxd, but for restaurants.
+> Like Letterboxd, but for restaurants
 
 Unavu (உணவு — *meal* in Tamil) is a social restaurant discovery platform where users can review and rate restaurants, follow friends to see what they like, and create curated lists of their favourite places. Built as a long-term personal project to experiment with microservices, system design patterns, and DevOps tooling in a real-world context.
 
