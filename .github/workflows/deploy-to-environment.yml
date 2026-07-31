@@ -1,0 +1,50 @@
+name: Deployment To Environment - Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: Branch on which the build step is happening
+        required: true
+        type: string
+      environment:
+        description: Environment in which Unavu application is being deployed
+        required: true
+        type: string
+    secrets:
+      SECRETS_YAML:
+        description: YAML file with the secrets for the environment
+        required: true
+
+jobs:
+  Deploy_to_Environment:
+    if: startsWith(github.ref, inputs.branch)
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Helm charts
+        uses: actions/checkout@v4
+        with:
+          repository: KDSCRIPT/Unavu
+          ref: helm
+          clean: true
+
+      - name: Update Helm dependencies
+        run: |
+          for d in unavu-common/ unavu-services/*/; do
+            [ -d "$d" ] || continue
+            echo "=== $d ==="
+            rm -f "${d}Chart.lock"
+            rm -rf "${d}charts"
+            (cd "$d" && helm dependency update)
+          done
+
+      - name: Deploy to ${{ inputs.environment }}
+        env:
+          SECRETS_CONTENT: ${{ secrets.SECRETS_YAML }}
+        run: |
+          ENV_LOWER="${{ inputs.environment }}"
+          ENV_LOWER="${ENV_LOWER,,}"
+          echo "$SECRETS_CONTENT" > "./environments/secrets.${ENV_LOWER}.yaml"
+          cd deploy
+          helmfile -e "${ENV_LOWER}" --state-values-set IMAGE_TAG="${{ github.sha }}" sync

@@ -13,8 +13,16 @@ jobs:
     runs-on: self-hosted
     needs: [Checkout_Repository]
     steps:
+      - name: Cache Maven dependencies
+        uses: actions/cache@v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
       - name: Build Maven Dependencies skipping Tests
-        run: 'mvn clean install -DskipTests'
+        run: mvn clean install -DskipTests
   
   # OWASP_Dependency_Scanning:
   #   if: startsWith(github.ref, 'refs/heads/feature/')
@@ -147,8 +155,8 @@ jobs:
         with:
           name: trivy-report-${{ matrix.service }}
           path: |
-            trivy-${{ matrix.service }}-CRITICAL-results.html
-            trivy-${{ matrix.service }}-MEDIUM-results.html
+            trivy-${{ matrix.service }}-CRITICAL-results.json
+            trivy-${{ matrix.service }}-MEDIUM-results.json
             
   Push_Docker_Images_to_DockerHub:
     if: startsWith(github.ref, 'refs/heads/feature/')
@@ -181,90 +189,34 @@ jobs:
 
   Deploy_to_Development:
     if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
     needs: [Push_Docker_Images_to_DockerHub]
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
-
-      - name: Update Helm dependencies
-        run: |
-          for d in unavu-common/ unavu-services/*/; do
-              [ -d "$d" ] || continue
-              echo "=== $d ==="
-              rm -f "${d}Chart.lock"
-              rm -rf "${d}charts"
-              (cd "$d" && helm dependency update)
-          done
-
-      - name: Deploy to Development
-        env:
-          DEV_SECRETS_CONTENT: ${{ secrets.DEV_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.dev.yaml
-          echo "$DEV_SECRETS_CONTENT" > ./environments/secrets.dev.yaml
-          cd deploy
-          helmfile -e dev --state-values-set IMAGE_TAG="${{ github.sha }}" sync
+    uses: ./.github/workflows/deploy-to-environment.yml
+    with:
+      branch: "refs/heads/feature/"
+      environment: "DEV"
+    secrets:
+      SECRETS_YAML: ${{ secrets.DEV_SECRETS_YAML }}
 
   Teardown_Development:
     if: startsWith(github.ref, 'refs/heads/feature/')
     needs: [Deploy_to_Development]
-    runs-on: self-hosted
-    environment: qa-gate
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
-
-      - name: Tear down Development
-        env:
-          DEV_SECRETS_CONTENT: ${{ secrets.DEV_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.dev.yaml
-          echo "$DEV_SECRETS_CONTENT" > ./environments/secrets.dev.yaml
-          cd deploy
-          helmfile -e dev --state-values-set IMAGE_TAG="${{ github.sha }}" destroy
-
+    uses: ./.github/workflows/teardown-environment.yml
+    with:
+      branch: "refs/heads/feature/"
+      environment: "DEV"
+      gate: qa-gate
+    secrets:
+      SECRETS_YAML: ${{ secrets.DEV_SECRETS_YAML }}
+    
   Deploy_to_QA:
     if: startsWith(github.ref, 'refs/heads/feature/')
     needs: [Teardown_Development]
-    runs-on: self-hosted
-    environment: qa
-    outputs:
-      qa_image_tag: ${{ github.sha }}
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
-
-      - name: Update Helm dependencies
-        run: |
-          for d in unavu-common/ unavu-services/*/; do
-              [ -d "$d" ] || continue
-              echo "=== $d ==="
-              rm -f "${d}Chart.lock"
-              rm -rf "${d}charts"
-              (cd "$d" && helm dependency update)
-          done
-
-      - name: Deploy to QA
-        env:
-          QA_SECRETS_CONTENT: ${{ secrets.QA_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.qa.yaml
-          echo "$QA_SECRETS_CONTENT" > ./environments/secrets.qa.yaml
-          cd deploy
-          helmfile -e qa --state-values-set IMAGE_TAG="${{ github.sha }}" sync
+    uses: ./.github/workflows/deploy-to-environment.yml
+    with:
+      branch: "refs/heads/feature/"
+      environment: "QA"
+    secrets:
+      SECRETS_YAML: ${{ secrets.QA_SECRETS_YAML }}
   
   Raise_Pull_Request_to_Prod:
     if: startsWith(github.ref, 'refs/heads/feature/')
@@ -331,53 +283,20 @@ jobs:
   Teardown_QA:
     if: startsWith(github.ref, 'refs/heads/main')
     needs: [Promote_Images_for_Production]
-    runs-on: self-hosted
-    environment: prod-gate
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
-
-      - name: Tear down QA
-        env:
-          QA_SECRETS_CONTENT: ${{ secrets.QA_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.dev.yaml
-          echo "$QA_SECRETS_CONTENT" > ./environments/secrets.qa.yaml
-          cd deploy
-          helmfile -e qa --state-values-set IMAGE_TAG="${{ github.sha }}" destroy    
+    uses: ./.github/workflows/teardown-environment.yml
+    with:
+      branch: "refs/heads/main"
+      environment: "QA"
+      gate: prod-gate
+    secrets:
+      SECRETS_YAML: ${{ secrets.DEV_SECRETS_YAML }}    
 
   Deploy_to_Prod:
     if: startsWith(github.ref, 'refs/heads/main')
     needs: [Teardown_QA]
-    runs-on: self-hosted
-    environment: prod
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
-
-      - name: Update Helm dependencies
-        run: |
-          for d in unavu-common/ unavu-services/*/; do
-              [ -d "$d" ] || continue
-              echo "=== $d ==="
-              rm -f "${d}Chart.lock"
-              rm -rf "${d}charts"
-              (cd "$d" && helm dependency update)
-          done
-
-      - name: Deploy to Prod
-        env:
-          PROD_SECRETS_CONTENT: ${{ secrets.PROD_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.prod.yaml
-          echo "$PROD_SECRETS_CONTENT" > ./environments/secrets.prod.yaml
-          cd deploy
-          helmfile -e prod --state-values-set IMAGE_TAG="${{ github.sha }}" sync
+    uses: ./.github/workflows/deploy-to-environment.yml
+    with:
+      branch: "refs/heads/main"
+      environment: "PROD"
+    secrets:
+      SECRETS_YAML: ${{ secrets.PROD_SECRETS_YAML }}
