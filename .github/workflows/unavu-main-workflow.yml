@@ -134,12 +134,12 @@ jobs:
         run: |
               trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
                   --severity LOW,MEDIUM,HIGH \
-                  --exit-code 0 --quiet \
+                  --exit-code 0 \
                   --format json -o trivy-${{ matrix.service }}-MEDIUM-results.json
 
               trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
                   --severity CRITICAL \
-                  --exit-code 0 --quiet \
+                  --exit-code 0 \
                   --format json -o trivy-${{ matrix.service }}-CRITICAL-results.json
       
       - name: Upload Trivy Vulnerability Reports
