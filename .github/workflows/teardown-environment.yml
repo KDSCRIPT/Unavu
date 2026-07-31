@@ -35,11 +35,11 @@ jobs:
 
         - name: Tear down ${{inputs.environment}}
           env:
-            DEV_SECRETS_CONTENT: ${{ secrets.SECRETS_YAML }}
+            SECRETS_CONTENT: ${{ secrets.SECRETS_YAML }}
           run: |
             ENV_LOWER="${{ inputs.environment }}"
             ENV_LOWER="${ENV_LOWER,,}"
             rm -f ./environments/secrets.${ENV_LOWER}.yaml
             echo "$SECRETS_CONTENT" > ./environments/secrets.${ENV_LOWER}.yaml
             cd deploy
-            helmfile -e '${ENV_LOWER}' --state-values-set IMAGE_TAG="${{ github.sha }}" destroy
+            helmfile -e "${ENV_LOWER}" --state-values-set IMAGE_TAG="${{ github.sha }}" destroy
