@@ -28,7 +28,13 @@ jobs:
           repository: KDSCRIPT/Unavu
           ref: helm
           clean: true
-
+      - name: Cache Helm chart dependencies
+        uses: actions/cache@v6.1.0
+        with:
+          path: |
+            unavu-common/charts
+            unavu-services/*/charts
+          key: helm-charts-${{ hashFiles('unavu-common/Chart.yaml', 'unavu-services/*/Chart.yaml') }}
       - name: Update Helm dependencies
         run: |
           for d in unavu-common/ unavu-services/*/; do
