@@ -7,11 +7,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
-  
+
   Build_Maven_Dependencies_skipping_Tests:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Checkout_Repository]
+    container:
+      image: maven:3.9-eclipse-temurin-21
     steps:
       - name: Cache Maven dependencies
         uses: actions/cache@v6.1.0
@@ -56,7 +58,9 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Build_Maven_Dependencies_skipping_Tests]
-    steps: 
+    container:
+      image: maven:3.9-eclipse-temurin-21
+    steps:
       - name: Unit Testing
         run: 'mvn test'
       - name: Upload SureFire Reports
@@ -65,12 +69,14 @@ jobs:
           name: surefire-reports
           path: |
             **/target/surefire-reports/*.xml
-      
+
   Code_Coverage:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Unit_Testing]
-    steps: 
+    container:
+      image: maven:3.9-eclipse-temurin-21
+    steps:
       - name: Code Coverage
         run: 'mvn jacoco:report'
       - name: Upload JaCoCo Code Coverage Report
@@ -84,6 +90,8 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Code_Coverage]
+    container:
+      image: maven:3.9-eclipse-temurin-21
     steps:
       - name: SAST SonarQube
         run: |
@@ -94,11 +102,15 @@ jobs:
               -Dsonar.token=${{secrets.SONARQUBE_TOKEN}} \
               -Dsonar.qualitygate.wait=true \
               -DskipTests
-  
+
   Build_Docker_Images:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [SAST_SonarQube]
+    container:
+      image: maven:3.9-eclipse-temurin-21
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
     strategy:
       matrix:
         service:
@@ -113,6 +125,11 @@ jobs:
           - feed
           - activity
     steps:
+      - name: Install Docker CLI
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq docker.io
+
       - name: Build Docker Image - ${{ matrix.service }}
         run: |
           mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild \
@@ -124,6 +141,10 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Build_Docker_Images]
+    container:
+      image: aquasec/trivy:latest
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
     strategy:
       matrix:
         service:
@@ -149,7 +170,7 @@ jobs:
                   --severity CRITICAL \
                   --exit-code 0 \
                   --format json -o trivy-${{ matrix.service }}-CRITICAL-results.json
-      
+
       - name: Upload Trivy Vulnerability Reports
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -157,13 +178,17 @@ jobs:
           path: |
             trivy-${{ matrix.service }}-CRITICAL-results.json
             trivy-${{ matrix.service }}-MEDIUM-results.json
-            
+
   Push_Docker_Images_to_DockerHub:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Trivy_Vulnerability_Scanning]
     permissions:
       packages: write
+    container:
+      image: docker:27-cli
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
     strategy:
         matrix:
           service:
@@ -196,6 +221,7 @@ jobs:
       environment: "DEV"
     secrets:
       SECRETS_YAML: ${{ secrets.DEV_SECRETS_YAML }}
+      KUBECONFIG_CONTENT: ${{ secrets.DEV_KUBECONFIG }}
 
   Teardown_Development:
     if: startsWith(github.ref, 'refs/heads/feature/')
@@ -207,7 +233,8 @@ jobs:
       gate: qa-gate
     secrets:
       SECRETS_YAML: ${{ secrets.DEV_SECRETS_YAML }}
-    
+      KUBECONFIG_CONTENT: ${{ secrets.DEV_KUBECONFIG }}
+
   Deploy_to_QA:
     if: startsWith(github.ref, 'refs/heads/feature/')
     needs: [Teardown_Development]
@@ -217,13 +244,16 @@ jobs:
       environment: "QA"
     secrets:
       SECRETS_YAML: ${{ secrets.QA_SECRETS_YAML }}
-  
+      KUBECONFIG_CONTENT: ${{ secrets.QA_KUBECONFIG }}
+
   Raise_Pull_Request_to_Prod:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Deploy_to_QA]
     permissions:
       pull-requests: write
+    container:
+      image: alpine/curl:latest
     steps:
       - name: Raise pull request
         run: |
@@ -233,7 +263,7 @@ jobs:
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/KDSCRIPT/Unavu/pulls \
           -d '{"title":"Release - image tag ${{ github.sha }}","body":"Image tag: ${{ github.sha }}","base":"main","head":"${{ github.ref_name }}"}'
-    
+
   Promote_Images_for_Production:
     if: startsWith(github.ref, 'refs/heads/main')
     runs-on: self-hosted
@@ -241,6 +271,10 @@ jobs:
       qa_image_tag: ${{ steps.resolve.outputs.tag }}
     permissions:
       packages: write
+    container:
+      image: docker:27-cli
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
     strategy:
         matrix:
           service:
@@ -255,6 +289,9 @@ jobs:
             - feed
             - activity
     steps:
+      - name: Install curl and jq
+        run: apk add --no-cache curl jq
+
       - name: Resolve QA-tested image tag from merged PR
         id: resolve
         run: |
@@ -270,7 +307,7 @@ jobs:
           registry: docker.io
           username: containedtogether
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Pull QA Docker Images
         run: docker pull containedtogether/${{ matrix.service }}:${{vars.qa_image_tag}}
 
@@ -279,7 +316,7 @@ jobs:
 
       - name: Push Docker Images to DockerHub
         run: docker push containedtogether/${{ matrix.service }}:${{ github.sha }}
-      
+
   Teardown_QA:
     if: startsWith(github.ref, 'refs/heads/main')
     needs: [Promote_Images_for_Production]
@@ -289,7 +326,8 @@ jobs:
       environment: "QA"
       gate: prod-gate
     secrets:
-      SECRETS_YAML: ${{ secrets.DEV_SECRETS_YAML }}    
+      SECRETS_YAML: ${{ secrets.QA_SECRETS_YAML }}
+      KUBECONFIG_CONTENT: ${{ secrets.QA_KUBECONFIG }}
 
   Deploy_to_Prod:
     if: startsWith(github.ref, 'refs/heads/main')
@@ -300,3 +338,4 @@ jobs:
       environment: "PROD"
     secrets:
       SECRETS_YAML: ${{ secrets.PROD_SECRETS_YAML }}
+      KUBECONFIG_CONTENT: ${{ secrets.PROD_KUBECONFIG }}

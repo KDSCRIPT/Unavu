@@ -15,11 +15,16 @@ on:
       SECRETS_YAML:
         description: YAML file with the secrets for the environment
         required: true
+      KUBECONFIG_CONTENT:
+        description: Base64-encoded kubeconfig for this environment's cluster
+        required: true
 
 jobs:
   Deploy_to_Environment:
     if: startsWith(github.ref, inputs.branch)
     runs-on: self-hosted
+    container:
+      image: ghcr.io/helmfile/helmfile:latest
 
     steps:
       - name: Checkout Helm charts
@@ -28,6 +33,15 @@ jobs:
           repository: KDSCRIPT/Unavu
           ref: helm
           clean: true
+
+      - name: Set up kubeconfig
+        env:
+          KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG_CONTENT }}
+        run: |
+          mkdir -p /root/.kube
+          echo "$KUBECONFIG_CONTENT" | base64 -d > /root/.kube/config
+          chmod 600 /root/.kube/config
+
       - name: Cache Helm chart dependencies
         uses: actions/cache@v6.1.0
         with:
@@ -35,14 +49,24 @@ jobs:
             unavu-common/charts
             unavu-services/*/charts
           key: helm-charts-${{ hashFiles('unavu-common/Chart.yaml', 'unavu-services/*/Chart.yaml') }}
+
       - name: Update Helm dependencies
         run: |
           for d in unavu-common/ unavu-services/*/; do
             [ -d "$d" ] || continue
             echo "=== $d ==="
-            rm -f "${d}Chart.lock"
-            rm -rf "${d}charts"
-            (cd "$d" && helm dependency update)
+            if [ ! -f "${d}Chart.lock" ] || [ "${d}Chart.yaml" -nt "${d}Chart.lock" ]; then
+              echo "Refreshing dependencies for $d"
+              rm -f "${d}Chart.lock"
+              rm -rf "${d}charts"
+              for i in 1 2 3 4 5; do
+                (cd "$d" && helm dependency update) && break
+                echo "Retry $i/5 for $d..."
+                sleep 20
+              done
+            else
+              echo "Cache hit, skipping refetch for $d"
+            fi
           done
 
       - name: Deploy to ${{ inputs.environment }}

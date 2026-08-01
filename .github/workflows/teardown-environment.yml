@@ -19,12 +19,17 @@ on:
       SECRETS_YAML:
         description: YAML file with the secrets for the environment
         required: true
+      KUBECONFIG_CONTENT:
+        description: Base64-encoded kubeconfig for this environment's cluster
+        required: true
 
 jobs:
   Teardown_Environment:
     if: startsWith(github.ref, inputs.branch)
     runs-on: self-hosted
-    environment: ${{inputs.gate}}
+    environment: ${{ inputs.gate }}
+    container:
+      image: ghcr.io/helmfile/helmfile:latest
     steps:
         - name: Checkout Helm charts
           uses: actions/checkout@v4
@@ -33,7 +38,15 @@ jobs:
             ref: helm
             clean: true
 
-        - name: Tear down ${{inputs.environment}}
+        - name: Set up kubeconfig
+          env:
+            KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG_CONTENT }}
+          run: |
+            mkdir -p /root/.kube
+            echo "$KUBECONFIG_CONTENT" | base64 -d > /root/.kube/config
+            chmod 600 /root/.kube/config
+
+        - name: Tear down ${{ inputs.environment }}
           env:
             SECRETS_CONTENT: ${{ secrets.SECRETS_YAML }}
           run: |
