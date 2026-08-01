@@ -25,7 +25,9 @@ jobs:
     runs-on: self-hosted
     container:
       image: ghcr.io/helmfile/helmfile:latest
-      options: --user 1000:1000
+      options: --user 1500:1500
+      volumes:
+        - /opt/ci-cache:/opt/ci-cache
 
     steps:
       - name: Checkout Helm charts
@@ -39,9 +41,10 @@ jobs:
         env:
           KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG_CONTENT }}
         run: |
-          mkdir -p /root/.kube
-          echo "$KUBECONFIG_CONTENT" | base64 -d > /root/.kube/config
-          chmod 600 /root/.kube/config
+          mkdir -p /opt/ci-cache/.kube
+          echo "$KUBECONFIG_CONTENT" | base64 -d > /opt/ci-cache/.kube/config
+          chmod 600 /opt/ci-cache/.kube/config
+          echo "KUBECONFIG=/opt/ci-cache/.kube/config" >> "$GITHUB_ENV"
 
       - name: Cache Helm chart dependencies
         uses: actions/cache@v6.1.0
