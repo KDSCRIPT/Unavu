@@ -286,12 +286,12 @@ jobs:
     runs-on: self-hosted
     permissions:
       packages: write
+      pull-requests: read
     container:
       image: docker:27-cli
       options: --user 1500:1500 --group-add 1001
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
-      pull-requests: read
     strategy:
         matrix:
           service:
