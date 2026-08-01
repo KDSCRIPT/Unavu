@@ -1,0 +1,68 @@
+name: Teardown Environment - Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: Branch on which the build step is happening
+        required: true
+        type: string
+      environment:
+        description: Environment in which Unavu application is being deployed
+        required: true
+        type: string
+      gate:
+        description: Name of Github environment or Approval gate
+        required: true
+        type: string
+    secrets:
+      SECRETS_YAML:
+        description: YAML file with the secrets for the environment
+        required: true
+      KUBECONFIG_CONTENT:
+        description: Base64-encoded kubeconfig for this environment's cluster
+        required: true
+
+jobs:
+  Teardown_Environment:
+    if: startsWith(github.ref, inputs.branch)
+    runs-on: self-hosted
+    environment: ${{ inputs.gate }}
+    container:
+      image: ghcr.io/helmfile/helmfile:latest
+      options: --user 1500:1500
+      volumes:
+        - /opt/ci-cache:/opt/ci-cache
+    env:
+      HOME: /opt/ci-cache
+      HELM_CACHE_HOME: /opt/ci-cache/.cache/helm
+      HELM_CONFIG_HOME: /opt/ci-cache/.config/helm
+      HELM_DATA_HOME: /opt/ci-cache/.local/share/helm
+      
+    steps:
+        - name: Checkout Helm charts
+          uses: actions/checkout@v4
+          with:
+            repository: KDSCRIPT/Unavu
+            ref: helm
+            clean: true
+
+        - name: Set up kubeconfig
+          env:
+            KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG_CONTENT }}
+          run: |
+            mkdir -p /opt/ci-cache/.kube
+            echo "$KUBECONFIG_CONTENT" | base64 -d > /opt/ci-cache/.kube/config
+            chmod 600 /opt/ci-cache/.kube/config
+            echo "KUBECONFIG=/opt/ci-cache/.kube/config" >> "$GITHUB_ENV"
+
+        - name: Tear down ${{ inputs.environment }}
+          env:
+            SECRETS_CONTENT: ${{ secrets.SECRETS_YAML }}
+          run: |
+            ENV_LOWER=$(echo "${{ inputs.environment }}" | tr '[:upper:]' '[:lower:]')
+            rm -f ./environments/secrets.${ENV_LOWER}.yaml
+            echo "$SECRETS_CONTENT" > ./environments/secrets.${ENV_LOWER}.yaml
+            cd deploy
+            helmfile -e "${ENV_LOWER}" --state-values-set IMAGE_TAG="${{ github.sha }}" destroy
+            

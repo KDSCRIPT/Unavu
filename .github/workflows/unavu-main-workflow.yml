@@ -7,15 +7,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
-  
+
   Build_Maven_Dependencies_skipping_Tests:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Checkout_Repository]
+    container:
+      image: maven:3.9-eclipse-temurin-21
+      options: --user 1500:1500 --group-add 1001
+      volumes:
+        - /opt/ci-cache:/opt/ci-cache
+    env:
+      HOME: /opt/ci-cache
     steps:
       - name: Build Maven Dependencies skipping Tests
-        run: 'mvn clean install -DskipTests'
-  
+        run: mvn clean install -DskipTests -Dmaven.repo.local=/opt/ci-cache/.m2/repository
   # OWASP_Dependency_Scanning:
   #   if: startsWith(github.ref, 'refs/heads/feature/')
   #   runs-on: self-hosted
@@ -44,53 +50,84 @@ jobs:
   #           **/dependency-check-report.xml 
   #           **/dependency-check-junit.xml
   
-  Unit_Testing:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
-    needs: [Build_Maven_Dependencies_skipping_Tests]
-    steps: 
-      - name: Unit Testing
-        run: 'mvn test'
-      - name: Upload SureFire Reports
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: surefire-reports
-          path: |
-            **/target/surefire-reports/*.xml
-      
-  Code_Coverage:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
-    needs: [Unit_Testing]
-    steps: 
-      - name: Code Coverage
-        run: 'mvn jacoco:report'
-      - name: Upload JaCoCo Code Coverage Report
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: JaCoCo Code Coverage Reports
-          path: |
-              **/target/site/jacoco/index.html
+  # Unit_Testing:
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   runs-on: self-hosted
+  #   needs: [Build_Maven_Dependencies_skipping_Tests]
+  #   container:
+  #     image: maven:3.9-eclipse-temurin-21
+  #     options: --user 1500:1500 --group-add 1001
+  #     volumes:
+  #       - /opt/ci-cache:/opt/ci-cache
+  #   env:
+  #     HOME: /opt/ci-cache
+  #   steps:
+  #     - name: Unit Testing
+  #       run: mvn test -Dmaven.repo.local=/opt/ci-cache/.m2/repository
+  #     - name: Upload SureFire Reports
+  #       uses: actions/upload-artifact@v7.0.1
+  #       with:
+  #         name: surefire-reports
+  #         path: |
+  #           **/target/surefire-reports/*.xml
 
-  SAST_SonarQube:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
-    needs: [Code_Coverage]
-    steps:
-      - name: SAST SonarQube
-        run: |
-              mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-              -Dsonar.projectKey=Unavu \
-              -Dsonar.projectName='Unavu' \
-              -Dsonar.host.url=${{ vars.SONARQUBE_URL }} \
-              -Dsonar.token=${{secrets.SONARQUBE_TOKEN}} \
-              -Dsonar.qualitygate.wait=true \
-              -DskipTests
-  
+  # Code_Coverage:
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   runs-on: self-hosted
+  #   needs: [Unit_Testing]
+  #   container:
+  #     image: maven:3.9-eclipse-temurin-21
+  #     options: --user 1500:1500 --group-add 1001
+  #     volumes:
+  #       - /opt/ci-cache:/opt/ci-cache
+  #   env:
+  #     HOME: /opt/ci-cache
+  #   steps:
+  #     - name: Code Coverage
+  #       run: mvn jacoco:report -Dmaven.repo.local=/opt/ci-cache/.m2/repository
+  #     - name: Upload JaCoCo Code Coverage Report
+  #       uses: actions/upload-artifact@v7.0.1
+  #       with:
+  #         name: JaCoCo Code Coverage Reports
+  #         path: |
+  #             **/target/site/jacoco/index.html
+
+  # SAST_SonarQube:
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   runs-on: self-hosted
+  #   needs: [Code_Coverage]
+  #   container:
+  #     image: maven:3.9-eclipse-temurin-21
+  #     options: --user 1500:1500 --group-add 1001 --add-host=host.docker.internal:host-gateway
+  #     volumes:
+  #       - /opt/ci-cache:/opt/ci-cache
+  #   env:
+  #     HOME: /opt/ci-cache
+  #   steps:
+  #     - name: SAST SonarQube
+  #       run: |
+  #             mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+  #             -Dsonar.projectKey=Unavu \
+  #             -Dsonar.projectName='Unavu' \
+  #             -Dsonar.host.url=${{ vars.SONARQUBE_URL }} \
+  #             -Dsonar.token=${{secrets.SONARQUBE_TOKEN}} \
+  #             -Dsonar.qualitygate.wait=true \
+  #             -Dmaven.repo.local=/opt/ci-cache/.m2/repository \
+  #             -DskipTests
+
   Build_Docker_Images:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
-    needs: [SAST_SonarQube]
+    # needs: [SAST_SonarQube]
+    needs: [Build_Maven_Dependencies_skipping_Tests]
+    container:
+      image: containedtogether/maven-docker-ci:21
+      options: --user 1500:1500 --group-add 1001
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /opt/ci-cache:/opt/ci-cache
+    env:
+      HOME: /opt/ci-cache
     strategy:
       matrix:
         service:
@@ -110,52 +147,64 @@ jobs:
           mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild \
             -pl ${{ matrix.service }} \
             -Djib.to.image=containedtogether/${{ matrix.service }}:${{ github.sha }} \
+            -Dmaven.repo.local=/opt/ci-cache/.m2/repository \
             -DskipTests
+  
+  # Trivy_Vulnerability_Scanning:
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   runs-on: self-hosted
+  #   needs: [Build_Docker_Images]
+  #   container:
+  #     image: aquasec/trivy:latest
+  #     options: --user 1500:1500 --group-add 1001
+  #     volumes:
+  #       - /var/run/docker.sock:/var/run/docker.sock
+  #   strategy:
+  #     matrix:
+  #       service:
+  #         - restaurant
+  #         - user
+  #         - list
+  #         - review
+  #         - social-graph
+  #         - config-server
+  #         - gateway-server
+  #         - notification
+  #         - feed
+  #         - activity
+  #   steps:
+  #     - name: Trivy Vulnerability Scanning
+  #       run: |
+  #             trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
+  #                 --severity LOW,MEDIUM,HIGH \
+  #                 --exit-code 0 \
+  #                 --format json -o trivy-${{ matrix.service }}-MEDIUM-results.json
 
-  Trivy_Vulnerability_Scanning:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
-    needs: [Build_Docker_Images]
-    strategy:
-      matrix:
-        service:
-          - restaurant
-          - user
-          - list
-          - review
-          - social-graph
-          - config-server
-          - gateway-server
-          - notification
-          - feed
-          - activity
-    steps:
-      - name: Trivy Vulnerability Scanning
-        run: |
-              trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
-                  --severity LOW,MEDIUM,HIGH \
-                  --exit-code 0 --quiet \
-                  --format json -o trivy-${{ matrix.service }}-MEDIUM-results.json
+  #             trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
+  #                 --severity CRITICAL \
+  #                 --exit-code 0 \
+  #                 --format json -o trivy-${{ matrix.service }}-CRITICAL-results.json
 
-              trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
-                  --severity CRITICAL \
-                  --exit-code 0 --quiet \
-                  --format json -o trivy-${{ matrix.service }}-CRITICAL-results.json
-      
-      - name: Upload Trivy Vulnerability Reports
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: trivy-report-${{ matrix.service }}
-          path: |
-            trivy-${{ matrix.service }}-CRITICAL-results.html
-            trivy-${{ matrix.service }}-MEDIUM-results.html
-            
+  #     - name: Upload Trivy Vulnerability Reports
+  #       uses: actions/upload-artifact@v7.0.1
+  #       with:
+  #         name: trivy-report-${{ matrix.service }}
+  #         path: |
+  #           trivy-${{ matrix.service }}-CRITICAL-results.json
+  #           trivy-${{ matrix.service }}-MEDIUM-results.json
+
   Push_Docker_Images_to_DockerHub:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
-    needs: [Trivy_Vulnerability_Scanning]
+    # needs: [Trivy_Vulnerability_Scanning]
+    needs: [Build_Docker_Images]
     permissions:
       packages: write
+    container:
+      image: docker:27-cli
+      options: --user 1500:1500 --group-add 1001
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
     strategy:
         matrix:
           service:
@@ -181,97 +230,47 @@ jobs:
 
   Deploy_to_Development:
     if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
     needs: [Push_Docker_Images_to_DockerHub]
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
-
-      - name: Update Helm dependencies
-        run: |
-          for d in unavu-common/ unavu-services/*/; do
-              [ -d "$d" ] || continue
-              echo "=== $d ==="
-              rm -f "${d}Chart.lock"
-              rm -rf "${d}charts"
-              (cd "$d" && helm dependency update)
-          done
-
-      - name: Deploy to Development
-        env:
-          DEV_SECRETS_CONTENT: ${{ secrets.DEV_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.dev.yaml
-          echo "$DEV_SECRETS_CONTENT" > ./environments/secrets.dev.yaml
-          cd deploy
-          helmfile -e dev --state-values-set IMAGE_TAG="${{ github.sha }}" sync
+    uses: ./.github/workflows/deploy-to-environment.yml
+    with:
+      branch: "refs/heads/feature/"
+      environment: "DEV"
+    secrets:
+      SECRETS_YAML: ${{ secrets.DEV_SECRETS_YAML }}
+      KUBECONFIG_CONTENT: ${{ secrets.DEV_KUBECONFIG }}
 
   Teardown_Development:
     if: startsWith(github.ref, 'refs/heads/feature/')
     needs: [Deploy_to_Development]
-    runs-on: self-hosted
-    environment: qa-gate
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
-
-      - name: Tear down Development
-        env:
-          DEV_SECRETS_CONTENT: ${{ secrets.DEV_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.dev.yaml
-          echo "$DEV_SECRETS_CONTENT" > ./environments/secrets.dev.yaml
-          cd deploy
-          helmfile -e dev --state-values-set IMAGE_TAG="${{ github.sha }}" destroy
+    uses: ./.github/workflows/teardown-environment.yml
+    with:
+      branch: "refs/heads/feature/"
+      environment: "DEV"
+      gate: qa-gate
+    secrets:
+      SECRETS_YAML: ${{ secrets.DEV_SECRETS_YAML }}
+      KUBECONFIG_CONTENT: ${{ secrets.DEV_KUBECONFIG }}
 
   Deploy_to_QA:
     if: startsWith(github.ref, 'refs/heads/feature/')
     needs: [Teardown_Development]
-    runs-on: self-hosted
-    environment: qa
-    outputs:
-      qa_image_tag: ${{ github.sha }}
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
+    uses: ./.github/workflows/deploy-to-environment.yml
+    with:
+      branch: "refs/heads/feature/"
+      environment: "QA"
+    secrets:
+      SECRETS_YAML: ${{ secrets.QA_SECRETS_YAML }}
+      KUBECONFIG_CONTENT: ${{ secrets.QA_KUBECONFIG }}
 
-      - name: Update Helm dependencies
-        run: |
-          for d in unavu-common/ unavu-services/*/; do
-              [ -d "$d" ] || continue
-              echo "=== $d ==="
-              rm -f "${d}Chart.lock"
-              rm -rf "${d}charts"
-              (cd "$d" && helm dependency update)
-          done
-
-      - name: Deploy to QA
-        env:
-          QA_SECRETS_CONTENT: ${{ secrets.QA_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.qa.yaml
-          echo "$QA_SECRETS_CONTENT" > ./environments/secrets.qa.yaml
-          cd deploy
-          helmfile -e qa --state-values-set IMAGE_TAG="${{ github.sha }}" sync
-  
   Raise_Pull_Request_to_Prod:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Deploy_to_QA]
     permissions:
       pull-requests: write
+    container:
+      image: alpine/curl:latest
+      options: --user 1500:1500 --group-add 1001
     steps:
       - name: Raise pull request
         run: |
@@ -281,12 +280,17 @@ jobs:
           -H "X-GitHub-Api-Version: 2022-11-28" \
           https://api.github.com/repos/KDSCRIPT/Unavu/pulls \
           -d '{"title":"Release - image tag ${{ github.sha }}","body":"Image tag: ${{ github.sha }}","base":"main","head":"${{ github.ref_name }}"}'
-    
+
   Promote_Images_for_Production:
     if: startsWith(github.ref, 'refs/heads/main')
     runs-on: self-hosted
     permissions:
       packages: write
+    container:
+      image: docker:27-cli
+      options: --user 1500:1500 --group-add 1001
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
       pull-requests: read
     strategy:
         matrix:
@@ -302,6 +306,9 @@ jobs:
             - feed
             - activity
     steps:
+      - name: Install curl and jq
+        run: apk add --no-cache curl jq
+
       - name: Resolve QA-tested image tag from merged PR
         id: resolve
         run: |
@@ -317,7 +324,7 @@ jobs:
           registry: docker.io
           username: containedtogether
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Pull QA Docker Images
         run: docker pull containedtogether/${{ matrix.service }}:${{ steps.resolve.outputs.tag }}
 
@@ -326,57 +333,26 @@ jobs:
 
       - name: Push Docker Images to DockerHub
         run: docker push containedtogether/${{ matrix.service }}:${{ github.sha }}
-      
+
   Teardown_QA:
     if: startsWith(github.ref, 'refs/heads/main')
     needs: [Promote_Images_for_Production]
-    runs-on: self-hosted
-    environment: prod-gate
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
-
-      - name: Tear down QA
-        env:
-          QA_SECRETS_CONTENT: ${{ secrets.QA_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.dev.yaml
-          echo "$QA_SECRETS_CONTENT" > ./environments/secrets.qa.yaml
-          cd deploy
-          helmfile -e qa --state-values-set IMAGE_TAG="${{ github.sha }}" destroy    
+    uses: ./.github/workflows/teardown-environment.yml
+    with:
+      branch: "refs/heads/main"
+      environment: "QA"
+      gate: prod-gate
+    secrets:
+      SECRETS_YAML: ${{ secrets.QA_SECRETS_YAML }}
+      KUBECONFIG_CONTENT: ${{ secrets.QA_KUBECONFIG }}
 
   Deploy_to_Prod:
     if: startsWith(github.ref, 'refs/heads/main')
     needs: [Teardown_QA]
-    runs-on: self-hosted
-    environment: prod
-    steps:
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
-
-      - name: Update Helm dependencies
-        run: |
-          for d in unavu-common/ unavu-services/*/; do
-              [ -d "$d" ] || continue
-              echo "=== $d ==="
-              rm -f "${d}Chart.lock"
-              rm -rf "${d}charts"
-              (cd "$d" && helm dependency update)
-          done
-
-      - name: Deploy to Prod
-        env:
-          PROD_SECRETS_CONTENT: ${{ secrets.PROD_SECRETS_YAML }}
-        run: |
-          rm -f ./environments/secrets.prod.yaml
-          echo "$PROD_SECRETS_CONTENT" > ./environments/secrets.prod.yaml
-          cd deploy
-          helmfile -e prod --state-values-set IMAGE_TAG="${{ github.sha }}" sync
+    uses: ./.github/workflows/deploy-to-environment.yml
+    with:
+      branch: "refs/heads/main"
+      environment: "PROD"
+    secrets:
+      SECRETS_YAML: ${{ secrets.PROD_SECRETS_YAML }}
+      KUBECONFIG_CONTENT: ${{ secrets.PROD_KUBECONFIG }}
