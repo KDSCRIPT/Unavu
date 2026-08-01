@@ -54,8 +54,7 @@ jobs:
           env:
             SECRETS_CONTENT: ${{ secrets.SECRETS_YAML }}
           run: |
-            ENV_LOWER="${{ inputs.environment }}"
-            ENV_LOWER="${ENV_LOWER,,}"
+            ENV_LOWER=$(echo "${{ inputs.environment }}" | tr '[:upper:]' '[:lower:]')
             rm -f ./environments/secrets.${ENV_LOWER}.yaml
             echo "$SECRETS_CONTENT" > ./environments/secrets.${ENV_LOWER}.yaml
             cd deploy
