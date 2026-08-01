@@ -16,7 +16,7 @@ jobs:
       image: maven:3.9-eclipse-temurin-21
       options: --user 1500:1500
       volumes:
-        - /opt/ci-cache/.m2:/opt/ci-cache/.m2
+        - /opt/ci-cache:/opt/ci-cache
     env:
       HOME: /opt/ci-cache
     steps:
@@ -58,7 +58,7 @@ jobs:
       image: maven:3.9-eclipse-temurin-21
       options: --user 1500:1500
       volumes:
-        - /opt/ci-cache/.m2:/opt/ci-cache/.m2
+        - /opt/ci-cache:/opt/ci-cache
     env:
       HOME: /opt/ci-cache
     steps:
@@ -79,7 +79,7 @@ jobs:
       image: maven:3.9-eclipse-temurin-21
       options: --user 1500:1500
       volumes:
-        - /opt/ci-cache/.m2:/opt/ci-cache/.m2
+        - /opt/ci-cache:/opt/ci-cache
     env:
       HOME: /opt/ci-cache
     steps:
@@ -124,7 +124,7 @@ jobs:
       options: --user 1500:1500
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
-        - /opt/ci-cache/.m2:/opt/ci-cache/.m2
+        - /opt/ci-cache:/opt/ci-cache
     env:
       HOME: /opt/ci-cache
     strategy:
