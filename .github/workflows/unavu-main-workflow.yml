@@ -14,7 +14,7 @@ jobs:
     needs: [Checkout_Repository]
     container:
       image: maven:3.9-eclipse-temurin-21
-      options: --user 1500:1500
+      options: --user 1500:1500 --group-add 1001
       volumes:
         - /opt/ci-cache:/opt/ci-cache
     env:
@@ -56,7 +56,7 @@ jobs:
     needs: [Build_Maven_Dependencies_skipping_Tests]
     container:
       image: maven:3.9-eclipse-temurin-21
-      options: --user 1500:1500
+      options: --user 1500:1500 --group-add 1001
       volumes:
         - /opt/ci-cache:/opt/ci-cache
     env:
@@ -77,7 +77,7 @@ jobs:
     needs: [Unit_Testing]
     container:
       image: maven:3.9-eclipse-temurin-21
-      options: --user 1500:1500
+      options: --user 1500:1500 --group-add 1001
       volumes:
         - /opt/ci-cache:/opt/ci-cache
     env:
@@ -98,7 +98,7 @@ jobs:
     needs: [Code_Coverage]
     container:
       image: maven:3.9-eclipse-temurin-21
-      options: --user 1500:1500 --add-host=host.docker.internal:host-gateway
+      options: --user 1500:1500 --group-add 1001 --add-host=host.docker.internal:host-gateway
       volumes:
         - /opt/ci-cache:/opt/ci-cache
     env:
@@ -121,7 +121,7 @@ jobs:
     needs: [SAST_SonarQube]
     container:
       image: containedtogether/maven-docker-ci:21
-      options: --user 1500:1500
+      options: --user 1500:1500 --group-add 1001
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
         - /opt/ci-cache:/opt/ci-cache
@@ -155,7 +155,7 @@ jobs:
     needs: [Build_Docker_Images]
     container:
       image: aquasec/trivy:latest
-      options: --user 1000:1000
+      options: --user 1500:1500 --group-add 1001
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     strategy:
@@ -200,7 +200,7 @@ jobs:
       packages: write
     container:
       image: docker:27-cli
-      options: --user 1000:1000
+      options: --user 1500:1500 --group-add 1001
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     strategy:
@@ -268,7 +268,7 @@ jobs:
       pull-requests: write
     container:
       image: alpine/curl:latest
-      options: --user 1000:1000
+      options: --user 1500:1500 --group-add 1001
     steps:
       - name: Raise pull request
         run: |
@@ -288,7 +288,7 @@ jobs:
       packages: write
     container:
       image: docker:27-cli
-      options: --user 1000:1000
+      options: --user 1500:1500 --group-add 1001
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     strategy:
