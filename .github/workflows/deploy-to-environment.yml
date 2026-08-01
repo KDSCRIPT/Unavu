@@ -28,6 +28,8 @@ jobs:
       options: --user 1500:1500
       volumes:
         - /opt/ci-cache:/opt/ci-cache
+    env:
+      HOME: /opt/ci-cache
 
     steps:
       - name: Checkout Helm charts
