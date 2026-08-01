@@ -92,6 +92,7 @@ jobs:
     needs: [Code_Coverage]
     container:
       image: maven:3.9-eclipse-temurin-21
+      options: --add-host=host.docker.internal:host-gateway
     steps:
       - name: SAST SonarQube
         run: |
