@@ -14,6 +14,7 @@ jobs:
     needs: [Checkout_Repository]
     container:
       image: maven:3.9-eclipse-temurin-21
+      options: --user 1000:1000
     steps:
       - name: Cache Maven dependencies
         uses: actions/cache@v6.1.0
@@ -60,6 +61,7 @@ jobs:
     needs: [Build_Maven_Dependencies_skipping_Tests]
     container:
       image: maven:3.9-eclipse-temurin-21
+      options: --user 1000:1000
     steps:
       - name: Unit Testing
         run: 'mvn test'
@@ -76,6 +78,7 @@ jobs:
     needs: [Unit_Testing]
     container:
       image: maven:3.9-eclipse-temurin-21
+      options: --user 1000:1000
     steps:
       - name: Code Coverage
         run: 'mvn jacoco:report'
@@ -92,7 +95,7 @@ jobs:
     needs: [Code_Coverage]
     container:
       image: maven:3.9-eclipse-temurin-21
-      options: --add-host=host.docker.internal:host-gateway
+      options: --user 1000:1000 --add-host=host.docker.internal:host-gateway
     steps:
       - name: SAST SonarQube
         run: |
@@ -110,6 +113,7 @@ jobs:
     needs: [SAST_SonarQube]
     container:
       image: maven:3.9-eclipse-temurin-21
+      options: --user 1000:1000
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     strategy:
@@ -144,6 +148,7 @@ jobs:
     needs: [Build_Docker_Images]
     container:
       image: aquasec/trivy:latest
+      options: --user 1000:1000
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     strategy:
@@ -188,6 +193,7 @@ jobs:
       packages: write
     container:
       image: docker:27-cli
+      options: --user 1000:1000
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     strategy:
@@ -255,6 +261,7 @@ jobs:
       pull-requests: write
     container:
       image: alpine/curl:latest
+      options: --user 1000:1000
     steps:
       - name: Raise pull request
         run: |
@@ -274,6 +281,7 @@ jobs:
       packages: write
     container:
       image: docker:27-cli
+      options: --user 1000:1000
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     strategy:

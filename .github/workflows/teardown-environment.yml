@@ -30,6 +30,7 @@ jobs:
     environment: ${{ inputs.gate }}
     container:
       image: ghcr.io/helmfile/helmfile:latest
+      options: --user 1000:1000
     steps:
         - name: Checkout Helm charts
           uses: actions/checkout@v4
