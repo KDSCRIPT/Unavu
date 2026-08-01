@@ -35,6 +35,9 @@ jobs:
         - /opt/ci-cache:/opt/ci-cache
     env:
       HOME: /opt/ci-cache
+      HELM_CACHE_HOME: /opt/ci-cache/.cache/helm
+      HELM_CONFIG_HOME: /opt/ci-cache/.config/helm
+      HELM_DATA_HOME: /opt/ci-cache/.local/share/helm
       
     steps:
         - name: Checkout Helm charts

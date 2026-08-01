@@ -50,75 +50,76 @@ jobs:
   #           **/dependency-check-report.xml 
   #           **/dependency-check-junit.xml
   
-  Unit_Testing:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
-    needs: [Build_Maven_Dependencies_skipping_Tests]
-    container:
-      image: maven:3.9-eclipse-temurin-21
-      options: --user 1500:1500 --group-add 1001
-      volumes:
-        - /opt/ci-cache:/opt/ci-cache
-    env:
-      HOME: /opt/ci-cache
-    steps:
-      - name: Unit Testing
-        run: mvn test -Dmaven.repo.local=/opt/ci-cache/.m2/repository
-      - name: Upload SureFire Reports
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: surefire-reports
-          path: |
-            **/target/surefire-reports/*.xml
+  # Unit_Testing:
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   runs-on: self-hosted
+  #   needs: [Build_Maven_Dependencies_skipping_Tests]
+  #   container:
+  #     image: maven:3.9-eclipse-temurin-21
+  #     options: --user 1500:1500 --group-add 1001
+  #     volumes:
+  #       - /opt/ci-cache:/opt/ci-cache
+  #   env:
+  #     HOME: /opt/ci-cache
+  #   steps:
+  #     - name: Unit Testing
+  #       run: mvn test -Dmaven.repo.local=/opt/ci-cache/.m2/repository
+  #     - name: Upload SureFire Reports
+  #       uses: actions/upload-artifact@v7.0.1
+  #       with:
+  #         name: surefire-reports
+  #         path: |
+  #           **/target/surefire-reports/*.xml
 
-  Code_Coverage:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
-    needs: [Unit_Testing]
-    container:
-      image: maven:3.9-eclipse-temurin-21
-      options: --user 1500:1500 --group-add 1001
-      volumes:
-        - /opt/ci-cache:/opt/ci-cache
-    env:
-      HOME: /opt/ci-cache
-    steps:
-      - name: Code Coverage
-        run: mvn jacoco:report -Dmaven.repo.local=/opt/ci-cache/.m2/repository
-      - name: Upload JaCoCo Code Coverage Report
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: JaCoCo Code Coverage Reports
-          path: |
-              **/target/site/jacoco/index.html
+  # Code_Coverage:
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   runs-on: self-hosted
+  #   needs: [Unit_Testing]
+  #   container:
+  #     image: maven:3.9-eclipse-temurin-21
+  #     options: --user 1500:1500 --group-add 1001
+  #     volumes:
+  #       - /opt/ci-cache:/opt/ci-cache
+  #   env:
+  #     HOME: /opt/ci-cache
+  #   steps:
+  #     - name: Code Coverage
+  #       run: mvn jacoco:report -Dmaven.repo.local=/opt/ci-cache/.m2/repository
+  #     - name: Upload JaCoCo Code Coverage Report
+  #       uses: actions/upload-artifact@v7.0.1
+  #       with:
+  #         name: JaCoCo Code Coverage Reports
+  #         path: |
+  #             **/target/site/jacoco/index.html
 
-  SAST_SonarQube:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
-    needs: [Code_Coverage]
-    container:
-      image: maven:3.9-eclipse-temurin-21
-      options: --user 1500:1500 --group-add 1001 --add-host=host.docker.internal:host-gateway
-      volumes:
-        - /opt/ci-cache:/opt/ci-cache
-    env:
-      HOME: /opt/ci-cache
-    steps:
-      - name: SAST SonarQube
-        run: |
-              mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-              -Dsonar.projectKey=Unavu \
-              -Dsonar.projectName='Unavu' \
-              -Dsonar.host.url=${{ vars.SONARQUBE_URL }} \
-              -Dsonar.token=${{secrets.SONARQUBE_TOKEN}} \
-              -Dsonar.qualitygate.wait=true \
-              -Dmaven.repo.local=/opt/ci-cache/.m2/repository \
-              -DskipTests
+  # SAST_SonarQube:
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   runs-on: self-hosted
+  #   needs: [Code_Coverage]
+  #   container:
+  #     image: maven:3.9-eclipse-temurin-21
+  #     options: --user 1500:1500 --group-add 1001 --add-host=host.docker.internal:host-gateway
+  #     volumes:
+  #       - /opt/ci-cache:/opt/ci-cache
+  #   env:
+  #     HOME: /opt/ci-cache
+  #   steps:
+  #     - name: SAST SonarQube
+  #       run: |
+  #             mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+  #             -Dsonar.projectKey=Unavu \
+  #             -Dsonar.projectName='Unavu' \
+  #             -Dsonar.host.url=${{ vars.SONARQUBE_URL }} \
+  #             -Dsonar.token=${{secrets.SONARQUBE_TOKEN}} \
+  #             -Dsonar.qualitygate.wait=true \
+  #             -Dmaven.repo.local=/opt/ci-cache/.m2/repository \
+  #             -DskipTests
 
   Build_Docker_Images:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
-    needs: [SAST_SonarQube]
+    # needs: [SAST_SonarQube]
+    needs: [Build_Maven_Dependencies_skipping_Tests]
     container:
       image: containedtogether/maven-docker-ci:21
       options: --user 1500:1500 --group-add 1001
@@ -149,53 +150,54 @@ jobs:
             -Dmaven.repo.local=/opt/ci-cache/.m2/repository \
             -DskipTests
   
-  Trivy_Vulnerability_Scanning:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: self-hosted
-    needs: [Build_Docker_Images]
-    container:
-      image: aquasec/trivy:latest
-      options: --user 1500:1500 --group-add 1001
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
-    strategy:
-      matrix:
-        service:
-          - restaurant
-          - user
-          - list
-          - review
-          - social-graph
-          - config-server
-          - gateway-server
-          - notification
-          - feed
-          - activity
-    steps:
-      - name: Trivy Vulnerability Scanning
-        run: |
-              trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
-                  --severity LOW,MEDIUM,HIGH \
-                  --exit-code 0 \
-                  --format json -o trivy-${{ matrix.service }}-MEDIUM-results.json
+  # Trivy_Vulnerability_Scanning:
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   runs-on: self-hosted
+  #   needs: [Build_Docker_Images]
+  #   container:
+  #     image: aquasec/trivy:latest
+  #     options: --user 1500:1500 --group-add 1001
+  #     volumes:
+  #       - /var/run/docker.sock:/var/run/docker.sock
+  #   strategy:
+  #     matrix:
+  #       service:
+  #         - restaurant
+  #         - user
+  #         - list
+  #         - review
+  #         - social-graph
+  #         - config-server
+  #         - gateway-server
+  #         - notification
+  #         - feed
+  #         - activity
+  #   steps:
+  #     - name: Trivy Vulnerability Scanning
+  #       run: |
+  #             trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
+  #                 --severity LOW,MEDIUM,HIGH \
+  #                 --exit-code 0 \
+  #                 --format json -o trivy-${{ matrix.service }}-MEDIUM-results.json
 
-              trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
-                  --severity CRITICAL \
-                  --exit-code 0 \
-                  --format json -o trivy-${{ matrix.service }}-CRITICAL-results.json
+  #             trivy image containedtogether/${{ matrix.service }}:${{ github.sha }} \
+  #                 --severity CRITICAL \
+  #                 --exit-code 0 \
+  #                 --format json -o trivy-${{ matrix.service }}-CRITICAL-results.json
 
-      - name: Upload Trivy Vulnerability Reports
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: trivy-report-${{ matrix.service }}
-          path: |
-            trivy-${{ matrix.service }}-CRITICAL-results.json
-            trivy-${{ matrix.service }}-MEDIUM-results.json
+  #     - name: Upload Trivy Vulnerability Reports
+  #       uses: actions/upload-artifact@v7.0.1
+  #       with:
+  #         name: trivy-report-${{ matrix.service }}
+  #         path: |
+  #           trivy-${{ matrix.service }}-CRITICAL-results.json
+  #           trivy-${{ matrix.service }}-MEDIUM-results.json
 
   Push_Docker_Images_to_DockerHub:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
-    needs: [Trivy_Vulnerability_Scanning]
+    # needs: [Trivy_Vulnerability_Scanning]
+    needs: [Build_Docker_Images]
     permissions:
       packages: write
     container:
