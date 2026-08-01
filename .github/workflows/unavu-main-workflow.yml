@@ -288,7 +288,7 @@ jobs:
       packages: write
       pull-requests: read
     container:
-      image: docker:27-cli
+      image: containedtogether/docker-curl-jq:latest
       options: --user 1500:1500 --group-add 1001
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
@@ -306,9 +306,6 @@ jobs:
             - feed
             - activity
     steps:
-      - name: Install curl and jq
-        run: apk add --no-cache curl jq
-
       - name: Resolve QA-tested image tag from merged PR
         id: resolve
         run: |
