@@ -14,19 +14,14 @@ jobs:
     needs: [Checkout_Repository]
     container:
       image: maven:3.9-eclipse-temurin-21
-      options: --user 1000:1000
+      options: --user 1500:1500
+      volumes:
+        - /opt/ci-cache/.m2:/opt/ci-cache/.m2
+    env:
+      HOME: /opt/ci-cache
     steps:
-      - name: Cache Maven dependencies
-        uses: actions/cache@v6.1.0
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2-
-
       - name: Build Maven Dependencies skipping Tests
-        run: mvn clean install -DskipTests
-  
+        run: mvn clean install -DskipTests -Dmaven.repo.local=/opt/ci-cache/.m2/repository
   # OWASP_Dependency_Scanning:
   #   if: startsWith(github.ref, 'refs/heads/feature/')
   #   runs-on: self-hosted
@@ -61,10 +56,14 @@ jobs:
     needs: [Build_Maven_Dependencies_skipping_Tests]
     container:
       image: maven:3.9-eclipse-temurin-21
-      options: --user 1000:1000
+      options: --user 1500:1500
+      volumes:
+        - /opt/ci-cache/.m2:/opt/ci-cache/.m2
+    env:
+      HOME: /opt/ci-cache
     steps:
       - name: Unit Testing
-        run: 'mvn test'
+        run: mvn test -Dmaven.repo.local=/opt/ci-cache/.m2/repository
       - name: Upload SureFire Reports
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -78,10 +77,14 @@ jobs:
     needs: [Unit_Testing]
     container:
       image: maven:3.9-eclipse-temurin-21
-      options: --user 1000:1000
+      options: --user 1500:1500
+      volumes:
+        - /opt/ci-cache/.m2:/opt/ci-cache/.m2
+    env:
+      HOME: /opt/ci-cache
     steps:
       - name: Code Coverage
-        run: 'mvn jacoco:report'
+        run: mvn jacoco:report -Dmaven.repo.local=/opt/ci-cache/.m2/repository
       - name: Upload JaCoCo Code Coverage Report
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -95,7 +98,11 @@ jobs:
     needs: [Code_Coverage]
     container:
       image: maven:3.9-eclipse-temurin-21
-      options: --user 1000:1000 --add-host=host.docker.internal:host-gateway
+      options: --user 1500:1500 --add-host=host.docker.internal:host-gateway
+      volumes:
+        - /opt/ci-cache/.m2:/opt/ci-cache/.m2
+    env:
+      HOME: /opt/ci-cache
     steps:
       - name: SAST SonarQube
         run: |
@@ -105,6 +112,7 @@ jobs:
               -Dsonar.host.url=${{ vars.SONARQUBE_URL }} \
               -Dsonar.token=${{secrets.SONARQUBE_TOKEN}} \
               -Dsonar.qualitygate.wait=true \
+              -Dmaven.repo.local=/opt/ci-cache/.m2/repository \
               -DskipTests
 
   Build_Docker_Images:
@@ -113,9 +121,12 @@ jobs:
     needs: [SAST_SonarQube]
     container:
       image: containedtogether/maven-docker-ci:21
-      options: --user 1000:1000
+      options: --user 1500:1500
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
+        - /opt/ci-cache/.m2:/opt/ci-cache/.m2
+    env:
+      HOME: /opt/ci-cache
     strategy:
       matrix:
         service:
@@ -135,8 +146,9 @@ jobs:
           mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild \
             -pl ${{ matrix.service }} \
             -Djib.to.image=containedtogether/${{ matrix.service }}:${{ github.sha }} \
+            -Dmaven.repo.local=/opt/ci-cache/.m2/repository \
             -DskipTests
-
+  
   Trivy_Vulnerability_Scanning:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
