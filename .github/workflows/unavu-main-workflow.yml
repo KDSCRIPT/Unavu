@@ -130,11 +130,6 @@ jobs:
           - feed
           - activity
     steps:
-      - name: Install Docker CLI
-        run: |
-          apt-get update -qq
-          apt-get install -y -qq docker.io
-
       - name: Build Docker Image - ${{ matrix.service }}
         run: |
           mvn com.google.cloud.tools:jib-maven-plugin:3.4.0:dockerBuild \
