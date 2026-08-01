@@ -284,8 +284,6 @@ jobs:
   Promote_Images_for_Production:
     if: startsWith(github.ref, 'refs/heads/main')
     runs-on: self-hosted
-    outputs:
-      qa_image_tag: ${{ steps.resolve.outputs.tag }}
     permissions:
       packages: write
     container:
@@ -293,6 +291,7 @@ jobs:
       options: --user 1500:1500 --group-add 1001
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
+      pull-requests: read
     strategy:
         matrix:
           service:
@@ -327,10 +326,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Pull QA Docker Images
-        run: docker pull containedtogether/${{ matrix.service }}:${{vars.qa_image_tag}}
+        run: docker pull containedtogether/${{ matrix.service }}:${{ steps.resolve.outputs.tag }}
 
       - name: Change label of QA images to Production Pull request Commit
-        run: docker tag containedtogether/${{ matrix.service }}:${{vars.qa_image_tag}} containedtogether/${{ matrix.service }}:${{ github.sha }}
+        run: docker tag containedtogether/${{ matrix.service }}:${{ steps.resolve.outputs.tag }} containedtogether/${{ matrix.service }}:${{ github.sha }}
 
       - name: Push Docker Images to DockerHub
         run: docker push containedtogether/${{ matrix.service }}:${{ github.sha }}
