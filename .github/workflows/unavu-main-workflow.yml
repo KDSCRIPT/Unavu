@@ -112,7 +112,7 @@ jobs:
     runs-on: self-hosted
     needs: [SAST_SonarQube]
     container:
-      image: maven:3.9-eclipse-temurin-21
+      image: containedtogether/maven-docker-ci:21
       options: --user 1000:1000
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
