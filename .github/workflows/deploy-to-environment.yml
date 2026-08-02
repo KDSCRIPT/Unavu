@@ -35,6 +35,13 @@ jobs:
         HELM_DATA_HOME: /opt/ci-cache/.local/share/helm
 
     steps:
+      - name: Checkout Helm charts
+        uses: actions/checkout@v4
+        with:
+          repository: KDSCRIPT/Unavu
+          ref: helm
+          clean: true
+
       - name: Checkout actions
         uses: actions/checkout@v4
         with:
@@ -44,17 +51,6 @@ jobs:
           sparse-checkout: |
             .github/custom-actions
           sparse-checkout-cone-mode: false
-      
-      - name: Debug - verify action exists
-        run: |
-          find ci-actions -type f
-
-      - name: Checkout Helm charts
-        uses: actions/checkout@v4
-        with:
-          repository: KDSCRIPT/Unavu
-          ref: helm
-          clean: true
 
       - name: Set up kubeconfig
         uses: ./ci-actions/.github/custom-actions/setup-kubeconfig
