@@ -27,30 +27,27 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
     needs: [Build_Maven_Dependencies_skipping_Tests]
+    container:
+      image: owasp/dependency-check:latest
+      options: --user 1500:1500
+      volumes:
+        - /opt/ci-cache:/opt/ci-cache
+    env:
+      HOME: /opt/ci-cache
     steps:
-      - name: Cache OWASP Dependency-Check NVD database
-        uses: actions/cache@v6.1.0
-        with:
-          path: dependency-check-data
-          key: depcheck-nvd-db-v1
-          restore-keys: |
-            depcheck-nvd-db-
-
-      - name: OWASP Dependency Scanning
-        uses: dependency-check/Dependency-Check_Action@1.1.0
-        id: Depcheck
-        with:
-          project: 'Unavu'
-          path: '.'
-          format: 'HTML'
-          args: >
-              --nvdApiKey ${{secrets.NVD_API_KEY}}
-              --data ./dependency-check-data
-              --out reports
-              --format 'XML'
-              --format 'JUNIT'
-              --disableCentral
-              --prettyPrint
+      - name: Run OWASP Dependency-Check
+        run: |
+          /usr/share/dependency-check/bin/dependency-check.sh \
+            --project "Unavu" \
+            --scan . \
+            --format HTML \
+            --format XML \
+            --format JUNIT \
+            --out reports \
+            --data /opt/ci-cache/dependency-check-data \
+            --nvdApiKey ${{ secrets.NVD_API_KEY }} \
+            --disableCentral \
+            --prettyPrint
 
       - name: Upload DependencyCheck Reports
         uses: actions/upload-artifact@v7.0.1
