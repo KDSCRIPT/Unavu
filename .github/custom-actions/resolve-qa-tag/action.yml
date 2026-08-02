@@ -1,0 +1,16 @@
+name: 'Resolve QA Tag'
+description: 'Finds the image tag from the latest merged PR'
+inputs:
+  github-token:
+    required: true
+  repo:
+    required: true
+outputs:
+  tag:
+    description: 'Resolved image tag'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    GITHUB_TOKEN: ${{ inputs.github-token }}
+    REPO: ${{ inputs.repo }}
