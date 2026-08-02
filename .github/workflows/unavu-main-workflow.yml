@@ -28,33 +28,42 @@ jobs:
     runs-on: self-hosted
     needs: [Build_Maven_Dependencies_skipping_Tests]
     steps:
+      - name: Cache OWASP Dependency-Check NVD database
+        uses: actions/cache@v6.1.0
+        with:
+          path: dependency-check-data
+          key: depcheck-nvd-db-v1
+          restore-keys: |
+            depcheck-nvd-db-
+
       - name: OWASP Dependency Scanning
-        uses: dependency-check/Dependency-Check_Action@1.1.0        
+        uses: dependency-check/Dependency-Check_Action@1.1.0
         id: Depcheck
         with:
           project: 'Unavu'
           path: '.'
-          out: 'reports'
           format: 'HTML'
           args: >
               --nvdApiKey ${{secrets.NVD_API_KEY}}
+              --data ./dependency-check-data
+              --out reports
               --format 'XML'
               --format 'JUNIT'
               --prettyPrint
-              
+
       - name: Upload DependencyCheck Reports
         uses: actions/upload-artifact@v7.0.1
         with:
           name: Dependency Check Reports
           path: |
             **/dependency-check-report.html
-            **/dependency-check-report.xml 
+            **/dependency-check-report.xml
             **/dependency-check-junit.xml
   
   Unit_Testing:
     if: startsWith(github.ref, 'refs/heads/feature/')
     runs-on: self-hosted
-    needs: [Build_Maven_Dependencies_skipping_Tests]
+    needs: [Build_Maven_Dependencies_skipping_Tests,OWASP_Dependency_Scanning]
     container:
       image: maven:3.9-eclipse-temurin-21
       options: --user 1500:1500 --group-add 1001
