@@ -49,6 +49,7 @@ jobs:
               --out reports
               --format 'XML'
               --format 'JUNIT'
+              --disableCentral
               --prettyPrint
 
       - name: Upload DependencyCheck Reports
