@@ -1,0 +1,20 @@
+name: 'Setup Kubeconfig'
+description: 'Decodes a base64 kubeconfig secret and writes it to disk'
+inputs:
+  kubeconfig-content:
+    description: 'Base64-encoded kubeconfig'
+    required: true
+  target-path:
+    description: 'Where to write the decoded kubeconfig'
+    required: true
+    default: '/opt/ci-cache/.kube/config'
+runs:
+  using: 'composite'
+  steps:
+    - name: Decode and write kubeconfig
+      shell: sh
+      run: |
+        mkdir -p "$(dirname "${{ inputs.target-path }}")"
+        echo "${{ inputs.kubeconfig-content }}" | tr -d '\n' | tr -d ' ' | base64 -d > "${{ inputs.target-path }}"
+        chmod 600 "${{ inputs.target-path }}"
+        echo "KUBECONFIG=${{ inputs.target-path }}" >> "$GITHUB_ENV"

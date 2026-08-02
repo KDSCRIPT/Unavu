@@ -308,12 +308,10 @@ jobs:
     steps:
       - name: Resolve QA-tested image tag from merged PR
         id: resolve
-        run: |
-          pr_json=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/KDSCRIPT/Unavu/pulls?state=closed&sort=updated&direction=desc&base=main&per_page=5")
-          tag=$(echo "$pr_json" | jq -r '[.[] | select(.merged_at != null)][0].body' | grep -oP 'Image tag:\s*\K\w+')
-          if [ -z "$tag" ]; then echo "Could not resolve tag" && exit 1; fi
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        uses: ./.github/custom-actions/resolve-qa-tag
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repo: KDSCRIPT/Unavu
 
       - name: Docker Login
         uses: docker/login-action@v4.5.1

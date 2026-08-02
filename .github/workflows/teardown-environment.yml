@@ -47,14 +47,20 @@ jobs:
             ref: helm
             clean: true
 
+        - name: Checkout actions
+          uses: actions/checkout@v4
+          with:
+            repository: KDSCRIPT/Unavu
+            ref: ${{ github.sha }}
+            path: ci-actions
+            sparse-checkout: |
+              .github/custom-actions
+            sparse-checkout-cone-mode: false
+
         - name: Set up kubeconfig
-          env:
-            KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG_CONTENT }}
-          run: |
-            mkdir -p /opt/ci-cache/.kube
-            echo "$KUBECONFIG_CONTENT" | base64 -d > /opt/ci-cache/.kube/config
-            chmod 600 /opt/ci-cache/.kube/config
-            echo "KUBECONFIG=/opt/ci-cache/.kube/config" >> "$GITHUB_ENV"
+          uses: ./ci-actions/.github/custom-actions/setup-kubeconfig
+          with:
+            kubeconfig-content: ${{ secrets.KUBECONFIG_CONTENT }}
 
         - name: Tear down ${{ inputs.environment }}
           env:
