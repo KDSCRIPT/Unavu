@@ -48,7 +48,8 @@ jobs:
             path: ci-actions
             sparse-checkout: |
               .github/custom-actions
-              
+            sparse-checkout-cone-mode: false
+
         - name: Checkout Helm charts
           uses: actions/checkout@v4
           with:

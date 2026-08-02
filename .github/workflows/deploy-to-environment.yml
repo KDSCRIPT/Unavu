@@ -43,6 +43,11 @@ jobs:
           path: ci-actions
           sparse-checkout: |
             .github/custom-actions
+          sparse-checkout-cone-mode: false
+      
+      - name: Debug - verify action exists
+        run: |
+          find ci-actions -type f
 
       - name: Checkout Helm charts
         uses: actions/checkout@v4
