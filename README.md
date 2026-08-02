@@ -108,6 +108,7 @@ Services no longer register themselves with Eureka — Kubernetes handles servic
 | Orchestration | Kubernetes (Docker Desktop local cluster) |
 | Deployment | Helm + Helmfile |
 | Config Management | Spring Cloud Config Server (backed by `config` branch) |
+| CI/CD | GitHub Actions — self-hosted runner, containerized jobs |
 
 ---
 
@@ -158,6 +159,75 @@ File naming convention:
 | `activity-dev.yaml` | Activity service only (dev) |
 
 Changes to the `config` branch take effect on the next service restart or via `/actuator/refresh`.
+
+---
+
+## CI/CD Pipeline
+
+Every push to a `feature/*` branch runs the full pipeline through DEV and QA automatically.
+Merging into `main` promotes the already-tested QA images straight to PROD — nothing is
+rebuilt from source for production, the exact images that passed QA are retagged and pushed.
+
+```
+feature/* branch push
+        │
+        ▼
+Build & unit test (Maven)               ← runs skipping tests, then mvn test
+        │
+        ▼
+OWASP Dependency-Check + SonarQube SAST ← security & code quality gates
+        │
+        ▼
+Build Docker images (Jib)               ← one per microservice, tagged with commit SHA
+        │
+        ▼
+Trivy vulnerability scan                ← informational, non-blocking
+        │
+        ▼
+Push images to Docker Hub
+        │
+        ▼
+Deploy to DEV  →  Teardown DEV
+        │
+        ▼
+Deploy to QA
+        │
+        ▼
+Open PR: feature/* → main
+
+── merge to main ──
+
+        ▼
+Promote QA-tested images to PROD tag    ← retag & push, no rebuild
+        │
+        ▼
+Teardown QA
+        │
+        ▼
+Deploy to PROD
+```
+
+### Runner architecture
+
+The pipeline runs on a **self-hosted runner**, with almost every job executing inside a
+container — Maven builds, Docker image builds, vulnerability scans, and Helm
+deploys/teardowns all run in purpose-built container images rather than depending on
+software installed directly on the host. The host itself only needs Docker Engine and the
+runner service; see [`SETUP.md`](./SETUP.md) for the full one-time host setup.
+
+Custom GitHub composite and Docker actions live under `.github/custom-actions/` and are
+shared between the `deploy-to-environment.yml` and `teardown-environment.yml` reusable
+workflows.
+
+### Environments
+
+| Environment | Trigger | Notes |
+|---|---|---|
+| `dev` | Every `feature/*` push | Deployed then torn down automatically before QA |
+| `qa` | Every `feature/*` push, after DEV | Left running; images here are what get promoted to PROD |
+| `prod` | Merge to `main` | Promotes QA's exact image tags — no rebuild |
+
+Full host setup instructions: [`SETUP.md`](./SETUP.md)
 
 ---
 
@@ -236,6 +306,9 @@ mvn compile jib:build
 ```
 
 Images: `containedtogether/<service-name>`
+
+> In CI, images are built via `jib:dockerBuild` (into the local Docker daemon) rather than
+> `jib:build`, since the pipeline scans images with Trivy before pushing.
 
 ---
 
