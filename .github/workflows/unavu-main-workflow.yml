@@ -308,7 +308,7 @@ jobs:
     steps:
       - name: Resolve QA-tested image tag from merged PR
         id: resolve
-        uses: ./.github/actions/resolve-qa-tag
+        uses: ./.github/custom-actions/resolve-qa-tag
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           repo: KDSCRIPT/Unavu

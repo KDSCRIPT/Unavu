@@ -43,7 +43,7 @@ jobs:
           clean: true
 
       - name: Set up kubeconfig
-        uses: ./.github/actions/setup-kubeconfig
+        uses: ./.github/custom-actions/setup-kubeconfig
         with:
           kubeconfig-content: ${{ secrets.KUBECONFIG_CONTENT }}
 
