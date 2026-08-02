@@ -35,6 +35,15 @@ jobs:
         HELM_DATA_HOME: /opt/ci-cache/.local/share/helm
 
     steps:
+      - name: Checkout actions
+        uses: actions/checkout@v4
+        with:
+          repository: KDSCRIPT/Unavu
+          ref: ${{ github.sha }}
+          path: ci-actions
+          sparse-checkout: |
+            .github/custom-actions
+
       - name: Checkout Helm charts
         uses: actions/checkout@v4
         with:
@@ -43,7 +52,7 @@ jobs:
           clean: true
 
       - name: Set up kubeconfig
-        uses: ./.github/custom-actions/setup-kubeconfig
+        uses: ./ci-actions/.github/custom-actions/setup-kubeconfig
         with:
           kubeconfig-content: ${{ secrets.KUBECONFIG_CONTENT }}
 
