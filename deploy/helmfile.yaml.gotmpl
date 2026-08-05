@@ -1,10 +1,8 @@
 repositories:
   - name: ingress-nginx
     url: https://kubernetes.github.io/ingress-nginx
-  - name: minio
-    url: https://charts.min.io/
-  - name: grafana
-    url: https://grafana.github.io/helm-charts
+  - name: kube-prometheus
+    url: https://prometheus-community.github.io/helm-charts 
 
 environments:
   prod:
@@ -59,32 +57,9 @@ releases:
     namespace: {{ .Environment.Name }}
     chart: ../kube-prometheus
     values:
-      - ../kube-prometheus/values.yaml
-
-  - name: minio
-    namespace: {{ .Environment.Name }}
-    chart: minio/minio
-    values:
-      - ../minio/values.yaml.gotmpl
-      - ../environments/secrets.{{ .Environment.Name }}.yaml
-
-  - name: grafana-loki
-    namespace: {{ .Environment.Name }}
-    chart: ../grafana-loki
-    values:
-      - ../grafana-loki/values.yaml.gotmpl
-      - ../environments/{{ .Environment.Name }}.yaml
+      - ../kube-prometheus/values.yaml.gotmpl
     needs:
-      - {{ .Environment.Name }}/minio
-      - {{ .Environment.Name }}/kube-prometheus
-
-  - name: grafana-tempo
-    namespace: {{ .Environment.Name }}
-    chart: ../grafana-tempo
-    needs:
-      - {{ .Environment.Name }}/kube-prometheus
-    values:
-      - ../grafana-tempo/values.yaml
+      - {{ .Environment.Name }}/keycloak
 
   - name: grafana-alloy
     namespace: {{ .Environment.Name }}
@@ -92,14 +67,7 @@ releases:
     values:
       - ../grafana-alloy/values.yaml.gotmpl
     needs:
-      - {{ .Environment.Name }}/grafana-loki
-      - {{ .Environment.Name }}/grafana-tempo
-
-  - name: grafana
-    namespace: {{ .Environment.Name }}
-    chart: ../grafana
-    needs:
-      - {{ .Environment.Name }}/grafana-tempo
+      - {{ .Environment.Name }}/kube-prometheus
 
   - name: config-server
     namespace: {{ .Environment.Name }}

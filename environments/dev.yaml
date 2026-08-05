@@ -14,7 +14,8 @@ global:
   KeycloakJWKSetUri: http://keycloak/realms/unavu/protocol/openid-connect/certs
 
   openTelemetryJavaAgent: "-javaagent:/app/libs/opentelemetry-javaagent-2.22.0.jar"
-  otelExporterEndPoint: http://grafana-tempo.dev.svc.cluster.local:4318
+  global:
+  otelExporterEndPoint: http://grafana-alloy.{{ .Environment.Name }}.svc.cluster.local:4318/v1/traces
   otelMetricsExporter: none
   otelLogsExporter: none
 

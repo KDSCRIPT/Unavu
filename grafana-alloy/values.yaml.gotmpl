@@ -1,13 +1,34 @@
-# Official Grafana Alloy chart configuration for local development
+# Official Grafana Alloy chart configuration
+# Single agent: receives logs, traces, and metrics; forwards all three to Grafana Cloud
 namespaceOverride: {{ .Environment.Name }}
 alloy:
   alloy:
     clustering:
       enabled: false
 
+    # Expose OTLP (traces) and Prometheus remote_write (metrics) ports
+    # on top of the container Loki already implicitly needs
+    extraPorts:
+      - name: otlp-grpc
+        port: 4317
+        targetPort: 4317
+        protocol: TCP
+      - name: otlp-http
+        port: 4318
+        targetPort: 4318
+        protocol: TCP
+      - name: prom-write
+        port: 9999
+        targetPort: 9999
+        protocol: TCP
+
     configMap:
       create: true
       content: |-
+        // ============================================================
+        // LOGS: discover pods, scrape logs, forward to Cloud Loki
+        // ============================================================
+
         // Discover Kubernetes pods and collect their logs
         discovery.kubernetes "pods" {
           role = "pod"
@@ -93,20 +114,84 @@ alloy:
           }
         }
 
-        // Write logs to Loki
+        // Write logs to Grafana Cloud Loki
         loki.write "default" {
           endpoint {
-            url = "http://grafana-loki-gateway.{{ .Environment.Name }}.svc.cluster.local/loki/api/v1/push"
+            url = "https://logs-prod-028.grafana.net/loki/api/v1/push"
+
+            basic_auth {
+              username = "{{ .Values.alloy.lokiCloudUsername }}"
+              password = "{{ .Values.alloy.lokiCloudPassword }}"
+            }
+          }
+
+          external_labels = {
+            env = "{{ .Environment.Name }}",
+          }
+        }
+
+        // ============================================================
+        // TRACES: receive OTLP from apps, forward to Cloud Tempo
+        // ============================================================
+
+        otelcol.receiver.otlp "apps" {
+          grpc {
+            endpoint = "0.0.0.0:4317"
+          }
+          http {
+            endpoint = "0.0.0.0:4318"
+          }
+          output {
+            traces = [otelcol.exporter.otlp.tempo_cloud.input]
+          }
+        }
+
+        otelcol.exporter.otlp "tempo_cloud" {
+          client {
+            endpoint = "tempo-prod-19-prod-ap-south-1.grafana.net"
+            auth     = otelcol.auth.basic.tempo_creds.handler
+          }
+        }
+
+        otelcol.auth.basic "tempo_creds" {
+          username = "{{ .Values.alloy.tempoCloudUsername }}"
+          password = "{{ .Values.alloy.tempoCloudPassword }}"
+        }
+
+        // ============================================================
+        // METRICS: receive remote_write from Prometheus, forward to Cloud Mimir
+        // ============================================================
+
+        prometheus.receive_http "prom_ingest" {
+          http {
+            listen_address = "0.0.0.0"
+            listen_port     = 9999
+          }
+          forward_to = [prometheus.remote_write.mimir_cloud.receiver]
+        }
+
+        prometheus.remote_write "mimir_cloud" {
+          endpoint {
+            url = "https://prometheus-prod-43-prod-ap-south-1.grafana.net/api/prom/push"
+
+            basic_auth {
+              username = "{{ .Values.alloy.mimirCloudUsername }}"
+              password = "{{ .Values.alloy.mimirCloudPassword }}"
+            }
+          }
+
+          external_labels = {
+            env = "{{ .Environment.Name }}",
           }
         }
 
     resources:
       requests:
-        cpu: 50m
-        memory: 64Mi
-      limits:
-        cpu: 200m
+        cpu: 100m
         memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 256Mi
 
     mounts:
       varlog: true
